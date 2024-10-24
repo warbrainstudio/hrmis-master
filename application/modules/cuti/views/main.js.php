@@ -326,6 +326,32 @@
       }
     });
 
+    $("#" + _modal + " ." + _section + "-awal_cuti").on("change", function(e) {
+
+        var _choose_date = new Date(this.value);
+        var _akhir_cuti = document.querySelector("." + _section + "-akhir_cuti");
+
+        _choose_date.setDate(_choose_date.getDate() + 1);
+        var year = _choose_date.getFullYear();
+        var month = String(_choose_date.getMonth() + 1).padStart(2, '0');
+        var day = String(_choose_date.getDate()).padStart(2, '0');
+
+        _akhir_cuti.value = `${year}-${month}-${day}`;
+    });
+
+    $("#" + _modal + " ." + _section + "-akhir_cuti").on("change", function(e) {
+
+      var _choose_date = new Date(this.value);
+      var _bekerja_kembali = document.querySelector("." + _section + "-tanggal_bekerja");
+
+      _choose_date.setDate(_choose_date.getDate() + 1);
+      var year = _choose_date.getFullYear();
+      var month = String(_choose_date.getMonth() + 1).padStart(2, '0');
+      var day = String(_choose_date.getDate()).padStart(2, '0');
+
+      _bekerja_kembali.value = `${year}-${month}-${day}`;
+    });
+
     // Handle submit
     $(document).on("click", `#${_modal} .cuti-action-save`, function(e) {
             e.preventDefault();
