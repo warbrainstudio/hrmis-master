@@ -64,7 +64,6 @@ class Cuti extends AppBackend
         'is_load_partial' => 1,
         'pegawai_id' => @$pegawai->id,
         'pegawai_nama_lengkap' => @$pegawai->nama_lengkap,
-        'pegawai_jenis_kelamin' => @$pegawai->jenis_kelamin,
         'action' => $action,
       )),
       'key' => $ref,

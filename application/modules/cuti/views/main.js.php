@@ -17,7 +17,7 @@
     var _is_first_load = (_key != null && _key != "") ? true : false;
     var _pegawai_id = "<?= @$pegawai_id ?>";
     var _pegawai_namaLengkap = "<?= @$pegawai_nama_lengkap ?>";
-    var _pegawai_jenis_kelamin = "<?= @$pegawai_jenis_kelamin ?>";
+    var _pegawai_jenis_kelamin = "";
     var array_admin = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     var non_admin = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     var arrayColumn = [];
@@ -238,6 +238,7 @@
         var _keterangan_cuti = document.querySelector("."+_section+"-keterangan-cuti");
         if (jatahCuti=='' || jatahCuti=='0'){
           notify("Jatah cuti tahunan sudah habis. tidak bisa mengajukan cuti tahunan","warning");
+          this.checked = false;
           _pengajuan_cuti.style.display = 'none';
           _keterangan_cuti.style.display = 'none';
         }else{
@@ -270,8 +271,15 @@
         notify("Pilih pegawai terlebih dahulu","danger");
         this.checked = false;
       }else{
-        _pengajuan_cuti.style.display = 'block';
-        _keterangan_cuti.style.display = 'none';
+        if(_pegawai_jenis_kelamin='Laki-laki'){
+          notify("Laki-laki tidak bisa memilih cuti melahirkan","danger");
+          this.checked = false;
+          _pengajuan_cuti.style.display = 'none';
+          _keterangan_cuti.style.display = 'none';
+        }else{
+          _pengajuan_cuti.style.display = 'block';
+          _keterangan_cuti.style.display = 'none';
+        }
       }
     });
 
@@ -725,11 +733,13 @@
         `<div class="select2-result-repository clearfix">
           <div class="select2-result-repository__title" style="font-weight: 600;"></div>
           <div class="select2-result-repository__description"></div>
+          <div class="select2-result-repository__gender"></div>
         </div>`
       );
-
       $container.find(".select2-result-repository__title").text(item.text);
       $container.find(".select2-result-repository__description").html(item.nrp);
+      $container.find(".select2-result-repository__gender").html(item.jenis_kelamin);
+      _pegawai_jenis_kelamin = item.jenis_kelamin;
 
       return $container;
     };

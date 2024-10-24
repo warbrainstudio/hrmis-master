@@ -51,7 +51,7 @@
                       <label class="form-check-label" for="jenis_cuti-2">Cuti Melahirkan</label>
                   </div>
                   <div class="form-check form-check-inline">
-                      <input class="form-check-input cuti-jenis_cuti-3" type="radio" name="jeniscuti" id="jenis_cuti-3" value="Cuti Menikah" <?= (@$cuti->jenis_cuti == 'Cuti Menikah') ? 'checked' : '' ?>>
+                      <input class="form-check-input cuti-jenis_cuti-3" type="radio" name="jenis_cuti" id="jenis_cuti-3" value="Cuti Menikah" <?= (@$cuti->jenis_cuti == 'Cuti Menikah') ? 'checked' : '' ?>>
                       <label class="form-check-label" for="jenis_cuti-3">Cuti Menikah</label>      
                   </div>
                   <div class="form-check form-check-inline">
