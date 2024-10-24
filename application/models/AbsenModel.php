@@ -69,13 +69,15 @@ class AbsenModel extends CI_Model
         $orderField = 'tanggal_absen';
         $dateParam = $params['tanggal_absen'];
 
-        $this->db->select('absen_pegawai.absen_id, 
-                          absen_pegawai.tanggal_absen,
+        $this->db->select('absen_pegawai.tanggal_absen,
                           TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
                           CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' ELSE \'Input\' END AS verifikasi, 
-                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status');
+                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status,
+                          absen_pegawai.ipmesin as mesin_nama,
+                          pegawai.nrp,
+                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
+        $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         
-
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
 
           list($year, $month) = explode('-', $dateParam);
@@ -111,8 +113,9 @@ class AbsenModel extends CI_Model
                 TO_CHAR(absen_pegawai.tanggal_absen, \'YYYY-MM-DD\') AS tanggal,
                 TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
                 CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' ELSE \'Input\' END AS verifikasi, 
-                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status');
-        
+                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status,
+                absen_pegawai.ipmesin as mesin_nama');
+        $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->where($params);
 
         if (!is_null($orderField)) {
