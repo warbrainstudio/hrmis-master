@@ -26,7 +26,7 @@ class Absen extends AppBackend
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('absen'),
-      'card_title' => 'Attendance Log',
+      'card_title' => $this->_pageTitle,
     );
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
