@@ -329,7 +329,13 @@
     $("#" + _modal + " ." + _section + "-awal_cuti").on("change", function(e) {
 
         var _choose_date = new Date(this.value);
+        var today = new Date();
         var _akhir_cuti = document.querySelector("." + _section + "-akhir_cuti");
+
+        if (_choose_date < today) {
+            notify("Pilih tanggal dengan benar", "danger");
+            this.value = "";
+        }
 
         _choose_date.setDate(_choose_date.getDate() + 1);
         var year = _choose_date.getFullYear();
@@ -342,14 +348,39 @@
     $("#" + _modal + " ." + _section + "-akhir_cuti").on("change", function(e) {
 
       var _choose_date = new Date(this.value);
+      var _awal_cuti = document.querySelector("." + _section + "-awal_cuti");
+      var _awal = new Date(_awal_cuti.value);
       var _bekerja_kembali = document.querySelector("." + _section + "-tanggal_bekerja");
 
-      _choose_date.setDate(_choose_date.getDate() + 1);
-      var year = _choose_date.getFullYear();
-      var month = String(_choose_date.getMonth() + 1).padStart(2, '0');
-      var day = String(_choose_date.getDate()).padStart(2, '0');
+      if (_choose_date < _awal) {
+          notify("Pilih tanggal akhir cuti dengan benar", "danger");
+          var nextDay = new Date(_awal);
+          nextDay.setDate(_awal.getDate() + 1);
+          this.value = nextDay.toISOString().split('T')[0];
+      }else{
 
-      _bekerja_kembali.value = `${year}-${month}-${day}`;
+        _choose_date.setDate(_choose_date.getDate() + 1);
+        var year = _choose_date.getFullYear();
+        var month = String(_choose_date.getMonth() + 1).padStart(2, '0');
+        var day = String(_choose_date.getDate()).padStart(2, '0');
+
+        _bekerja_kembali.value = `${year}-${month}-${day}`;
+      }
+
+    });
+
+    $("#" + _modal + " ." + _section + "-tanggal_bekerja").on("change", function(e) {
+
+      var _choose_date = new Date(this.value);
+      var _akhir_cuti = document.querySelector("." + _section + "-akhir_cuti");
+      var _akhir = new Date(_akhir_cuti.value);
+
+      if (_choose_date < _akhir) {
+          notify("Pilih tanggal bekerja kembali dengan benar", "danger");
+          var nextDay = new Date(_akhir);
+          nextDay.setDate(_akhir.getDate() + 1);
+          this.value = nextDay.toISOString().split('T')[0];
+      }
     });
 
     // Handle submit

@@ -221,7 +221,7 @@ class CutiModel extends CI_Model
           $p3 = $query->persetujuan_ketiga;
           $ps = $query->status_persetujuan;
           $status = $this->input->post('persetujuan');
-          $newStatus = $status . " " . $this->session->userdata('user')['sub_unit'];
+          $newStatus = $status . " " . $this->session->userdata('user')['nama_lengkap'];
           if ($this->session->userdata('user')['role'] === 'Administrator'){
                 if (empty($p1)) {
                     if($status == 'Ditolak'){
