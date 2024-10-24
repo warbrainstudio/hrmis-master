@@ -227,6 +227,149 @@
       };
     };
 
+    // Handle submit
+    $(document).on("click", `#${_modal} .cuti-action-save`, function(e) {
+            e.preventDefault();
+            tinyMCE.triggerSave();
+            if (table) {
+                swal({
+                    title: "Anda akan menyimpan data, lanjutkan?",
+                    text: "Sebelum disimpan, pastikan data sudah benar.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: "Ya",
+                    cancelButtonText: "Tidak",
+                    closeOnConfirm: false
+                }).then((result) => {
+                    if (result.value) {
+                        var formData = new FormData($(`#${_form}`)[0]);
+                        $.ajax({
+                            type: "post",
+                            url: "<?php echo base_url('cuti/ajax_save/') ?>",
+                            data: formData,
+                            dataType: "json",
+                            enctype: "multipart/form-data",
+                            processData: false,
+                            contentType: false,
+                            cache: false,
+                            success: function(response) {
+                                if (response.status === true) {
+                                    $(`#${_modal}`).modal("hide");
+                                    table.ajax.reload(null, false);
+                                    notify(response.data, "success");
+                                } else {
+                                    notify(response.data, "danger");
+                                };
+                            }
+                        });
+                    };
+                });
+            };
+        });
+
+    $("#" + _table).on("click", "a.action-aprove", function(e) {
+      e.preventDefault();
+      var temp = table.row($(this).closest('tr')).data();
+
+      swal.fire({
+        title: "Persetujuan "+temp.jenis_cuti+" "+temp.nama_lengkap+"?",
+        text: "",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        closeOnConfirm: false
+      }).then((result) => {
+        if (result.value) {
+          $.ajax({
+            type: "post",
+            url: "<?php echo base_url('cuti/ajax_approve_tes/') ?>" + temp.id,
+            data: { persetujuan: 'Disetujui' },
+            dataType: "json",
+            success: function(response) {
+              if (response.status) {
+                table.ajax.reload(null, false);
+                notify(response.data, "success");
+              } else {
+                notify(response.data, "danger");
+              };
+            }
+          });
+        }else{
+          $.ajax({
+            type: "post",
+            url: "<?php echo base_url('cuti/ajax_approve_tes/') ?>" + temp.id,
+            data: { persetujuan: 'Ditolak' },
+            dataType: "json",
+            success: function(response) {
+              if (response.status) {
+                table.ajax.reload(null, false);
+                notify(response.data, "success");
+              } else {
+                notify(response.data, "danger");
+              };
+            }
+          });
+        };
+      });
+    });
+
+    /*$("#" + _table).on("click", "a.status_single_detail1", function(e) {
+      e.preventDefault();
+      var temp = table.row($(this).closest('tr')).data();
+      var p = temp.persetujuan_pertama;
+      if(p===null){
+        p = "menunggu persetujuan";
+      }
+      swal({
+          title: "Status Pengajuan",
+          text: "Pengajuan cuti "+p,
+          icon: "info",
+          buttons: {
+              confirm: {
+                  text: "OK",
+                  value: true,
+                  visible: true,
+                  className: "",
+                  closeModal: true,
+              }
+          }
+      });
+    });*/
+
+    $("#" + _table).on("click", "a.action-delete", function(e) {
+      e.preventDefault();
+      var temp = table.row($(this).closest('tr')).data();
+
+      swal({
+        title: "Anda akan menghapus data lanjutkan?",
+        text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#DD6B55',
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        closeOnConfirm: false
+      }).then((result) => {
+        if (result.value) {
+          $.ajax({
+            type: "delete",
+            url: "<?php echo base_url('cuti/ajax_delete/') ?>" + temp.id,
+            dataType: "json",
+            success: function(response) {
+              if (response.status) {
+                table.ajax.reload(null, false);
+                notify(response.data, "success");
+              } else {
+                notify(response.data, "danger");
+              };
+            }
+          });
+        };
+      });
+    });
+
     $("#" + _modal + " ." + _section + "-jenis_cuti-0").on("change", function(e) {
       var _pegawai = document.querySelector("."+_section+"-pegawai_id");
       if(_pegawai.value==''){
@@ -382,149 +525,7 @@
           this.value = nextDay.toISOString().split('T')[0];
       }
     });
-
-    // Handle submit
-    $(document).on("click", `#${_modal} .cuti-action-save`, function(e) {
-            e.preventDefault();
-            tinyMCE.triggerSave();
-            if (table) {
-                swal({
-                    title: "Anda akan menyimpan data, lanjutkan?",
-                    text: "Sebelum disimpan, pastikan data sudah benar.",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: "Ya",
-                    cancelButtonText: "Tidak",
-                    closeOnConfirm: false
-                }).then((result) => {
-                    if (result.value) {
-                        var formData = new FormData($(`#${_form}`)[0]);
-                        $.ajax({
-                            type: "post",
-                            url: "<?php echo base_url('cuti/ajax_save/') ?>",
-                            data: formData,
-                            dataType: "json",
-                            enctype: "multipart/form-data",
-                            processData: false,
-                            contentType: false,
-                            cache: false,
-                            success: function(response) {
-                                if (response.status === true) {
-                                    $(`#${_modal}`).modal("hide");
-                                    table.ajax.reload(null, false);
-                                    notify(response.data, "success");
-                                } else {
-                                    notify(response.data, "danger");
-                                };
-                            }
-                        });
-                    };
-                });
-            };
-        });
-
-    $("#" + _table).on("click", "a.action-aprove", function(e) {
-      e.preventDefault();
-      var temp = table.row($(this).closest('tr')).data();
-
-      swal.fire({
-        title: "Persetujuan "+temp.jenis_cuti+" "+temp.nama_lengkap+"?",
-        text: "",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Ya",
-        cancelButtonText: "Tidak",
-        closeOnConfirm: false
-      }).then((result) => {
-        if (result.value) {
-          $.ajax({
-            type: "post",
-            url: "<?php echo base_url('cuti/ajax_approve_tes/') ?>" + temp.id,
-            data: { persetujuan: 'Disetujui' },
-            dataType: "json",
-            success: function(response) {
-              if (response.status) {
-                table.ajax.reload(null, false);
-                notify(response.data, "success");
-              } else {
-                notify(response.data, "danger");
-              };
-            }
-          });
-        }else{
-          $.ajax({
-            type: "post",
-            url: "<?php echo base_url('cuti/ajax_approve_tes/') ?>" + temp.id,
-            data: { persetujuan: 'Ditolak' },
-            dataType: "json",
-            success: function(response) {
-              if (response.status) {
-                table.ajax.reload(null, false);
-                notify(response.data, "success");
-              } else {
-                notify(response.data, "danger");
-              };
-            }
-          });
-        };
-      });
-    });
-
-    /*$("#" + _table).on("click", "a.status_single_detail1", function(e) {
-      e.preventDefault();
-      var temp = table.row($(this).closest('tr')).data();
-      var p = temp.persetujuan_pertama;
-      if(p===null){
-        p = "menunggu persetujuan";
-      }
-      swal({
-          title: "Status Pengajuan",
-          text: "Pengajuan cuti "+p,
-          icon: "info",
-          buttons: {
-              confirm: {
-                  text: "OK",
-                  value: true,
-                  visible: true,
-                  className: "",
-                  closeModal: true,
-              }
-          }
-      });
-    });*/
-
-    $("#" + _table).on("click", "a.action-delete", function(e) {
-      e.preventDefault();
-      var temp = table.row($(this).closest('tr')).data();
-
-      swal({
-        title: "Anda akan menghapus data lanjutkan?",
-        text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: '#DD6B55',
-        confirmButtonText: "Ya",
-        cancelButtonText: "Tidak",
-        closeOnConfirm: false
-      }).then((result) => {
-        if (result.value) {
-          $.ajax({
-            type: "delete",
-            url: "<?php echo base_url('cuti/ajax_delete/') ?>" + temp.id,
-            dataType: "json",
-            success: function(response) {
-              if (response.status) {
-                table.ajax.reload(null, false);
-                notify(response.data, "success");
-              } else {
-                notify(response.data, "danger");
-              };
-            }
-          });
-        };
-      });
-    });
+    
 
     if (_is_load_partial === '0' && $(`#${_table_single}`)[0]) {
       if ($.fn.DataTable.isDataTable(`#${_table_single}`) === false) {
