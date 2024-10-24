@@ -33,7 +33,8 @@
                     <thead class="thead-default">
                         <tr>
                             <th width="100">No</th>
-                            <th>ID ABSEN</th>
+                            <th>ID Absen</th>
+                            <th>Pegawai</th>
                             <th>Tanggal</th>
                             <th>Status</th>
                             <th>Verifikasi</th>

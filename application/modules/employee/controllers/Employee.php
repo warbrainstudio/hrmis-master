@@ -198,6 +198,7 @@ class Employee extends AppBackend
         'action_route' => 'detail',
         'key' => $ref,
         'pegawai_id' => @$pegawai->id,
+        'absen_id' => @$pegawai->absen_pegawai_id,
       )),
       'card_title' => $actionLabel . $this->_pageTitle,
       'controller' => $this,

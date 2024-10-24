@@ -82,6 +82,11 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-family" role="tab" id="nav-tab-family">Keluarga</a>
                         </li>
+                        <?php if(!is_null(@$pegawai->absen_pegawai_id)) : ?>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-absensi" role="tab" id="nav-tab-absensi">Absensi</a>
+                        </li>
+                        <?php endif ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-sk_perijinan" role="tab">SK / Perijinan</a>
                         </li>
@@ -110,6 +115,11 @@
                             <!-- Content will be load from javascript -->
                             <iframe id="iframe-employee_family" src="#" frameborder="0" width="100%" height="100%" onload="resizeIframe(this)" />
                         </div>
+                        <?php if(!is_null(@$pegawai->absen_pegawai_id)) : ?>
+                        <div class="tab-pane fade show" id="tab-absensi" role="tabpanel">
+                            <?php require_once(APPPATH . 'modules/employee/views/histori_absensi.php') ?>
+                        </div>
+                        <?php endif ?>
                         <div class="tab-pane fade show" id="tab-sk_perijinan" role="tabpanel">
                             <?php require_once(APPPATH . 'modules/employee/views/histori_skspk.php') ?>
                         </div>

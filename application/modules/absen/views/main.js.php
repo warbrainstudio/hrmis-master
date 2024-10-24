@@ -78,6 +78,13 @@
               data: "absen_id"
             },
             {
+              data: "nama",
+              render: function(data, type, row, meta) {
+                var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
+                return link;
+              }    
+            },
+            {
               data: "tanggal_absen",
               render: function(data, type, row, meta) {
                 return moment(data).format('DD-MM-YYYY HH:mm:ss');
@@ -101,7 +108,7 @@
               data: "ipmesin"
             },
           ],
-          order: [[2, 'desc']],
+          order: [[3, 'desc']],
           autoWidth: !1,
           responsive: {
             details: {
@@ -124,7 +131,7 @@
           },
           columnDefs: [{
             className: 'desktop',
-            targets: [0, 1, 2, 3, 4, 5]
+            targets: [0, 1, 2, 3, 4, 5, 6]
           }, {
             className: 'tablet',
             targets: [0, 1, 2, 3]

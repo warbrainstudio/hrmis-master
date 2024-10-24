@@ -13,11 +13,12 @@ class AbsenModel extends CI_Model
       SELECT t.* FROM (
         SELECT 
           ab.*, 
-          
+          p.id AS id_pegawai,
+          COALESCE(p.nama_lengkap, '-') AS nama,
           (CASE WHEN ab.status = 0 THEN 'Masuk' ELSE 'Pulang' END) AS nama_status,
           (CASE WHEN ab.verified = 1 THEN 'Finger' ELSE 'Input' END) AS verifikasi
         FROM absen_pegawai ab
-        
+        LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
       ) t
       WHERE 1=1
     ";
