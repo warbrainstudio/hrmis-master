@@ -4,7 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class AbsenModel extends CI_Model
 {
   private $_table = 'absen_pegawai';
-  private $_tableView = '';
+  public $_tableView = 'absen_pegawai';
 
 
   public function getQuery($filter = null)

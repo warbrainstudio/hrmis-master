@@ -9,6 +9,7 @@ define('SPECIAL_ARRAY_TYPE', CellSetterArrayValueSpecial::class);
 
 class Absen extends AppBackend
 {
+  public $prefs;
   function __construct()
   {
     parent::__construct();
@@ -18,19 +19,180 @@ class Absen extends AppBackend
       'AbsenModel',
       'PegawaiModel'
     ));
-    $this->load->library('form_validation');
+
+    $this->prefs = array(
+			'start_day'    => 'senin',
+			'month_type'   => 'long',
+			'day_type'     => 'long',
+			'show_next_prev' => TRUE,
+			'next_prev_url'   => base_url('absen/index/'),
+		);
+
+		$this->prefs['template'] = array(
+			'table_open'           		=> '<table class="calendar">',
+			'heading_row_start' 		=> '<tr class="header_month">',
+			'heading_previous_cell'		=> '<th><a href="{previous_url}"><i class="zmdi zmdi-caret-left-circle"></i></a></th>',
+			'heading_title_cell'		=> '<th class="month_name" colspan="{colspan}"><a class="month_content">{heading}</a></th>',
+			'heading_next_cell'			=> '<th><a href="{next_url}"><i class="zmdi zmdi-caret-right-circle"></i></a></th>',
+			'week_row_start' 			=> '<tr class="header_day">',
+			'cal_cell_start'       		=> '<td class="day">',
+			'cal_cell_start_today' 		=> '<td class="today">',
+			'cal_cell_content'			=> '<a class="content_fill_day" href="'.base_url('absen/detail?date=').'{content}" title="Click untuk lihat data absen tanggal {content}">{day}</a>',
+			'cal_cell_content_today'	=> '<a class="content_fill_today" href="'.base_url('absen/detail?date=').'{content}" title="Click untuk lihat data absen hari ini"><strong>{day}</strong></a>',
+			'cal_cell_no_content'		=> '<p class="no_content_fill_day" title="Data absen belum ada. click untuk tarik data">{day}</p>',
+			'cal_cell_no_content_today'	=> '<a class="no_content_fill_today" title="Data absen belum ada. Click untuk tarik data hari ini"><strong>{day}</strong></a>'
+		);
   }
 
-  public function index()
-  {
+  public function index($year = NULL , $month = NULL)
+	{
+		if(empty($year)||empty($month)){
+			$year = date('Y');
+			$month = date('m');
+		}
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('absen'),
       'card_title' => $this->_pageTitle,
+      'calendar' => $this->getcalender($year , $month),
     );
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
     $this->template->render();
+  }
+
+  public function getcalender($year , $month)
+	{
+		$this->load->library('calendar',$this->prefs);
+		$data = $this->get_calender_data($year,$month);
+		return $this->calendar->generate($year , $month , $data);
+	}
+
+	public function get_calender_data($year , $month)
+	{
+		$startDate = date('Y-m-d', strtotime("$year-$month-1"));
+        $endDate = date('Y-m-d', strtotime("$year-$month-1 +1 month"));
+		$query = $this->db->select('DATE(tanggal_absen) AS absendate, COUNT(tanggal_absen) AS attendance_count')
+							->from('absen_pegawai')
+          					->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'")
+							->group_by('absendate')
+							->order_by('absendate')
+							->get();
+
+		//echo $this->db->last_query();exit;
+		$cal_data = array();
+		foreach ($query->result() as $row) {
+            $calendar_date = date("Y-m-j", strtotime($row->absendate));
+			$cal_data[substr($calendar_date, 8,2)] = $row->absendate;
+		}
+		
+		return $cal_data;
+	}
+
+	public function detail()
+  {
+		//$agent = new Mobile_Detect;
+		$ref = $this->input->get('date');
+		$searchFilter = "";
+		$status = "";
+		$card = "";
+		if (DateTime::createFromFormat('Y-m-d', $ref) !== false) {
+			$dateTime = DateTime::createFromFormat('Y-m-d', $ref);
+			$Day = $dateTime->format('D');
+            $DayNumber = $dateTime->format('d');
+            $monthNumber = $dateTime->format('m');
+            $year = $dateTime->format('Y');
+            $formattedDay = $this->get_day($Day);
+            $formattedMonth = $this->get_month($monthNumber);
+            $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
+			$searchFilter = "AND tanggal_absen::date='$ref'";
+			$status = 'true';
+			$card = "hari ".$formattedDate;
+		}else if(DateTime::createFromFormat('Y-m', $ref) !== false){
+			$dateTime = DateTime::createFromFormat('Y-m', $ref);
+			$monthNumber = $dateTime->format('m');
+			$year = $dateTime->format('Y');
+			$formattedMonth = $this->get_month($monthNumber);
+			$formattedDate = $formattedMonth . ' ' . $year;
+			$startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
+        	$endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
+			$searchFilter = "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+			$status = 'false';
+			$card = "Bulan ".$formattedDate;
+		}else{
+			show_404();
+		}
+			$data = array(
+			'app' => $this->app(),
+			'main_js' => $this->load_main_js('absen', false, array(
+				'action_route' => 'detail',
+				'key' => $ref,
+				'searchFilter' => $searchFilter,
+				'isDaily' => $status,
+			)),
+			'card_title' => 'Data absen '.$card,
+			'controller' => $this,
+			//'is_mobile' => $agent->isMobile(),
+			'isDaily' => $status,
+			'isAll' => 'false',
+			);
+			//$this->template->set_template('sb_admin_partial');
+			$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
+			$this->template->load_view('view', $data, TRUE);
+			$this->template->render();
+  }
+
+  public function ajax_fetch_data() {
+    $this->handle_ajax_request();
+    $tanggal = $this->input->get('tanggal');
+    $status = null;
+    $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
+
+    // Get the table name from the model
+    $tableView = $this->AbsenModel->_tableView;
+
+    // Construct the API URL
+    $apiUrl = 'http://localhost/simabsen/api/fetchData?' . http_build_query([
+        'token' => $token,
+        'host' => $this->db->hostname,
+        'port' => $this->db->port,
+        'username' => $this->db->username,
+        'password' => $this->db->password,
+        'database' => $this->db->database,
+        'table' => $tableView, // Use the table name from the model
+        'table_pegawai' => 'pegawai',
+        'alldata' => $status,
+        'start_date' => $tanggal,
+        'end_date' => $tanggal,
+    ]);
+
+    // Fetch the response from the API
+    $response = file_get_contents($apiUrl);
+
+    // Check for errors in fetching data
+    if ($response === FALSE) {
+        return json_encode(['error' => 'Failed to fetch data from the API']);
+    }
+
+    // Decode the JSON response
+    $data_api = json_decode($response, true);
+
+    // Check for JSON decoding errors
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return json_encode(['error' => 'Invalid JSON response']);
+    }
+
+    // Prepare the response data
+    $response = [
+        'status' => true,
+        'dataCount' => $data_api['dataCount'], // Provide a default if not set
+        'existRecord' => $data_api['existingRecordsCount'], // Provide a default if not set
+    ];
+
+    // Set the content type and output the JSON response
+    $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($response));
   }
 
   public function ajax_get_all()
@@ -44,8 +206,8 @@ class Absen extends AppBackend
   public function ajax_get_pegawai_item()
   {
     $this->handle_ajax_request();
-    $ref = $this->input->get('attendancelog_id');
-    $response = $this->AbsenModel->getAll(['attendancelog_id' => $ref], 'asc');
+    $ref = $this->input->get('absen_id');
+    $response = $this->AbsenModel->getAll(['absen_id' => $ref], 'asc');
     echo json_encode($response);
   }
 

@@ -382,7 +382,7 @@
                 '</div>'
             }
           ],
-          order: [[1, 'asc']],
+          order: [[1, 'desc']],
           autoWidth: !1,
           responsive: {
             details: {
