@@ -74,7 +74,7 @@
               '</div>'
           }*/
         ],
-        order: [[3, 'asc']],
+        order: [[3, 'desc']],
         autoWidth: !1,
         responsive: {
           details: {
@@ -317,7 +317,7 @@
                     }
 
                     if(parsedResponse.dataCount==0){
-                      message = "Tidak ada data absen di tanggal "+tanggal+".";
+                      message = "Tidak ada data absen baru di tanggal "+tanggal+".";
                     }
 
                     message += " Waktu Proses: "+duration+" detik.";
@@ -338,11 +338,6 @@
                         button: "OK",
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Error:", status, error);
-                console.error("Response:", xhr.responseText);
-                notify("An error occurred while fetching data.", "danger");
             }
         });
     }

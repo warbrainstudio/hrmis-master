@@ -145,51 +145,62 @@ class Absen extends AppBackend
   public function ajax_fetch_data() {
     $this->handle_ajax_request();
     $tanggal = $this->input->get('tanggal');
-    $status = null;
+    $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
+    $host = $this->db->hostname;
+    $api_name = 'simabsen';
+    $task = '/fetchData?';
 
     // Get the table name from the model
     $tableView = $this->AbsenModel->_tableView;
 
     // Construct the API URL
-    $apiUrl = 'http://localhost/simabsen/api/fetchData?' . http_build_query([
-        'token' => $token,
-        'host' => $this->db->hostname,
-        'port' => $this->db->port,
-        'username' => $this->db->username,
-        'password' => $this->db->password,
-        'database' => $this->db->database,
-        'table' => $tableView, // Use the table name from the model
-        'table_pegawai' => 'pegawai',
-        'alldata' => $status,
-        'start_date' => $tanggal,
-        'end_date' => $tanggal,
+    $apiUrl = 'http://' . $host . '/' . $api_name . '/api' . $task . http_build_query([
+              'token' => $token,
+              'host' => $host,
+              'port' => $this->db->port,
+              'username' => $this->db->username,
+              'password' => $this->db->password,
+              'database' => $this->db->database,
+              'table' => $tableView,
+              'table_pegawai' => 'pegawai',
+              'alldata' => $status,
+              'start_date' => $tanggal,
+              'end_date' => $tanggal,
     ]);
 
-    // Fetch the response from the API
-    $response = file_get_contents($apiUrl);
+    $ch = curl_init($apiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
 
-    // Check for errors in fetching data
-    if ($response === FALSE) {
-        return json_encode(['error' => 'Failed to fetch data from the API']);
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        return json_encode(['error' => 'cURL error: ' . curl_error($ch)]);
     }
 
-    // Decode the JSON response
+    curl_close($ch); // Close the cURL resource
+
     $data_api = json_decode($response, true);
 
-    // Check for JSON decoding errors
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return json_encode(['error' => 'Invalid JSON response']);
+    if (is_array($data_api) && isset($data_api['status'])) {
+      $count = isset($data_api['data']['dataCount']) ? $data_api['data']['dataCount'] : 0;
+      $exist = isset($data_api['data']['existingRecordsCount']) ? $data_api['data']['existingRecordsCount'] : 0;
+      if ($data_api['status'] == 'true') {
+          $response = array(
+              'status' => true,
+              'dataCount' => $count,
+              'existRecord' => $exist,
+          );
+      } else {
+          $response = array(
+              'status' => false,
+              'message' => $data_api['message'],
+          );
+      }
+    } else {
+        return json_encode(['error' => 'Invalid response from API']);
     }
 
-    // Prepare the response data
-    $response = [
-        'status' => true,
-        'dataCount' => $data_api['dataCount'], // Provide a default if not set
-        'existRecord' => $data_api['existingRecordsCount'], // Provide a default if not set
-    ];
-
-    // Set the content type and output the JSON response
     $this->output
         ->set_content_type('application/json')
         ->set_output(json_encode($response));
