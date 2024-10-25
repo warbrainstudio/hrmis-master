@@ -99,12 +99,12 @@ class Absen extends AppBackend
 		if (DateTime::createFromFormat('Y-m-d', $ref) !== false) {
 			$dateTime = DateTime::createFromFormat('Y-m-d', $ref);
 			$Day = $dateTime->format('D');
-            $DayNumber = $dateTime->format('d');
-            $monthNumber = $dateTime->format('m');
-            $year = $dateTime->format('Y');
-            $formattedDay = $this->get_day($Day);
-            $formattedMonth = $this->get_month($monthNumber);
-            $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
+      $DayNumber = $dateTime->format('d');
+      $monthNumber = $dateTime->format('m');
+      $year = $dateTime->format('Y');
+      $formattedDay = $this->get_day($Day);
+      $formattedMonth = $this->get_month($monthNumber);
+      $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
 			$searchFilter = "AND tanggal_absen::date='$ref'";
 			$status = 'true';
 			$card = "hari ".$formattedDate;
