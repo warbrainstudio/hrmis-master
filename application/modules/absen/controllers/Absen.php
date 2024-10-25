@@ -130,7 +130,7 @@ class Absen extends AppBackend
 				'searchFilter' => $searchFilter,
 				'isDaily' => $status,
 			)),
-			'card_title' => 'Data absen '.$card,
+			'card_title' => 'Absen '.$card,
 			'controller' => $this,
 			//'is_mobile' => $agent->isMobile(),
 			'isDaily' => $status,
