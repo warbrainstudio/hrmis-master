@@ -309,16 +309,17 @@
 
                 if (parsedResponse.status === true) {
 
-                    var message = parsedResponse.dataCount+" Data tanggal "+tanggal+" Sukses ditarik.";
+                    var message = " Data tanggal "+tanggal+" Sukses ditarik.";
+                    //var message = parsedResponse.dataCount+" Data tanggal "+tanggal+" Sukses ditarik.";
 
-                    if(parsedResponse.dataCount == parsedResponse.existRecord) {
+                    /*if(parsedResponse.dataCount == parsedResponse.existRecord) {
                         message = "Jumlah data yang ditarik : "+parsedResponse.dataCount+", Jumlah data yang sudah ada : "+parsedResponse.existRecord+
                         ". Tidak ada data absen baru. Tidak perlu menarik data lagi untuk sekarang.";
                     }
 
                     if(parsedResponse.dataCount==0){
                       message = "Tidak ada data absen baru di tanggal "+tanggal+".";
-                    }
+                    }*/
 
                     message += " Waktu Proses: "+duration+" detik.";
                     
@@ -328,7 +329,7 @@
                         icon: "success",
                         button: "OK",
                     }).then(() => {
-                        location.reload(); // Reload after showing the success message
+                        location.reload();
                     });
                 } else {
                     swal({

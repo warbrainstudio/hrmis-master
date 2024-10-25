@@ -83,7 +83,6 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?></h4>
-            <h6>Kalender Absensi</h6>
         </div>
         <div class="card-body">
                 <div class="row">

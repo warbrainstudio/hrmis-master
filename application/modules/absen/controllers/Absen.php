@@ -143,6 +143,7 @@ class Absen extends AppBackend
   }
 
   public function ajax_fetch_data() {
+
     $this->handle_ajax_request();
     $tanggal = $this->input->get('tanggal');
     $status = 'false';
@@ -150,11 +151,8 @@ class Absen extends AppBackend
     $host = $this->db->hostname;
     $api_name = 'simabsen';
     $task = '/fetchData?';
-
-    // Get the table name from the model
     $tableView = $this->AbsenModel->_tableView;
 
-    // Construct the API URL
     $apiUrl = 'http://' . $host . '/' . $api_name . '/api' . $task . http_build_query([
               'token' => $token,
               'host' => $host,
@@ -178,8 +176,7 @@ class Absen extends AppBackend
         return json_encode(['error' => 'cURL error: ' . curl_error($ch)]);
     }
 
-    curl_close($ch); // Close the cURL resource
-
+    curl_close($ch);
     $data_api = json_decode($response, true);
 
     if (is_array($data_api) && isset($data_api['status'])) {
@@ -188,8 +185,8 @@ class Absen extends AppBackend
       if ($data_api['status'] == 'true') {
           $response = array(
               'status' => true,
-              'dataCount' => $count,
-              'existRecord' => $exist,
+              //'dataCount' => $count,
+              //'existRecord' => $exist,
           );
       } else {
           $response = array(
@@ -302,6 +299,42 @@ class Absen extends AppBackend
   
           show_error('Terjadi kesalahan ketika memproses data. Detail: ' . $th->getMessage(), 500);
       }
+  }
+
+  public function excel_pegawai()
+  {
+    try {
+        $absen_pegawai_id = $this->input->get('absen_pegawai_id');
+        $fileTemplate = FCPATH . 'directory/templates/template-histori-pegawai.xlsx';
+        $callbacks = array();
+
+        $pegawai = $this->PegawaiModel->getDetail(array('absen_pegawai_id' => $absen_pegawai_id));
+        
+        if ($pegawai) {
+            $payload = $this->AbsenModel->getAll(array('absen_id' => $pegawai->absen_pegawai_id));
+        } else {
+            show_404();
+            return;
+        }
+
+        if (!is_null($payload)) {
+            $outputFileName = 'histori absen ' . (!empty($pegawai->nama_lengkap) ? $pegawai->nama_lengkap : 'unknown') . '.xlsx';
+
+            $payloadStatic = $this->arrayToSetterSimple(array('nama_lengkap' => $pegawai->nama_lengkap));
+            $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'))));
+            $payloadSimple = $this->arrayToSetterSimple((array) $pegawai);
+            $payload = $this->arrayToSetter($payload);
+            $payload = array_merge($payload, $payloadSimple, $payloadStatic);
+
+            PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);
+        } else {
+            show_404();
+        }
+    } catch (\Throwable $th) {
+        log_message('error', $th->getMessage());
+
+        show_error('Terjadi kesalahan ketika memproses data. Detail: ' . $th->getMessage(), 500);
+    }
   }
 
 }
