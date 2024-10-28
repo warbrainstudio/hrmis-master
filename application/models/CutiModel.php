@@ -127,6 +127,7 @@ class CutiModel extends CI_Model
     $jabatan = $query->nama_jabatan;
     if (strpos($jabatan, 'Manajer') !== false) {
       $jumlah_persetujuan = 2;
+      $this->persetujuan_pertama = "-";
     }else{
       $jumlah_persetujuan = 3;
     }
@@ -238,23 +239,15 @@ class CutiModel extends CI_Model
           $newStatus = $status . " " . $this->session->userdata('user')['nama_lengkap'];
           if ($this->session->userdata('user')['role'] === 'Administrator'){
               if($jumlah_p == 2){
-                if (empty($p1)) {
-                    if($status == 'Ditolak'){
-                      $this->persetujuan_pertama = $status;
-                      $this->status_persetujuan = $status;
-                    }else{
-                      $this->persetujuan_pertama = $newStatus;
-                    }
-                } elseif (!empty($p1) && empty($p2)) {
+                if (empty($p2)) {
                     if($status == 'Ditolak'){
                       $this->persetujuan_kedua = $status;
                       $this->status_persetujuan = $status;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
-                      $this->persetujuan_ketiga = '-';
                       $this->status_persetujuan = $status;
                     }
-                } elseif ($ps=='Dipertimbangkan'){
+                } elseif (!empty($p2) && empty($p3)) {
                   if($status == 'Ditolak'){
                     $this->persetujuan_ketiga = $status;
                     $this->status_persetujuan = $status;
@@ -297,28 +290,56 @@ class CutiModel extends CI_Model
                 }
               }
           } else {
-            if (empty($p1)) {
+            if($jumlah_p == 2){
+              if (empty($p2)) {
+                  if($status == 'Ditolak'){
+                    $this->persetujuan_kedua = $status;
+                    $this->status_persetujuan = $status;
+                  }else{
+                    $this->persetujuan_kedua = $newStatus;
+                    $this->status_persetujuan = $status;
+                  }
+              } elseif (!empty($p2) && empty($p3)) {
+                if($status == 'Ditolak'){
+                  $this->persetujuan_ketiga = $status;
+                  $this->status_persetujuan = $status;
+                }else{
+                  $this->persetujuan_ketiga = $newStatus;
+                  $this->status_persetujuan = $status;
+                }
+              }
+            } else {
+              if (empty($p1)) {
                 if($status == 'Ditolak'){
                   $this->persetujuan_pertama = $status;
                   $this->status_persetujuan = $status;
                 }else{
                   $this->persetujuan_pertama = $newStatus;
                 }
-            } elseif (!empty($p1) && empty($p2)) {
-                if($status == 'Ditolak'){
-                  $this->persetujuan_kedua = $status;
-                  $this->status_persetujuan = $status;
-                }else{
-                  $this->persetujuan_kedua = $newStatus;
-                }
-            } elseif (!empty($p2) && empty($p3)) {
+              } elseif (!empty($p1) && empty($p2)) {
+                  if($status == 'Ditolak'){
+                    $this->persetujuan_kedua = $status;
+                    $this->status_persetujuan = $status;
+                  }else{
+                    $this->persetujuan_kedua = $newStatus;
+                  }
+              } elseif (!empty($p2) && empty($p3)) {
+                  if($status == 'Ditolak'){
+                    $this->persetujuan_ketiga = $status;
+                    $this->status_persetujuan = 'Dipertimbangkan';
+                  }else{
+                    $this->persetujuan_ketiga = $newStatus;
+                    $this->status_persetujuan = $status;
+                  }
+              } elseif ($ps=='Dipertimbangkan'){
                 if($status == 'Ditolak'){
                   $this->persetujuan_ketiga = $status;
-                  $this->status_persetujuan = 'Dipertimbangkan';
+                  $this->status_persetujuan = $status;
                 }else{
                   $this->persetujuan_ketiga = $newStatus;
                   $this->status_persetujuan = $status;
                 }
+              }
             }
           }
           $this->updated_by = $this->session->userdata('user')['id'];

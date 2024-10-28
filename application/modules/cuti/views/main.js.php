@@ -17,15 +17,25 @@
     var _is_first_load = (_key != null && _key != "") ? true : false;
     var _pegawai_id = "<?= @$pegawai_id ?>";
     var _pegawai_namaLengkap = "<?= @$pegawai_nama_lengkap ?>";
+    var _filter ="";
     var _pegawai_jenis_kelamin = "";
     var _pegawai_jabatan_id = "";
     var _data_persetujuan = "";
+    var _row_persetujuan = "";
     var arrayColumn = [];
 
     if (_role === 'generalmanajerkepegawaian') {
-        _data_persetujuan = "persetujuan_kedua";
-    } else {
+      _data_persetujuan = "persetujuan_kedua";
+      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND persetujuan_pertama IS NOT NULL" ?>";
+      _row_persetujuan = 'row.persetujuan_kedua';
+    } else if(_role === 'supergeneralmanajerkepegawaian') {
+      _data_persetujuan = "persetujuan_ketiga";
+      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND persetujuan_kedua IS NOT NULL" ?>";
+      _row_persetujuan = 'row.persetujuan_ketiga';
+    }else{
       _data_persetujuan = "persetujuan_pertama";
+      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND nama_jabatan NOT LIKE '%Manajer%'" ?>";
+      _row_persetujuan = 'row.persetujuan_pertama';
     }
     
     // Init on load
@@ -537,7 +547,7 @@
             url: "<?php echo base_url('cuti/ajax_get_all/') ?>",
             type: "get",
             data: {
-              filter: "<?= "AND nama_sub_unit='$sub_unit_user'" ?>",
+              filter: _filter,
             },
           },
           columns: [{
@@ -604,12 +614,11 @@
               data: null,
               render: function(data, type, row, meta) {
 
-                var _jumlah_persetujuan = row.persetujuan_pertama;
                 var detail = `<a href="<?= base_url('cuti/detail?ref=') ?>${row.id}" modal-id="${_modal_view_single}" class="btn btn-sm btn-success x-load-modal-partial" title="Rincian"><i class="zmdi zmdi-eye"></i></a>&nbsp;`;
                 var del = `<a href="<?= base_url('cuti/delete?ref=') ?>${row.id}" class="btn btn-sm btn-danger action-delete" title="Hapus"><i class="zmdi zmdi-delete"></i> Hapus</a>`;
                 var aprove = `<a href="javascript:;" class="btn btn-sm btn-primary action-aprove" title="Aprove"><i class="zmdi zmdi-check"></i></a>&nbsp;`;
                 var input = `<a href="<?= base_url('cuti/input?ref=') ?>${row.id}" modal-id="modal-form-cuti" class="btn btn-sm btn-light x-load-modal-partial" title="Ubah"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
-                if(_jumlah_persetujuan !== null || row.persetujuan_pertama=='Ditolak'){
+                if(_row_persetujuan !== null || _row_persetujuan=='Ditolak'){
                   return `<div class="action" style="display: flex; flex-direction: row;">${detail}</div>`;
                 }else{
                   return `<div class="action" style="display: flex; flex-direction: row;">${detail} ${input} ${del}</div>`;
