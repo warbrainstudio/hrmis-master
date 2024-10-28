@@ -196,7 +196,9 @@ class CutiModel extends CI_Model
       $response = array('status' => false, 'data' => 'No operation.');
   
       try {
-          $query = $this->db->select('awal_cuti, akhir_cuti, jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, persetujuan_ketiga, status_persetujuan')
+          $query = $this->db->select('pegawai_id, awal_cuti, akhir_cuti, 
+                                      jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, 
+                                      persetujuan_ketiga, status_persetujuan')
                             ->from($this->_table)
                             ->where('id', $id)
                             ->get()
@@ -212,7 +214,7 @@ class CutiModel extends CI_Model
           $ps = $query->status_persetujuan;
           $status = $this->input->post('persetujuan');
           $newStatus = $status . " " . $this->session->userdata('user')['nama_lengkap'];
-          if ($this->session->userdata('user')['role'] === 'Administrator'){
+          
               if($jumlah_p == 2){
                 if (empty($p2)) {
                     if($status == 'Ditolak'){
@@ -264,73 +266,28 @@ class CutiModel extends CI_Model
                   }
                 }
               }
-          } else {
-            if($jumlah_p == 2){
-              if (empty($p2)) {
-                  if($status == 'Ditolak'){
-                    $this->persetujuan_kedua = $status;
-                    $this->status_persetujuan = $status;
-                  }else{
-                    $this->persetujuan_kedua = $newStatus;
-                    $this->status_persetujuan = $status;
-                  }
-              } elseif (!empty($p2) && empty($p3)) {
-                if($status == 'Ditolak'){
-                  $this->persetujuan_ketiga = $status;
-                  $this->status_persetujuan = $status;
-                }else{
-                  $this->persetujuan_ketiga = $newStatus;
-                  $this->status_persetujuan = $status;
-                }
-              }
-            } else {
-              if (empty($p1)) {
-                if($status == 'Ditolak'){
-                  $this->persetujuan_pertama = $status;
-                  $this->status_persetujuan = $status;
-                }else{
-                  $this->persetujuan_pertama = $newStatus;
-                }
-              } elseif (!empty($p1) && empty($p2)) {
-                  if($status == 'Ditolak'){
-                    $this->persetujuan_kedua = $status;
-                    $this->status_persetujuan = $status;
-                  }else{
-                    $this->persetujuan_kedua = $newStatus;
-                  }
-              } elseif (!empty($p2) && empty($p3)) {
-                  if($status == 'Ditolak'){
-                    $this->persetujuan_ketiga = $status;
-                    $this->status_persetujuan = 'Dipertimbangkan';
-                  }else{
-                    $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $status;
-                  }
-              } elseif ($ps=='Dipertimbangkan'){
-                if($status == 'Ditolak'){
-                  $this->persetujuan_ketiga = $status;
-                  $this->status_persetujuan = $status;
-                }else{
-                  $this->persetujuan_ketiga = $newStatus;
-                  $this->status_persetujuan = $status;
-                }
-              }
-            }
-          }
 
-          /*if($ps=='Disetujui'){
+          if(empty($p3) && $status=='Disetujui'){
+            $pegawai_id = $query->pegawai_id;
             $awalCuti = $query->awal_cuti;
             $akhirCuti = $query->akhir_cuti;
             $awalTimestamp = strtotime($awalCuti);
             $akhirTimestamp = strtotime($akhirCuti);
 
+            $query_pegawai = $this->db->select('absen_pegawai_id')
+                              ->from("pegawai")
+                              ->where('id', $pegawai_id)
+                              ->get()
+                              ->row();
+
             if ($awalTimestamp !== false && $akhirTimestamp !== false && $awalTimestamp <= $akhirTimestamp) {
+                $absen_pegawai_id = $query_pegawai->absen_pegawai_id;
                 $currentTimestamp = $awalTimestamp;
                 $table = 'absen_pegawai';
                 while ($currentTimestamp <= $akhirTimestamp) {
                     $currentDate = date('Y-m-d', $currentTimestamp);
                     $data = [
-                      'absen_pegawai_id' => $this->input->post('absen_pegawai_id'),
+                      'absen_id' => $absen_pegawai_id,
                       'tanggal_absen' => $currentDate,
                       'status' => "3",
                       'created_by' => $this->session->userdata('user')['id']
@@ -341,7 +298,7 @@ class CutiModel extends CI_Model
             } else {
               $response = array('status' => false, 'data' => 'Invalid Date Range');
             }
-          }*/
+          }
 
           $this->updated_by = $this->session->userdata('user')['id'];
           $this->updated_date = date('Y-m-d H:i:s');

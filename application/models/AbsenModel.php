@@ -15,8 +15,8 @@ class AbsenModel extends CI_Model
           ab.*, 
           p.id AS id_pegawai,
           COALESCE(p.nama_lengkap, '-') AS nama,
-          (CASE WHEN ab.status = 0 THEN 'Masuk' ELSE 'Pulang' END) AS nama_status,
-          (CASE WHEN ab.verified = 1 THEN 'Finger' ELSE 'Input' END) AS verifikasi
+          (CASE WHEN ab.status = 0 THEN 'Masuk' WHEN ab.status = 3 THEN 'Cuti' ELSE 'Pulang' END) AS nama_status,
+          (CASE WHEN ab.verified = 1 THEN 'Finger' WHEN ab.verified = 0 THEN 'Input' ELSE '' END) AS verifikasi
         FROM absen_pegawai ab
         LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
       ) t
@@ -55,7 +55,6 @@ class AbsenModel extends CI_Model
           GROUP BY absen_pegawai.absen_id
     ";
     
-    // Assuming you have a database connection and using CodeIgniter's query builder
     $result = $this->db->query($query);
     return $result->result();
   }
@@ -71,8 +70,8 @@ class AbsenModel extends CI_Model
 
         $this->db->select('absen_pegawai.tanggal_absen,
                           TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                          CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' ELSE \'Input\' END AS verifikasi, 
-                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status,
+                          CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'\' END AS verifikasi, 
+                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 3 THEN \'Cuti\' ELSE \'Pulang\' END AS nama_status,
                           absen_pegawai.ipmesin as mesin_nama,
                           pegawai.nrp,
                           COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
@@ -112,8 +111,8 @@ class AbsenModel extends CI_Model
         $this->db->select('absen_pegawai.absen_id, 
                 TO_CHAR(absen_pegawai.tanggal_absen, \'YYYY-MM-DD\') AS tanggal,
                 TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' ELSE \'Input\' END AS verifikasi, 
-                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' ELSE \'Pulang\' END AS nama_status,
+                CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'\' END AS verifikasi, 
+                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 3 THEN \'Cuti\' ELSE \'Pulang\' END AS nama_status,
                 absen_pegawai.ipmesin as mesin_nama');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->where($params);

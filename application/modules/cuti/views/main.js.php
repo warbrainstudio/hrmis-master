@@ -66,7 +66,7 @@
               },
               {
                 data: "persetujuan_pertama",
-                render: function(data, type, row, meta) {
+                  render: function(data, type, row, meta) {
                     let status;
                     let verifiedColor;
                     if (data === null) {
@@ -88,7 +88,7 @@
               },
               {
                 data: "persetujuan_kedua",
-                render: function(data, type, row, meta) {
+                  render: function(data, type, row, meta) {
                     let status;
                     let verifiedColor;
                     if (data === null) {
@@ -107,7 +107,7 @@
               },
               {
                 data: "persetujuan_ketiga",
-                render: function(data, type, row, meta) {
+                  render: function(data, type, row, meta) {
                     let status;
                     let verifiedColor;
                     if (data === null) {
@@ -125,7 +125,7 @@
               },
               {
                 data: "status_persetujuan",
-                render: function(data, type, row, meta) {
+                  render: function(data, type, row, meta) {
                     let status;
                     let verifiedColor;
                     if (data === null) {
@@ -153,7 +153,7 @@
                 var aprove = `<a href="javascript:;" class="btn btn-sm btn-primary action-aprove" title="Aprove"><i class="zmdi zmdi-check"></i></a>&nbsp;`;
                 var ubah = `<a href="<?= base_url('cuti/input?ref=') ?>${row.id}" modal-id="modal-form-cuti" class="btn btn-sm btn-light x-load-modal-partial" title="Ubah"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
                 if(row.status_persetujuan===null || row.status_persetujuan=='Dipertimbangkan'){
-                  return `<div class="action" style="display: flex; flex-direction: row;">${detail} ${ubah} ${hapus}</div>`;
+                  return `<div class="action" style="display: flex; flex-direction: row;">${aprove} ${detail} ${ubah} ${hapus}</div>`;
                 }else if(row.status_persetujuan=='Disetujui' || row.status_persetujuan=='Ditolak'){
                   return `<div class="action" style="display: flex; flex-direction: row;">${detail} ${hapus}</div>`;
                 }

@@ -562,15 +562,37 @@
               {
                 data: "nama_status",
                 render: function(data, type, row, meta) {
-                  var statusColor = (data == 'Masuk') ? 'warning' : 'primary';
-                  return `<span class="badge badge-${statusColor}">${data}</span>`;
+                    let status;
+                    let verifiedColor;
+                    if (data === 'Masuk') {
+                        status = data;
+                        verifiedColor = 'warning';
+                    } else if (data === 'Cuti'){
+                        status = data;
+                        verifiedColor = 'secondary';
+                    }else {
+                        status = data;
+                        verifiedColor = 'primary';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                 }
               },
               {
                 data: "verifikasi",
                 render: function(data, type, row, meta) {
-                  var verifiedColor = (data == 'Finger') ? 'success' : 'danger';
-                  return `<span class="badge badge-${verifiedColor}">${data}</span>`;
+                    let status;
+                    let verifiedColor;
+                    if (data === 'Finger') {
+                        status = data;
+                        verifiedColor = 'success';
+                    } else if (data === 'Input'){
+                        status = data;
+                        verifiedColor = 'danger';
+                    }else {
+                        status = '-';
+                        verifiedColor = 'secondary';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                 }
               },
               {
