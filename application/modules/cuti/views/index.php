@@ -40,6 +40,7 @@
                             <th>Dimulai</th>
                             <th>Berakhir</th>
                             <th>Bekerja</th>
+                            <th>Persetujuan</th>
                             <th>Status</th>
                             <th class="text-center">#</th>
                         </tr>

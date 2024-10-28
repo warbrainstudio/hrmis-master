@@ -3,7 +3,6 @@
 
     var _key = "<?= $key ?>";
     var _role = "<?= $this->session->userdata('user')['role'] ?>";
-    var _sub_unit = "<?= $this->session->userdata('user')['sub_unit'] ?>";
     var _section = "cuti";
     var _table = "table-cuti";
     var _table_single = "table-cuti-single";
@@ -26,15 +25,15 @@
 
     if (_role === 'generalmanajerkepegawaian') {
       _data_persetujuan = "persetujuan_kedua";
-      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND persetujuan_pertama IS NOT NULL" ?>";
+      _filter = "<?= "AND nama_unit='$unit_user' AND persetujuan_pertama IS NOT NULL" ?>";
       _row_persetujuan = 'row.persetujuan_kedua';
     } else if(_role === 'supergeneralmanajerkepegawaian') {
       _data_persetujuan = "persetujuan_ketiga";
-      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND persetujuan_kedua IS NOT NULL" ?>";
+      _filter = "<?= "AND persetujuan_kedua IS NOT NULL" ?>";
       _row_persetujuan = 'row.persetujuan_ketiga';
     }else{
       _data_persetujuan = "persetujuan_pertama";
-      _filter = "<?= "AND nama_sub_unit='$sub_unit_user' AND nama_jabatan NOT LIKE '%Manajer%'" ?>";
+      _filter = "<?= "AND nama_unit='$unit_user' AND nama_sub_unit='$sub_unit_user' AND nama_jabatan NOT LIKE '%Manajer%'" ?>";
       _row_persetujuan = 'row.persetujuan_pertama';
     }
     
@@ -421,11 +420,12 @@
       var _pengajuan_cuti = document.querySelector("."+_section+"-pengajuan-cuti");
       var _keterangan_cuti = document.querySelector("."+_section+"-keterangan-cuti");
       var _pegawai = document.querySelector("."+_section+"-pegawai_id");
+      var _jenis_kelamin = document.querySelector("."+_section+"-jenis_kelamin");
       if(_pegawai.value==''){
         notify("Pilih pegawai terlebih dahulu","danger");
         this.checked = false;
       }else{
-        if(_pegawai_jenis_kelamin='Laki-laki'){
+        if(_jenis_kelamin.value === "Laki-laki"){
           notify("Laki-laki tidak bisa memilih cuti melahirkan","danger");
           this.checked = false;
           _pengajuan_cuti.style.display = 'none';
@@ -610,6 +610,27 @@
                   return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                 }
               },
+              {
+                data: "status_persetujuan",
+                render: function(data, type, row, meta) {
+                    let status;
+                    let verifiedColor;
+                    if (data === null) {
+                      status = 'Proses';
+                      verifiedColor = 'secondary';
+                    } else if (data === 'Ditolak') {
+                      status = data;
+                      verifiedColor = 'danger';
+                    } else if(data === 'Dipertimbangkan') {
+                      status = data;
+                      verifiedColor = 'warning';
+                    } else {
+                      status = data;
+                      verifiedColor = 'success';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                  }
+              },
             {
               data: null,
               render: function(data, type, row, meta) {
@@ -649,7 +670,7 @@
           },
           columnDefs: [{
             className: 'desktop',
-            targets: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+            targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
           }, {
             className: 'tablet',
             targets: [0, 1, 2, 3]
@@ -807,7 +828,8 @@
       $container.find(".select2-result-repository__title").text(item.text);
       $container.find(".select2-result-repository__description").html(item.nrp);
       $container.find(".select2-result-repository__gender").html(item.jenis_kelamin);
-      _pegawai_jenis_kelamin = item.jenis_kelamin;
+      var _jenis_kelamin = document.querySelector("."+_section+"-jenis_kelamin");
+      _jenis_kelamin.value = item.jenis_kelamin;
       _pegawai_jabatan_id = item.jabatan_id;
 
       return $container;

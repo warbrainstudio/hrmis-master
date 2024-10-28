@@ -26,10 +26,12 @@ class Cuti extends AppBackend
   public function index()
   {
     $agent = new Mobile_Detect;
+    $unit = $this->session->userdata('user')['unit'];
     $sub_unit = $this->session->userdata('user')['sub_unit'];
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('cuti', false, array(
+        'unit_user' => $unit,
         'sub_unit_user' => $sub_unit,
       )),
       'controller' => $this,
