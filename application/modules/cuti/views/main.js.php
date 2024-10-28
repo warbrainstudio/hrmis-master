@@ -18,14 +18,14 @@
     var _pegawai_id = "<?= @$pegawai_id ?>";
     var _pegawai_namaLengkap = "<?= @$pegawai_nama_lengkap ?>";
     var _pegawai_jenis_kelamin = "";
-    var array_admin = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    var non_admin = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var _pegawai_jabatan_id = "";
+    var _data_persetujuan = "";
     var arrayColumn = [];
 
-    if (_role === 'Administrator') {
-        arrayColumn = array_admin;
+    if (_role === 'generalmanajerkepegawaian') {
+        _data_persetujuan = "persetujuan_kedua";
     } else {
-        arrayColumn = non_admin;
+      _data_persetujuan = "persetujuan_pertama";
     }
     
     // Init on load
@@ -63,7 +63,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -82,7 +82,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -101,7 +101,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -119,7 +119,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -244,6 +244,7 @@
                 }).then((result) => {
                     if (result.value) {
                         var formData = new FormData($(`#${_form}`)[0]);
+                        formData.append('jabatan_id', _pegawai_jabatan_id);
                         $.ajax({
                             type: "post",
                             url: "<?php echo base_url('cuti/ajax_save/') ?>",
@@ -579,7 +580,7 @@
                 }
               },
               {
-                data: "persetujuan_pertama",
+                data: _data_persetujuan,
                 render: function(data, type, row, meta) {
                   let status;
                   let verifiedColor;
@@ -798,6 +799,7 @@
       $container.find(".select2-result-repository__description").html(item.nrp);
       $container.find(".select2-result-repository__gender").html(item.jenis_kelamin);
       _pegawai_jenis_kelamin = item.jenis_kelamin;
+      _pegawai_jabatan_id = item.jabatan_id;
 
       return $container;
     };

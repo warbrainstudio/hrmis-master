@@ -92,8 +92,10 @@ class Cuti extends AppBackend
     $cuti = $this->CutiModel->getDetail(['cuti.id' => $ref]);
     if($role=='Administrator'){
       $status_persetujuan = @$cuti->status_persetujuan;
-    }else{
+    }else if($role=='manajerkepegawaian'){
       $status_persetujuan = @$cuti->persetujuan_pertama;
+    }else if($role=='generalmanajerkepegawaian'){
+      $status_persetujuan = @$cuti->persetujuan_kedua;
     }
     $data = array(
       'app' => $this->app(),

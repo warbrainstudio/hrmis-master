@@ -380,7 +380,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -399,7 +399,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -418,7 +418,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;
@@ -436,7 +436,7 @@
                     let status;
                     let verifiedColor;
                     if (data === null) {
-                      status = 'Menunggu';
+                      status = '-';
                       verifiedColor = 'secondary';
                     } else if (data === 'Ditolak') {
                       status = data;

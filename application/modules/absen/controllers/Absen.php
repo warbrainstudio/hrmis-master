@@ -179,13 +179,9 @@ class Absen extends AppBackend
     $data_api = json_decode($response, true);
 
     if (is_array($data_api) && isset($data_api['status'])) {
-      //$count = isset($data_api['data']['dataCount']) ? $data_api['data']['dataCount'] : 0;
-      //$exist = isset($data_api['data']['existingRecordsCount']) ? $data_api['data']['existingRecordsCount'] : 0;
       if ($data_api['status'] == 'true') {
           $response = array(
               'status' => true,
-              //'dataCount' => $count,
-              //'existRecord' => $exist,
           );
       } else {
           $response = array(

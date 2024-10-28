@@ -20,7 +20,6 @@
               <div class="form-group">
                 <label>Tanggal Pengajuan</label>
                 <input type="date" name="tanggal_pengajuan" class="form-control cuti-tanggal_pengajuan" maxlength="100" value="<?= (@$cuti->tanggal_pengajuan == '') ? $date=date('Y-m-d') : @$cuti->tanggal_pengajuan ?>" required/>
-                
               </div>
             </div>
             <div class="col-xs-12 col-sm-6">
@@ -29,7 +28,7 @@
                   <div class="select">
                     <select name="pegawai_id" class="form-control select2-partial cuti-pegawai_id" required></select>
                   </div>
-                  <input type="hidden" value="3" name="jumlahpersetujuan" class="form-control cuti-jumlah_persetujuan" maxlength="20" placeholder="jumlah persetujuan" />
+                  <input type="hidden" value="3" name="jabatan_id" class="form-control cuti-jabatan_id" maxlength="20" placeholder="jabatan" />
               </div>
             </div>
           </div>

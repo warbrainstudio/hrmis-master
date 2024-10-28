@@ -118,6 +118,18 @@ class CutiModel extends CI_Model
     }else{
       $jenis_cuti = $this->input->post('jenis_cuti');
     }
+    $jabatan_id = $this->input->post('jabatan_id');
+    $query = $this->db->select('jabatan.*')
+            ->from('jabatan')
+            ->where('id',$jabatan_id)
+            ->get()
+            ->row();
+    $jabatan = $query->nama_jabatan;
+    if (strpos($jabatan, 'Manajer') !== false) {
+      $jumlah_persetujuan = 2;
+    }else{
+      $jumlah_persetujuan = 3;
+    }
     try {
       $this->jenis_cuti = $jenis_cuti;
       $this->tanggal_pengajuan = $this->input->post('tanggal_pengajuan');
@@ -127,6 +139,7 @@ class CutiModel extends CI_Model
       $this->tanggal_bekerja = $this->input->post('tanggal_bekerja');
       $this->alamat_cuti = $this->input->post('alamat_cuti');
       $this->telepon_cuti = $this->input->post('telepon_cuti');
+      $this->jumlah_persetujuan = $jumlah_persetujuan;
       $this->created_by = $this->session->userdata('user')['id'];
       $this->db->insert($this->_table, $this);
 
@@ -207,7 +220,7 @@ class CutiModel extends CI_Model
       $response = array('status' => false, 'data' => 'No operation.');
   
       try {
-          $query = $this->db->select('persetujuan_pertama, persetujuan_kedua, persetujuan_ketiga, status_persetujuan')
+          $query = $this->db->select('jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, persetujuan_ketiga, status_persetujuan')
                             ->from($this->_table)
                             ->where('id', $id)
                             ->get()
@@ -216,6 +229,7 @@ class CutiModel extends CI_Model
           if (!$query) {
               return array('status' => false, 'data' => 'No data found for the specified ID.');
           }
+          $jumlah_p = $query->jumlah_persetujuan;
           $p1 = $query->persetujuan_pertama;
           $p2 = $query->persetujuan_kedua;
           $p3 = $query->persetujuan_ketiga;
@@ -223,6 +237,7 @@ class CutiModel extends CI_Model
           $status = $this->input->post('persetujuan');
           $newStatus = $status . " " . $this->session->userdata('user')['nama_lengkap'];
           if ($this->session->userdata('user')['role'] === 'Administrator'){
+              if($jumlah_p == 2){
                 if (empty($p1)) {
                     if($status == 'Ditolak'){
                       $this->persetujuan_pertama = $status;
@@ -230,6 +245,32 @@ class CutiModel extends CI_Model
                     }else{
                       $this->persetujuan_pertama = $newStatus;
                     }
+                } elseif (!empty($p1) && empty($p2)) {
+                    if($status == 'Ditolak'){
+                      $this->persetujuan_kedua = $status;
+                      $this->status_persetujuan = $status;
+                    }else{
+                      $this->persetujuan_kedua = $newStatus;
+                      $this->persetujuan_ketiga = '-';
+                      $this->status_persetujuan = $status;
+                    }
+                } elseif ($ps=='Dipertimbangkan'){
+                  if($status == 'Ditolak'){
+                    $this->persetujuan_ketiga = $status;
+                    $this->status_persetujuan = $status;
+                  }else{
+                    $this->persetujuan_ketiga = $newStatus;
+                    $this->status_persetujuan = $status;
+                  }
+                }
+              } else {
+                if (empty($p1)) {
+                  if($status == 'Ditolak'){
+                    $this->persetujuan_pertama = $status;
+                    $this->status_persetujuan = $status;
+                  }else{
+                    $this->persetujuan_pertama = $newStatus;
+                  }
                 } elseif (!empty($p1) && empty($p2)) {
                     if($status == 'Ditolak'){
                       $this->persetujuan_kedua = $status;
@@ -254,6 +295,7 @@ class CutiModel extends CI_Model
                     $this->status_persetujuan = $status;
                   }
                 }
+              }
           } else {
             if (empty($p1)) {
                 if($status == 'Ditolak'){
