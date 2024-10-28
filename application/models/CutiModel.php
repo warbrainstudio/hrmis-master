@@ -149,31 +149,6 @@ class CutiModel extends CI_Model
       $response = array('status' => false, 'data' => 'Failed to save your data.');
     };
 
-    /*$awalCuti = $this->input->post('awalcuti');
-    $akhirCuti = $this->input->post('akhircuti');
-    $awalTimestamp = strtotime($awalCuti);
-    $akhirTimestamp = strtotime($akhirCuti);
-
-    // Check if the dates are valid
-    if ($awalTimestamp !== false && $akhirTimestamp !== false && $awalTimestamp <= $akhirTimestamp) {
-        $currentTimestamp = $awalTimestamp;
-        $attendancelog_tes = 'attendancelog';
-        while ($currentTimestamp <= $akhirTimestamp) {
-            $currentDate = date('Y-m-d', $currentTimestamp);
-            $data = [
-              'absen_id' => $this->input->post('absen_pegawai_id'),
-              'tanggal_absen' => $currentDate,
-              'status' => "3",
-              'created_by' => $this->session->userdata('user')['id']
-            ];
-            $this->db->insert($attendancelog_tes, $data);
-            $currentTimestamp = strtotime("+1 day", $currentTimestamp);
-        }
-    } else {
-      $response = array('status' => false, 'data' => 'Invalid Date Range');
-    }*/
-
-
     return $response;
   }
 
@@ -221,7 +196,7 @@ class CutiModel extends CI_Model
       $response = array('status' => false, 'data' => 'No operation.');
   
       try {
-          $query = $this->db->select('jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, persetujuan_ketiga, status_persetujuan')
+          $query = $this->db->select('awal_cuti, akhir_cuti, jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, persetujuan_ketiga, status_persetujuan')
                             ->from($this->_table)
                             ->where('id', $id)
                             ->get()
@@ -342,6 +317,32 @@ class CutiModel extends CI_Model
               }
             }
           }
+
+          /*if($ps=='Disetujui'){
+            $awalCuti = $query->awal_cuti;
+            $akhirCuti = $query->akhir_cuti;
+            $awalTimestamp = strtotime($awalCuti);
+            $akhirTimestamp = strtotime($akhirCuti);
+
+            if ($awalTimestamp !== false && $akhirTimestamp !== false && $awalTimestamp <= $akhirTimestamp) {
+                $currentTimestamp = $awalTimestamp;
+                $table = 'absen_pegawai';
+                while ($currentTimestamp <= $akhirTimestamp) {
+                    $currentDate = date('Y-m-d', $currentTimestamp);
+                    $data = [
+                      'absen_pegawai_id' => $this->input->post('absen_pegawai_id'),
+                      'tanggal_absen' => $currentDate,
+                      'status' => "3",
+                      'created_by' => $this->session->userdata('user')['id']
+                    ];
+                    $this->db->insert($table, $data);
+                    $currentTimestamp = strtotime("+1 day", $currentTimestamp);
+                }
+            } else {
+              $response = array('status' => false, 'data' => 'Invalid Date Range');
+            }
+          }*/
+
           $this->updated_by = $this->session->userdata('user')['id'];
           $this->updated_date = date('Y-m-d H:i:s');
   
