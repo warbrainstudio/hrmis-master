@@ -58,7 +58,7 @@
               {
                 data: "pegawai_id",
                 render: function(data, type, row, meta) {
-                  return row.nrp +" - "+ row.nama_lengkap;
+                  return row.nama_lengkap;
                 }
               },
               {
@@ -570,7 +570,7 @@
               {
                 data: "pegawai_id",
                 render: function(data, type, row, meta) {
-                  return row.nrp +" - "+ row.nama_lengkap;
+                  return row.nama_lengkap;
                 }
               },
               {
