@@ -147,7 +147,7 @@ class Absen extends AppBackend
     $tanggal = $this->input->get('tanggal');
     $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
-    $host = $this->db->hostname;
+    $host = 'localhost';
     $api_name = 'simabsen';
     $task = '/fetchData?';
     $tableView = $this->AbsenModel->_tableView;
