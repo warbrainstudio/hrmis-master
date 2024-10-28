@@ -28,8 +28,9 @@
                   <div class="select">
                     <select name="pegawai_id" class="form-control select2-partial cuti-pegawai_id" required></select>
                   </div>
-                  <input type="hidden" name="jenis_kelamin" class="form-control cuti-jenis_kelamin" maxlength="20" placeholder="jenis_kelamin" />
-                  <input type="hidden" name="jabatan_id" class="form-control cuti-jabatan_id" maxlength="20" placeholder="jabatan" />
+                  <input type="hidden" name="jenis_kelamin" class="form-control cuti-jenis_kelamin" maxlength="20" />
+                  <input type="hidden" name="status_kawin" class="form-control cuti-status_kawin" maxlength="20" />
+                  <input type="hidden" name="jabatan_id" class="form-control cuti-jabatan_id" maxlength="50" />
               </div>
             </div>
           </div>

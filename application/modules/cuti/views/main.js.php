@@ -17,8 +17,6 @@
     var _pegawai_id = "<?= @$pegawai_id ?>";
     var _pegawai_namaLengkap = "<?= @$pegawai_nama_lengkap ?>";
     var _filter ="";
-    var _pegawai_jenis_kelamin = "";
-    var _pegawai_jabatan_id = "";
     var _data_persetujuan = "";
     var _row_persetujuan = "";
     var arrayColumn = [];
@@ -152,7 +150,7 @@
                 var aprove = `<a href="javascript:;" class="btn btn-sm btn-primary action-aprove" title="Aprove"><i class="zmdi zmdi-check"></i></a>&nbsp;`;
                 var ubah = `<a href="<?= base_url('cuti/input?ref=') ?>${row.id}" modal-id="modal-form-cuti" class="btn btn-sm btn-light x-load-modal-partial" title="Ubah"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
                 if(row.status_persetujuan===null || row.status_persetujuan=='Dipertimbangkan'){
-                  return `<div class="action" style="display: flex; flex-direction: row;">${aprove} ${detail} ${ubah} ${hapus}</div>`;
+                  return `<div class="action" style="display: flex; flex-direction: row;">${detail} ${ubah} ${hapus}</div>`;
                 }else if(row.status_persetujuan=='Disetujui' || row.status_persetujuan=='Ditolak'){
                   return `<div class="action" style="display: flex; flex-direction: row;">${detail} ${hapus}</div>`;
                 }
@@ -253,7 +251,6 @@
                 }).then((result) => {
                     if (result.value) {
                         var formData = new FormData($(`#${_form}`)[0]);
-                        formData.append('jabatan_id', _pegawai_jabatan_id);
                         $.ajax({
                             type: "post",
                             url: "<?php echo base_url('cuti/ajax_save/') ?>",
@@ -441,12 +438,20 @@
       var _pengajuan_cuti = document.querySelector("."+_section+"-pengajuan-cuti");
       var _keterangan_cuti = document.querySelector("."+_section+"-keterangan-cuti");
       var _pegawai = document.querySelector("."+_section+"-pegawai_id");
+      var _status_kawin = document.querySelector("."+_section+"-status_kawin");
       if(_pegawai.value==''){
         notify("Pilih pegawai terlebih dahulu","danger");
         this.checked = false;
       }else{
-        _pengajuan_cuti.style.display = 'block';
-        _keterangan_cuti.style.display = 'none';
+        if(_status_kawin.value === "Kawin"){
+          notify("Tidak bisa memilih cuti menikah karena status Kawin","danger");
+          this.checked = false;
+          _pengajuan_cuti.style.display = 'none';
+          _keterangan_cuti.style.display = 'none';
+        }else{
+          _pengajuan_cuti.style.display = 'block';
+          _keterangan_cuti.style.display = 'none';
+        }
       }
     });
 
@@ -829,8 +834,11 @@
       $container.find(".select2-result-repository__description").html(item.nrp);
       $container.find(".select2-result-repository__gender").html(item.jenis_kelamin);
       var _jenis_kelamin = document.querySelector("."+_section+"-jenis_kelamin");
+      var _status_kawin = document.querySelector("."+_section+"-status_kawin");
+      var _jabatan_id = document.querySelector("."+_section+"-jabatan_id");
       _jenis_kelamin.value = item.jenis_kelamin;
-      _pegawai_jabatan_id = item.jabatan_id;
+      _status_kawin.value = item.status_kawin;
+      _jabatan_id.value = item.jabatan_id;
 
       return $container;
     };
