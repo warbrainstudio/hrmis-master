@@ -5,18 +5,20 @@
   var _key = "<?= $key ?>";
   var _section = "employee";
   var _table_master = "table-employee";
-  var _table_histori_absensi = "table-histori-absensi"
-  var _table_histori_skspk = "table-histori-skspk"
-  var _table_histori_kontrak = "table-histori-contract"
-  var _table_histori_diklat = "table-histori-diklat"
-  var _table_histori_pembinaan = "table-histori-pembinaan"
-  var _table_histori_demosimutasi = "table-histori-demosimutasi"
+  var _table_histori_absensi = "table-histori-absensi";
+  var _table_histori_cuti = "table-histori-cuti";
+  var _table_histori_skspk = "table-histori-skspk";
+  var _table_histori_kontrak = "table-histori-contract";
+  var _table_histori_diklat = "table-histori-diklat";
+  var _table_histori_pembinaan = "table-histori-pembinaan";
+  var _table_histori_demosimutasi = "table-histori-demosimutasi";
   var _form = "form-employee";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
 
   $(document).ready(function() {
     initTable_historiAbsensi();
+    initTable_historiCuti();
     initTable_historiSkSpk();
     initTable_historiKontrak();
     initTable_historiDiklat();
@@ -326,6 +328,206 @@
         }
       });
     });
+
+    function initTable_historiCuti(){
+      if ($(`#${_table_histori_cuti}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_cuti}`) === false) {
+        var table_histori_cuti = $("#" + _table_histori_cuti).DataTable({
+          processing: true,
+          serverSide: true,
+          ajax: {
+            url: "<?php echo base_url('cuti/ajax_get_all/') ?>",
+            type: "get",
+              data: {
+                filter: "<?= "AND pegawai_id='$pegawai_id'" ?>",
+              },
+          },
+          columns: [{
+              data: null,
+              render: function(data, type, row, meta) {
+                return meta.row + meta.settings._iDisplayStart + 1;
+              }
+            },
+              {
+                data: "tanggal_pengajuan",
+                render: function(data, type, row, meta) {
+                  return moment(data).format('DD-MM-YYYY');
+                }
+              },
+              {
+                data: "jenis_cuti"
+              },
+              {
+                data: "awal_cuti",
+                render: function(data, type, row, meta) {
+                  return moment(data).format('DD-MM-YYYY');
+                }
+              },
+              {
+                data: "akhir_cuti",
+                render: function(data, type, row, meta) {
+                  return moment(data).format('DD-MM-YYYY');
+                }
+              },
+              {
+                data: "tanggal_bekerja",
+                render: function(data, type, row, meta) {
+                  return moment(data).format('DD-MM-YYYY');
+                }
+              },
+              {
+                data: "persetujuan_pertama",
+                render: function(data, type, row, meta) {
+                    let status;
+                    let verifiedColor;
+                    if (data === null) {
+                      status = 'Menunggu';
+                      verifiedColor = 'secondary';
+                    } else if (data === 'Ditolak') {
+                      status = data;
+                      verifiedColor = 'danger';
+                    } else {
+                      status = data;
+                      verifiedColor = 'success';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                  }
+                
+              },
+              {
+                data: "persetujuan_kedua",
+                render: function(data, type, row, meta) {
+                    let status;
+                    let verifiedColor;
+                    if (data === null) {
+                      status = 'Menunggu';
+                      verifiedColor = 'secondary';
+                    } else if (data === 'Ditolak') {
+                      status = data;
+                      verifiedColor = 'danger';
+                    } else {
+                      status = data;
+                      verifiedColor = 'success';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                  }
+                
+              },
+              {
+                data: "persetujuan_ketiga",
+                render: function(data, type, row, meta) {
+                    let status;
+                    let verifiedColor;
+                    if (data === null) {
+                      status = 'Menunggu';
+                      verifiedColor = 'secondary';
+                    } else if (data === 'Ditolak') {
+                      status = data;
+                      verifiedColor = 'danger';
+                    } else {
+                      status = data;
+                      verifiedColor = 'success';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                  }
+              },
+              {
+                data: "status_persetujuan",
+                render: function(data, type, row, meta) {
+                    let status;
+                    let verifiedColor;
+                    if (data === null) {
+                      status = 'Menunggu';
+                      verifiedColor = 'secondary';
+                    } else if (data === 'Ditolak') {
+                      status = data;
+                      verifiedColor = 'danger';
+                    } else if(data === 'Dipertimbangkan') {
+                      status = data;
+                      verifiedColor = 'warning';
+                    } else {
+                      status = data;
+                      verifiedColor = 'success';
+                    }
+                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                  }
+              }
+          ],
+          order: [[1, 'asc']],
+          autoWidth: !1,
+          responsive: {
+            details: {
+              renderer: function(api, rowIdx, columns) {
+                var hideColumn = [];
+                var data = $.map(columns, function(col, i) {
+                  return ($.inArray(col.columnIndex, hideColumn)) ?
+                    '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                    '<td class="dt-details-td">' + col.title + ':' + '</td> ' +
+                    '<td class="dt-details-td">' + col.data + '</td>' +
+                    '</tr>' :
+                    '';
+                }).join('');
+
+                return data ? $('<table/>').append(data) : false;
+              },
+              type: "inline",
+              target: 'tr',
+            }
+          },
+          columnDefs: [{
+            className: 'desktop',
+            targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+          }, {
+            className: 'tablet',
+            targets: [0, 1, 2, 3]
+          }, {
+            className: 'mobile',
+            targets: [0, 1]
+          }, {
+            responsivePriority: 2,
+            targets: -1
+          }],
+          pageLength: 15,
+          language: {
+            searchPlaceholder: "Cari...",
+            sProcessing: '<div style="text-align: center;"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>'
+          },
+          sDom: '<"dataTables_ct"><"dataTables__top"fb>rt<"dataTables__bottom"ip><"clear">',
+          buttons: [{
+            extend: "excelHtml5",
+            title: "Export Result"
+          }, {
+            extend: "print",
+            title: "Export Result"
+          }],
+          oSearch: {
+            sSearch: _p_search
+          },
+          initComplete: function(a, b) {
+            $(this).closest(".dataTables_wrapper").find(".dataTables__top").prepend(
+              '<div class="dataTables_buttons hidden-sm-down actions">' +
+              '<span class="actions__item zmdi zmdi-refresh" data-table-action="reload" title="Reload" />' +
+              '</div>'
+            );
+          },
+        });
+
+        $(".dataTables_filter input[type=search]").focus(function() {
+          $(this).closest(".dataTables_filter").addClass("dataTables_filter--toggled")
+        });
+
+        $(".dataTables_filter input[type=search]").blur(function() {
+          $(this).closest(".dataTables_filter").removeClass("dataTables_filter--toggled")
+        });
+
+        $("body").on("click", "[data-table-action]", function(a) {
+          a.preventDefault();
+          var b = $(this).data("table-action");
+          if ("reload" === b) {
+            $("#" + _table_histori_cuti).DataTable().ajax.reload(null, false);
+          };
+        });
+      };
+    };
 
     function initTable_historiAbsensi(){
       if ($(`#${_table_histori_absensi}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_absensi}`) === false) {

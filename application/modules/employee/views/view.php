@@ -88,6 +88,9 @@
                         </li>
                         <?php endif ?>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-cuti" role="tab">Cuti</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-sk_perijinan" role="tab">SK / Perijinan</a>
                         </li>
                         <li class="nav-item">
@@ -120,6 +123,9 @@
                             <?php require_once(APPPATH . 'modules/employee/views/histori_absensi.php') ?>
                         </div>
                         <?php endif ?>
+                        <div class="tab-pane fade show" id="tab-cuti" role="tabpanel">
+                            <?php require_once(APPPATH . 'modules/employee/views/histori_cuti.php') ?>
+                        </div>
                         <div class="tab-pane fade show" id="tab-sk_perijinan" role="tabpanel">
                             <?php require_once(APPPATH . 'modules/employee/views/histori_skspk.php') ?>
                         </div>

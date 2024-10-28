@@ -34,7 +34,7 @@
                     <thead class="thead-default">
                         <tr>
                             <th width="30">No</th>
-                            <th>Tanggal Persetujuan</th>
+                            <th>Tanggal Pengajuan</th>
                             <th>Pegawai</th>
                             <th>Cuti</th>
                             <th>Dimulai</th>
