@@ -75,7 +75,10 @@
                     } else if (data === 'Ditolak') {
                       status = data;
                       verifiedColor = 'danger';
-                    } else {
+                    } else if (data === '-'){
+                      status = '<i class="zmdi zmdi-check"></i>';
+                      verifiedColor = 'success';
+                    }else {
                       status = data;
                       verifiedColor = 'success';
                     }
