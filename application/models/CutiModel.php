@@ -338,21 +338,12 @@ class CutiModel extends CI_Model
                 } elseif (!empty($p2) && empty($p3)) {
                     if($status == 'Ditolak'){
                       $this->persetujuan_ketiga = $newStatus;
-                      $this->status_persetujuan = 'Dipertimbangkan';
+                      $this->status_persetujuan = $status;
                     }else{
                       $this->persetujuan_ketiga = $newStatus;
                       $this->status_persetujuan = $status;
                       $this->add_cuti_to_absen($query);
                     }
-                } elseif ($ps=='Dipertimbangkan'){
-                  if($status == 'Ditolak'){
-                    $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $status;
-                  }else{
-                    $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $status;
-                    $this->add_cuti_to_absen($query);
-                  }
                 }
               }
 
