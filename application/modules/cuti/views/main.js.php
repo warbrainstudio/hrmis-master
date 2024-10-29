@@ -380,12 +380,13 @@
       });
     });
     
-    $("#" + _modal + " ." + _section + "-pegawai_id").on("change", function(e) {    // When the clear button is clicked, hide the elements
+    $("#" + _modal + " ." + _section + "-pegawai_id").on("change", function(e) { 
       var _pengajuan_cuti = document.querySelector("."+_section+"-pengajuan-cuti");
       var _keterangan_cuti = document.querySelector("."+_section+"-keterangan-cuti");
       if(!this.value){
         _pengajuan_cuti.style.display = 'none';
         _keterangan_cuti.style.display = 'none';
+        resetForm();
       }
     });
 
