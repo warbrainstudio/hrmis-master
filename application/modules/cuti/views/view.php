@@ -56,11 +56,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label>No. Telepon saat cuti</label>
-                                    <div class="form-control"><?= (@$cuti->telepon_cuti == '') ? @$cuti->no_hp : @$cuti->telepon_cuti ?>&nbsp;</div>
+                                    <div class="form-control"><?= (@$cuti->telepon_cuti == '') ? "<label required></label>".@$cuti->no_hp : @$cuti->telepon_cuti ?>&nbsp;</div>
                                     </div>
                                 <div class="form-group">
                                     <label>Alamat saat cuti</label>
-                                    <div class="form-control"><?= (@$cuti->alamat_cuti == '') ? @$cuti->alamat_ktp : @$cuti->alamat_cuti ?>&nbsp;</div>
+                                    <div class="form-control"><?= (@$cuti->alamat_cuti == '') ? "<label required></label>".@$cuti->alamat_ktp : @$cuti->alamat_cuti ?>&nbsp;</div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6">
@@ -79,6 +79,9 @@
                             </div>
                         </div>
                     </div>
+                    <small class="form-text text-muted">
+                        Data with red stars (<label required></label>) are from data pegawai.
+                    </small>
                 </div>
                 <div class="x-section-group mb-3 mt-2">
                     <span class="x-section-group-title">Daftar Persetujuan</span>

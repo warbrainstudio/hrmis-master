@@ -6,7 +6,7 @@ class CutiModel extends CI_Model
   private $_table = 'cuti';
   private $_tableView = '';
 
-  public function rules($pegawai_id = null)
+  public function rules($id = null, $pegawai_id = null)
   {
     return array(
       [
@@ -33,8 +33,8 @@ class CutiModel extends CI_Model
           'trim',
           [
             'awal_cuti_exist',
-            function ($value) use ($pegawai_id) {
-              return $this->_awal_cuti_exist($value, $pegawai_id);
+            function ($value) use ($id, $pegawai_id) {
+              return $this->_awal_cuti_exist($value, $id, $pegawai_id);
             }
           ]
         ]
@@ -48,8 +48,8 @@ class CutiModel extends CI_Model
           'trim',
           [
             'akhir_cuti_exist',
-            function ($value) use ($pegawai_id) {
-              return $this->_akhir_cuti_exist($value, $pegawai_id);
+            function ($value) use ($id, $pegawai_id) {
+              return $this->_akhir_cuti_exist($value, $id, $pegawai_id);
             }
           ]
         ]
@@ -62,9 +62,8 @@ class CutiModel extends CI_Model
     );
   }
 
-  private function _awal_cuti_exist($value, $pegawai_id)
+  private function _awal_cuti_exist($value, $id, $pegawai_id)
   {
-    $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
     $temp = $this->db->where('pegawai_id', $pegawai_id)
                      ->group_start()
                      ->where('awal_cuti', $value)
@@ -75,18 +74,20 @@ class CutiModel extends CI_Model
                      ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
-
-    if ($temp->num_rows() > 0) {
-      $this->form_validation->set_message('awal_cuti_exist', 'date "' . $value . '" already exist.');
-      return false;
-    } else {
+    if($id === null){
+      if ($temp->num_rows() > 0) {
+        $this->form_validation->set_message('awal_cuti_exist', 'date "' . $value . '" already exist.');
+        return false;
+      } else {
+        return true;
+      };
+    }else{
       return true;
-    };
+    }
   }
 
-  private function _akhir_cuti_exist($value, $pegawai_id)
+  private function _akhir_cuti_exist($value, $id, $pegawai_id)
   {
-    $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
     $temp = $this->db->where('pegawai_id', $pegawai_id)
                      ->group_start()
                      ->where('awal_cuti', $value)
@@ -97,13 +98,16 @@ class CutiModel extends CI_Model
                      ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
-
-    if ($temp->num_rows() > 0) {
-      $this->form_validation->set_message('akhir_cuti_exist', 'date "' . $value . '" already exist.');
-      return false;
-    } else {
+    if($id === null){
+      if ($temp->num_rows() > 0) {
+        $this->form_validation->set_message('akhir_cuti_exist', 'date "' . $value . '" already exist.');
+        return false;
+      } else {
+        return true;
+      };
+    }else{
       return true;
-    };
+    }
   }
 
   public function getQuery($filter = null)
