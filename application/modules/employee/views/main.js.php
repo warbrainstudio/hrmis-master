@@ -556,7 +556,12 @@
               {
                 data: "tanggal_absen",
                 render: function(data, type, row, meta) {
-                  return moment(data).format('HH:mm:ss');
+                  var jam = moment(data).format('HH:mm:ss');
+                  if(jam==='00:00:00'){
+                    return '-';
+                  }else{
+                    return jam;
+                  }
                 }
               },
               {
@@ -589,14 +594,20 @@
                         status = data;
                         verifiedColor = 'danger';
                     }else {
-                        status = '-';
-                        verifiedColor = 'secondary';
+                        return '-';
                     }
                     return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                 }
               },
               {
-                data: "ipmesin"
+                data: "ipmesin",
+                render: function(data, type, row, meta){
+                if(data === null){
+                  return '-';
+                }else{
+                  return data;
+                }
+              }
               },
             {
               data: null,
