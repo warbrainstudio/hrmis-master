@@ -27,7 +27,7 @@
       _row_persetujuan = 'row.persetujuan_kedua';
     } else if(_role === 'supergeneralmanajerkepegawaian') {
       _data_persetujuan = "persetujuan_ketiga";
-      _filter = "<?= "AND persetujuan_kedua IS NOT NULL" ?>";
+      _filter = "<?= "AND persetujuan_kedua IS NOT NULL AND persetujuan_ketiga IS NULL OR status_persetujuan = 'Dipertimbangkan'" ?>";
       _row_persetujuan = 'row.persetujuan_ketiga';
     }else{
       _data_persetujuan = "persetujuan_pertama";

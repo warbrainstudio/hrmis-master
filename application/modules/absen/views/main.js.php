@@ -63,7 +63,7 @@
                       status = data;
                       verifiedColor = 'warning';
                   } else if (data === 'Cuti'){
-                      status = data;
+                      status = row.jenis_cuti;
                       verifiedColor = 'secondary';
                   }else {
                       status = data;

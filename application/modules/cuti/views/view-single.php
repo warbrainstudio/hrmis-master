@@ -95,7 +95,7 @@
                     </div>
                 </div>
             <div class="modal-footer">
-            <?php if($status_persetujuan == '' || $status_persetujuan == 'Ditolak' && @$cuti->status_persetujuan == "Dipertimbangkan") : ?>
+            <?php if($status_persetujuan == '' || $status_persetujuan == 'Ditolak' || @$cuti->status_persetujuan == 'Dipertimbangkan') : ?>
                 <form id="form-persetujuan" autocomplete="off">
                 <input type="hidden" name="ref" value="<?= @$cuti->id ?>" readonly />
                 <input type="hidden" name="nama" value="<?= @$cuti->nama_lengkap ?>" />

@@ -279,7 +279,7 @@ class CutiModel extends CI_Model
       $response = array('status' => false, 'data' => 'No operation.');
   
       try {
-          $query = $this->db->select('pegawai_id, awal_cuti, akhir_cuti, 
+          $query = $this->db->select('id, pegawai_id, awal_cuti, akhir_cuti, 
                                       jumlah_persetujuan, persetujuan_pertama, persetujuan_kedua, 
                                       persetujuan_ketiga, status_persetujuan')
                             ->from($this->_table)
@@ -303,17 +303,17 @@ class CutiModel extends CI_Model
                     if($status == 'Ditolak'){
                       $this->persetujuan_kedua = $newStatus;
                       $this->persetujuan_ketiga = $newStatus;
-                      $this->status_persetujuan = $newStatus;
+                      $this->status_persetujuan = $status;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
                     }
                 } elseif (!empty($p2) && empty($p3)) {
                   if($status == 'Ditolak'){
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $newStatus;
+                    $this->status_persetujuan = $status;
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $newStatus;
+                    $this->status_persetujuan = $status;
                     $this->add_cuti_to_absen($query);
                   }
                 }
@@ -323,7 +323,7 @@ class CutiModel extends CI_Model
                     $this->persetujuan_pertama = $newStatus;
                     $this->persetujuan_kedua = $newStatus;
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $newStatus;
+                    $this->status_persetujuan = $status;
                   }else{
                     $this->persetujuan_pertama = $newStatus;
                   }
@@ -331,7 +331,7 @@ class CutiModel extends CI_Model
                     if($status == 'Ditolak'){
                       $this->persetujuan_kedua = $newStatus;
                       $this->persetujuan_ketiga = $newStatus;
-                      $this->status_persetujuan = $newStatus;
+                      $this->status_persetujuan = $status;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
                     }
@@ -341,16 +341,16 @@ class CutiModel extends CI_Model
                       $this->status_persetujuan = 'Dipertimbangkan';
                     }else{
                       $this->persetujuan_ketiga = $newStatus;
-                      $this->status_persetujuan = $newStatus;
+                      $this->status_persetujuan = $status;
                       $this->add_cuti_to_absen($query);
                     }
                 } elseif ($ps=='Dipertimbangkan'){
                   if($status == 'Ditolak'){
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $newStatus;
+                    $this->status_persetujuan = $status;
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $newStatus;
+                    $this->status_persetujuan = $status;
                     $this->add_cuti_to_absen($query);
                   }
                 }
@@ -371,6 +371,7 @@ class CutiModel extends CI_Model
   }
 
   public function add_cuti_to_absen($query){
+    $id_cuti = $query->id;
     $pegawai_id = $query->pegawai_id;
     $awalCuti = $query->awal_cuti;
     $akhirCuti = $query->akhir_cuti;
@@ -392,7 +393,7 @@ class CutiModel extends CI_Model
             $data = [
               'absen_id' => $absen_pegawai_id,
               'tanggal_absen' => $currentDate,
-              'status' => "3",
+              'status' => $id_cuti,
               'created_by' => $this->session->userdata('user')['id']
             ];
             $this->db->insert($table, $data);

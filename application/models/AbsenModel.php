@@ -15,10 +15,12 @@ class AbsenModel extends CI_Model
           ab.*, 
           p.id AS id_pegawai,
           COALESCE(p.nama_lengkap, '-') AS nama,
-          (CASE WHEN ab.status = 0 THEN 'Masuk' WHEN ab.status = 3 THEN 'Cuti' ELSE 'Pulang' END) AS nama_status,
-          (CASE WHEN ab.verified = 1 THEN 'Finger' WHEN ab.verified = 0 THEN 'Input' ELSE '' END) AS verifikasi
+          (CASE WHEN ab.status = 0 THEN 'Masuk' WHEN ab.status = 1 THEN 'Pulang' ELSE 'Cuti' END) AS nama_status,
+          (CASE WHEN ab.verified = 1 THEN 'Finger' WHEN ab.verified = 0 THEN 'Input' ELSE '' END) AS verifikasi,
+          c.jenis_cuti
         FROM absen_pegawai ab
         LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
+        LEFT JOIN cuti c ON ab.status = c.id
       ) t
       WHERE 1=1
     ";
@@ -70,12 +72,14 @@ class AbsenModel extends CI_Model
 
         $this->db->select('absen_pegawai.tanggal_absen,
                           TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                          CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'\' END AS verifikasi, 
-                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 3 THEN \'Cuti\' ELSE \'Pulang\' END AS nama_status,
-                          absen_pegawai.ipmesin as mesin_nama,
+                          CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
+                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE \'Cuti\' END AS nama_status,
+                          COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama,
                           pegawai.nrp,
-                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
+                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama,
+                          cuti.jenis_cuti');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
+        $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
         
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
 
@@ -111,10 +115,12 @@ class AbsenModel extends CI_Model
         $this->db->select('absen_pegawai.absen_id, 
                 TO_CHAR(absen_pegawai.tanggal_absen, \'YYYY-MM-DD\') AS tanggal,
                 TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'\' END AS verifikasi, 
-                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 3 THEN \'Cuti\' ELSE \'Pulang\' END AS nama_status,
-                absen_pegawai.ipmesin as mesin_nama');
+                CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
+                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE \'Cuti\' END AS nama_status,
+                COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama,
+                cuti.jenis_cuti');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
+        $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
         $this->db->where($params);
 
         if (!is_null($orderField)) {
