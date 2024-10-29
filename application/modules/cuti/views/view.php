@@ -87,7 +87,7 @@
                             <div class="col-xs-12 col-sm-4">
                                 <div class="form-group">
                                     <label>Persetujuan Pertama</label>
-                                    <div class="form-control"><?= (@$cuti->persetujuan_pertama == '') ? '-' : @$cuti->persetujuan_pertama ?>&nbsp;</div>
+                                    <div class="form-control"><?= $persetujuanPertama ?>&nbsp;</div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-4">

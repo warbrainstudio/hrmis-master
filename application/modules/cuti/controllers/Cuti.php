@@ -92,6 +92,7 @@ class Cuti extends AppBackend
     $ref = (!is_null($ref) && is_numeric($ref)) ? $ref : null;
     $actionLabel = '<span class="badge badge-info">View</span> ';
     $cuti = $this->CutiModel->getDetail(['cuti.id' => $ref]);
+
     if($role=='Administrator'){
       $status_persetujuan = @$cuti->status_persetujuan;
     }else if($role=='generalmanajerkepegawaian'){
@@ -101,6 +102,16 @@ class Cuti extends AppBackend
     }else{
       $status_persetujuan = @$cuti->persetujuan_pertama;
     }
+
+    $persetujuanPertama = @$cuti->persetujuan_pertama; 
+    if (empty($persetujuanPertama)) {
+      $persetujuanPertama = '-';
+    } else if ($persetujuanPertama === '-') {
+      $persetujuanPertama = '<i class="zmdi zmdi-check"></i>';
+    } else{
+      $persetujuanPertama;
+    }
+
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('cuti', false, array(
@@ -111,6 +122,7 @@ class Cuti extends AppBackend
       'controller' => $this,
       'is_mobile' => $agent->isMobile(),
       'cuti' => $cuti,
+      'persetujuanPertama' => $persetujuanPertama,
       'status_persetujuan' => $status_persetujuan,
     );
     if($role=='Administrator'){
