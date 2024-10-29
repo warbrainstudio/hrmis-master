@@ -86,7 +86,7 @@
                         <div class="row">
                             <div class="form-group">
                                 <label>Status Persetujuan</label>
-                                <div class="form-control"><?= ($status_persetujuan == '') ? '-' : $status_persetujuan ?>&nbsp;</div>
+                                <div class="form-control"><?= ($status_persetujuan == '') ? 'Menunggu persetujuan' : $status_persetujuan ?>&nbsp;</div>
                             </div>
                         </div>
                     </div>

@@ -65,10 +65,14 @@ class CutiModel extends CI_Model
   private function _awal_cuti_exist($value, $pegawai_id)
   {
     $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
-    $temp = $this->db->where('pegawai_id =', $pegawai_id)
+    $temp = $this->db->where('pegawai_id', $pegawai_id)
                      ->group_start()
                      ->where('awal_cuti', $value)
                      ->or_where('akhir_cuti', $value)
+                     ->group_end()
+                     ->group_start()
+                     ->where('status_persetujuan', null)
+                     ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
 
@@ -83,10 +87,14 @@ class CutiModel extends CI_Model
   private function _akhir_cuti_exist($value, $pegawai_id)
   {
     $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
-    $temp = $this->db->where('pegawai_id =', $pegawai_id)
+    $temp = $this->db->where('pegawai_id', $pegawai_id)
                      ->group_start()
                      ->where('awal_cuti', $value)
                      ->or_where('akhir_cuti', $value)
+                     ->group_end()
+                     ->group_start()
+                     ->where('status_persetujuan', null)
+                     ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
 

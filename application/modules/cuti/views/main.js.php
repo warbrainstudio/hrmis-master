@@ -379,6 +379,15 @@
         };
       });
     });
+    
+    $("#" + _modal + " ." + _section + "-pegawai_id").on("change", function(e) {    // When the clear button is clicked, hide the elements
+      var _pengajuan_cuti = document.querySelector("."+_section+"-pengajuan-cuti");
+      var _keterangan_cuti = document.querySelector("."+_section+"-keterangan-cuti");
+      if(!this.value){
+        _pengajuan_cuti.style.display = 'none';
+        _keterangan_cuti.style.display = 'none';
+      }
+    });
 
     $("#" + _modal + " ." + _section + "-jenis_cuti-0").on("change", function(e) {
       var _pegawai = document.querySelector("."+_section+"-pegawai_id");
@@ -447,7 +456,7 @@
         this.checked = false;
       }else{
         if(_status_kawin.value === "Kawin"){
-          notify("Tidak bisa memilih cuti menikah karena status Kawin","danger");
+          notify("Tidak bisa memilih cuti menikah karena sudah menikah","danger");
           this.checked = false;
           _pengajuan_cuti.style.display = 'none';
           _keterangan_cuti.style.display = 'none';
@@ -493,6 +502,7 @@
         var _choose_date = new Date(this.value);
         var today = new Date();
         var _akhir_cuti = document.querySelector("." + _section + "-akhir_cuti");
+        var _bekerja_kembali = document.querySelector("." + _section + "-tanggal_bekerja");
 
         if (_choose_date < today) {
             notify("Pilih tanggal dengan benar", "danger");
@@ -505,6 +515,13 @@
         var day = String(_choose_date.getDate()).padStart(2, '0');
 
         _akhir_cuti.value = `${year}-${month}-${day}`;
+        
+        _choose_date.setDate(_choose_date.getDate() + 1); // Add another day for bekerja_kembali
+        year = _choose_date.getFullYear();
+        month = String(_choose_date.getMonth() + 1).padStart(2, '0');
+        day = String(_choose_date.getDate()).padStart(2, '0');
+
+        _bekerja_kembali.value = `${year}-${month}-${day}`;
     });
 
     $("#" + _modal + " ." + _section + "-akhir_cuti").on("change", function(e) {
@@ -830,12 +847,10 @@
         `<div class="select2-result-repository clearfix">
           <div class="select2-result-repository__title" style="font-weight: 600;"></div>
           <div class="select2-result-repository__description"></div>
-          <div class="select2-result-repository__gender"></div>
         </div>`
       );
       $container.find(".select2-result-repository__title").text(item.text);
       $container.find(".select2-result-repository__description").html(item.nrp);
-      $container.find(".select2-result-repository__gender").html(item.jenis_kelamin);
       var _jenis_kelamin = document.querySelector("."+_section+"-jenis_kelamin");
       var _status_kawin = document.querySelector("."+_section+"-status_kawin");
       var _jabatan_id = document.querySelector("."+_section+"-jabatan_id");
