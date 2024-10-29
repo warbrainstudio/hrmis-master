@@ -74,7 +74,7 @@ class CutiModel extends CI_Model
                      ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
-    if($id === null){
+    if(empty($id)){
       if ($temp->num_rows() > 0) {
         $this->form_validation->set_message('awal_cuti_exist', 'date "' . $value . '" already exist.');
         return false;
@@ -98,7 +98,7 @@ class CutiModel extends CI_Model
                      ->or_where('status_persetujuan', 'Disetujui')
                      ->group_end()
                      ->get($this->_table);
-    if($id === null){
+    if(empty($id)){
       if ($temp->num_rows() > 0) {
         $this->form_validation->set_message('akhir_cuti_exist', 'date "' . $value . '" already exist.');
         return false;
