@@ -376,81 +376,44 @@
               },
               {
                 data: "persetujuan_pertama",
-                render: function(data, type, row, meta) {
-                    let status;
-                    let verifiedColor;
+                  render: function(data, type, row, meta) {
                     if (data === null) {
-                      status = '-';
-                      verifiedColor = 'secondary';
-                    } else if (data === 'Ditolak') {
-                      status = data;
-                      verifiedColor = 'danger';
-                    } else {
-                      status = data;
-                      verifiedColor = 'success';
+                      return 'Menunggu';
+                    }else {
+                      return data;
                     }
-                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                   }
-                
               },
               {
                 data: "persetujuan_kedua",
-                render: function(data, type, row, meta) {
-                    let status;
-                    let verifiedColor;
+                  render: function(data, type, row, meta) {
                     if (data === null) {
-                      status = '-';
-                      verifiedColor = 'secondary';
-                    } else if (data === 'Ditolak') {
-                      status = data;
-                      verifiedColor = 'danger';
-                    } else {
-                      status = data;
-                      verifiedColor = 'success';
+                      return 'Menunggu';
+                    }else {
+                      return data;
                     }
-                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                   }
-                
               },
               {
                 data: "persetujuan_ketiga",
-                render: function(data, type, row, meta) {
-                    let status;
-                    let verifiedColor;
+                  render: function(data, type, row, meta) {
                     if (data === null) {
-                      status = '-';
-                      verifiedColor = 'secondary';
-                    } else if (data === 'Ditolak') {
-                      status = data;
-                      verifiedColor = 'danger';
-                    } else {
-                      status = data;
-                      verifiedColor = 'success';
+                      return 'Menunggu';
+                    }else {
+                      return data;
                     }
-                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                   }
               },
               {
                 data: "status_persetujuan",
-                render: function(data, type, row, meta) {
-                    let status;
-                    let verifiedColor;
+                  render: function(data, type, row, meta) {
                     if (data === null) {
-                      status = '-';
-                      verifiedColor = 'secondary';
-                    } else if (data === 'Ditolak') {
-                      status = data;
-                      verifiedColor = 'danger';
-                    } else if(data === 'Dipertimbangkan') {
-                      status = data;
-                      verifiedColor = 'warning';
-                    } else {
-                      status = data;
-                      verifiedColor = 'success';
+                      return 'Menunggu semua persetujuan';
+                    }else {
+                      return data;
                     }
-                    return `<span class="badge badge-${verifiedColor}">${status}</span>`;
                   }
-              }
+              },
           ],
           order: [[1, 'asc']],
           autoWidth: !1,

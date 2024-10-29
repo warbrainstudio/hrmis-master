@@ -56,11 +56,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label>No. Telepon saat cuti</label>
-                                    <div class="form-control"><?= (@$cuti->telepon_cuti == '') ? "<label required></label>".@$cuti->no_hp : @$cuti->telepon_cuti ?>&nbsp;</div>
+                                    <div class="form-control"><?= (@$cuti->telepon_cuti == '') ? "<label required></label> ".@$cuti->no_hp : @$cuti->telepon_cuti ?>&nbsp;</div>
                                     </div>
                                 <div class="form-group">
                                     <label>Alamat saat cuti</label>
-                                    <div class="form-control"><?= (@$cuti->alamat_cuti == '') ? "<label required></label>".@$cuti->alamat_ktp : @$cuti->alamat_cuti ?>&nbsp;</div>
+                                    <div class="form-control"><?= (@$cuti->alamat_cuti == '') ? "<label required></label> ".@$cuti->alamat_ktp : @$cuti->alamat_cuti ?>&nbsp;</div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6">

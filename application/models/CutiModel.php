@@ -210,7 +210,7 @@ class CutiModel extends CI_Model
     $jabatan = $query->nama_jabatan;
     if (strpos($jabatan, 'Manajer') !== false) {
       $jumlah_persetujuan = 2;
-      $this->persetujuan_pertama = "-";
+      $this->persetujuan_pertama = "<i class='zmdi zmdi-check'></i>";
     }else{
       $jumlah_persetujuan = 3;
     }
@@ -301,52 +301,56 @@ class CutiModel extends CI_Model
               if($jumlah_p == 2){
                 if (empty($p2)) {
                     if($status == 'Ditolak'){
-                      $this->persetujuan_kedua = $status;
-                      $this->status_persetujuan = $status;
+                      $this->persetujuan_kedua = $newStatus;
+                      $this->persetujuan_ketiga = $newStatus;
+                      $this->status_persetujuan = $newStatus;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
                     }
                 } elseif (!empty($p2) && empty($p3)) {
                   if($status == 'Ditolak'){
-                    $this->persetujuan_ketiga = $status;
-                    $this->status_persetujuan = $status;
+                    $this->persetujuan_ketiga = $newStatus;
+                    $this->status_persetujuan = $newStatus;
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $status;
+                    $this->status_persetujuan = $newStatus;
                     $this->add_cuti_to_absen($query);
                   }
                 }
               } else {
                 if (empty($p1)) {
                   if($status == 'Ditolak'){
-                    $this->persetujuan_pertama = $status;
-                    $this->status_persetujuan = $status;
+                    $this->persetujuan_pertama = $newStatus;
+                    $this->persetujuan_kedua = $newStatus;
+                    $this->persetujuan_ketiga = $newStatus;
+                    $this->status_persetujuan = $newStatus;
                   }else{
                     $this->persetujuan_pertama = $newStatus;
                   }
                 } elseif (!empty($p1) && empty($p2)) {
                     if($status == 'Ditolak'){
-                      $this->persetujuan_kedua = $status;
-                      $this->status_persetujuan = $status;
+                      $this->persetujuan_kedua = $newStatus;
+                      $this->persetujuan_ketiga = $newStatus;
+                      $this->status_persetujuan = $newStatus;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
                     }
                 } elseif (!empty($p2) && empty($p3)) {
                     if($status == 'Ditolak'){
-                      $this->persetujuan_ketiga = $status;
+                      $this->persetujuan_ketiga = $newStatus;
                       $this->status_persetujuan = 'Dipertimbangkan';
                     }else{
                       $this->persetujuan_ketiga = $newStatus;
-                      $this->status_persetujuan = $status;
+                      $this->status_persetujuan = $newStatus;
                       $this->add_cuti_to_absen($query);
                     }
                 } elseif ($ps=='Dipertimbangkan'){
                   if($status == 'Ditolak'){
-                    $this->persetujuan_ketiga = $status;
-                    $this->status_persetujuan = $status;
+                    $this->persetujuan_ketiga = $newStatus;
+                    $this->status_persetujuan = $newStatus;
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
-                    $this->status_persetujuan = $status;
+                    $this->status_persetujuan = $newStatus;
                     $this->add_cuti_to_absen($query);
                   }
                 }
