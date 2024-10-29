@@ -23,16 +23,18 @@
 
     if (_role === 'generalmanajerkepegawaian') {
       _data_persetujuan = "persetujuan_kedua";
-      _filter = "<?= "AND nama_unit='$unit_user' AND persetujuan_pertama IS NOT NULL" ?>";
+      _filter = "<?= "AND nama_unit='$unit_user' AND persetujuan_pertama IS NOT NULL AND persetujuan_kedua IS NULL" ?>";
       _row_persetujuan = 'row.persetujuan_kedua';
     } else if(_role === 'supergeneralmanajerkepegawaian') {
       _data_persetujuan = "persetujuan_ketiga";
-      _filter = "<?= "AND persetujuan_kedua IS NOT NULL AND persetujuan_ketiga IS NULL OR status_persetujuan = 'Dipertimbangkan'" ?>";
+      _filter = "<?= "AND persetujuan_kedua IS NOT NULL AND persetujuan_ketiga IS NULL" ?>";
       _row_persetujuan = 'row.persetujuan_ketiga';
-    }else{
+    }else if(_role === 'manajerkepegawaian'){
       _data_persetujuan = "persetujuan_pertama";
       _filter = "<?= "AND nama_unit='$unit_user' AND nama_sub_unit='$sub_unit_user' AND nama_jabatan NOT LIKE '%Manajer%'" ?>";
       _row_persetujuan = 'row.persetujuan_pertama';
+    }else{
+      _filter = "";
     }
     
     // Init on load
