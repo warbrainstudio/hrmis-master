@@ -73,11 +73,10 @@ class AbsenModel extends CI_Model
         $this->db->select('absen_pegawai.tanggal_absen,
                           TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
                           CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
-                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE \'Cuti\' END AS nama_status,
+                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE cuti.jenis_cuti END AS nama_status,
                           COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama,
                           pegawai.nrp,
-                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama,
-                          cuti.jenis_cuti');
+                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
         
@@ -116,9 +115,8 @@ class AbsenModel extends CI_Model
                 TO_CHAR(absen_pegawai.tanggal_absen, \'YYYY-MM-DD\') AS tanggal,
                 TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
                 CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
-                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE \'Cuti\' END AS nama_status,
-                COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama,
-                cuti.jenis_cuti');
+                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE cuti.jenis_cuti END AS nama_status,
+                COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
         $this->db->where($params);
