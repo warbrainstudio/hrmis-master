@@ -132,8 +132,9 @@ class Cuti extends AppBackend
   public function ajax_save()
   {
     $this->handle_ajax_request();
-    $this->form_validation->set_rules($this->CutiModel->rules());
     $id = $this->input->post('ref');
+    $pegawai_id = $this->input->post('pegawai_id');
+    $this->form_validation->set_rules($this->CutiModel->rules($pegawai_id));
 
     if ($this->form_validation->run() === true) {
       if (is_null($id) || empty($id)) {

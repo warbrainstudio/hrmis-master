@@ -6,7 +6,7 @@ class CutiModel extends CI_Model
   private $_table = 'cuti';
   private $_tableView = '';
 
-  public function rules()
+  public function rules($pegawai_id = null)
   {
     return array(
       [
@@ -24,7 +24,78 @@ class CutiModel extends CI_Model
         'label' => 'Jenis Cuti',
         'rules' => 'required|trim'
       ],
+      [
+        'field' => 'awal_cuti',
+        'label' => 'Awal Cuti',
+        'rules' => 'required|trim',
+        'rules' => [
+          'required',
+          'trim',
+          [
+            'awal_cuti_exist',
+            function ($value) use ($pegawai_id) {
+              return $this->_awal_cuti_exist($value, $pegawai_id);
+            }
+          ]
+        ]
+      ],
+      [
+        'field' => 'akhir_cuti',
+        'label' => 'Akhir Cuti',
+        'rules' => 'required|trim',
+        'rules' => [
+          'required',
+          'trim',
+          [
+            'akhir_cuti_exist',
+            function ($value) use ($pegawai_id) {
+              return $this->_akhir_cuti_exist($value, $pegawai_id);
+            }
+          ]
+        ]
+      ],
+      [
+        'field' => 'tanggal_bekerja',
+        'label' => 'Tanggal Bekerja',
+        'rules' => 'required|trim'
+      ],
     );
+  }
+
+  private function _awal_cuti_exist($value, $pegawai_id)
+  {
+    $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
+    $temp = $this->db->where('pegawai_id =', $pegawai_id)
+                     ->group_start()
+                     ->where('awal_cuti', $value)
+                     ->or_where('akhir_cuti', $value)
+                     ->group_end()
+                     ->get($this->_table);
+
+    if ($temp->num_rows() > 0) {
+      $this->form_validation->set_message('awal_cuti_exist', 'date "' . $value . '" already exist.');
+      return false;
+    } else {
+      return true;
+    };
+  }
+
+  private function _akhir_cuti_exist($value, $pegawai_id)
+  {
+    $pegawai_id = (!IS_NULL($pegawai_id)) ? $pegawai_id : 0;
+    $temp = $this->db->where('pegawai_id =', $pegawai_id)
+                     ->group_start()
+                     ->where('awal_cuti', $value)
+                     ->or_where('akhir_cuti', $value)
+                     ->group_end()
+                     ->get($this->_table);
+
+    if ($temp->num_rows() > 0) {
+      $this->form_validation->set_message('akhir_cuti_exist', 'date "' . $value . '" already exist.');
+      return false;
+    } else {
+      return true;
+    };
   }
 
   public function getQuery($filter = null)
