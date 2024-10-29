@@ -213,7 +213,7 @@ class CutiModel extends CI_Model
           $p3 = $query->persetujuan_ketiga;
           $ps = $query->status_persetujuan;
           $status = $this->input->post('persetujuan');
-          $newStatus = $status . " " . $this->session->userdata('user')['nama_lengkap'];
+          $newStatus = $status . " " . $this->session->userdata('user')['role'];
           
               if($jumlah_p == 2){
                 if (empty($p2)) {
@@ -222,7 +222,6 @@ class CutiModel extends CI_Model
                       $this->status_persetujuan = $status;
                     }else{
                       $this->persetujuan_kedua = $newStatus;
-                      $this->status_persetujuan = $status;
                     }
                 } elseif (!empty($p2) && empty($p3)) {
                   if($status == 'Ditolak'){
@@ -231,6 +230,7 @@ class CutiModel extends CI_Model
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
                     $this->status_persetujuan = $status;
+                    $this->add_cuti_to_absen($query);
                   }
                 }
               } else {
@@ -255,6 +255,7 @@ class CutiModel extends CI_Model
                     }else{
                       $this->persetujuan_ketiga = $newStatus;
                       $this->status_persetujuan = $status;
+                      $this->add_cuti_to_absen($query);
                     }
                 } elseif ($ps=='Dipertimbangkan'){
                   if($status == 'Ditolak'){
@@ -263,42 +264,10 @@ class CutiModel extends CI_Model
                   }else{
                     $this->persetujuan_ketiga = $newStatus;
                     $this->status_persetujuan = $status;
+                    $this->add_cuti_to_absen($query);
                   }
                 }
               }
-
-          if(empty($p3) && $status=='Disetujui'){
-            $pegawai_id = $query->pegawai_id;
-            $awalCuti = $query->awal_cuti;
-            $akhirCuti = $query->akhir_cuti;
-            $awalTimestamp = strtotime($awalCuti);
-            $akhirTimestamp = strtotime($akhirCuti);
-
-            $query_pegawai = $this->db->select('absen_pegawai_id')
-                              ->from("pegawai")
-                              ->where('id', $pegawai_id)
-                              ->get()
-                              ->row();
-
-            if ($awalTimestamp !== false && $akhirTimestamp !== false && $awalTimestamp <= $akhirTimestamp) {
-                $absen_pegawai_id = $query_pegawai->absen_pegawai_id;
-                $currentTimestamp = $awalTimestamp;
-                $table = 'absen_pegawai';
-                while ($currentTimestamp <= $akhirTimestamp) {
-                    $currentDate = date('Y-m-d', $currentTimestamp);
-                    $data = [
-                      'absen_id' => $absen_pegawai_id,
-                      'tanggal_absen' => $currentDate,
-                      'status' => "3",
-                      'created_by' => $this->session->userdata('user')['id']
-                    ];
-                    $this->db->insert($table, $data);
-                    $currentTimestamp = strtotime("+1 day", $currentTimestamp);
-                }
-            } else {
-              $response = array('status' => false, 'data' => 'Invalid Date Range');
-            }
-          }
 
           $this->updated_by = $this->session->userdata('user')['id'];
           $this->updated_date = date('Y-m-d H:i:s');
@@ -312,6 +281,39 @@ class CutiModel extends CI_Model
       }
   
       return $response;
+  }
+
+  public function add_cuti_to_absen($query){
+    $pegawai_id = $query->pegawai_id;
+    $awalCuti = $query->awal_cuti;
+    $akhirCuti = $query->akhir_cuti;
+    $awalTimestamp = strtotime($awalCuti);
+    $akhirTimestamp = strtotime($akhirCuti);
+
+    $query_pegawai = $this->db->select('absen_pegawai_id')
+                      ->from("pegawai")
+                      ->where('id', $pegawai_id)
+                      ->get()
+                      ->row();
+
+    if ($awalTimestamp !== false && $akhirTimestamp !== false && $awalTimestamp <= $akhirTimestamp) {
+        $absen_pegawai_id = $query_pegawai->absen_pegawai_id;
+        $currentTimestamp = $awalTimestamp;
+        $table = 'absen_pegawai';
+        while ($currentTimestamp <= $akhirTimestamp) {
+            $currentDate = date('Y-m-d', $currentTimestamp);
+            $data = [
+              'absen_id' => $absen_pegawai_id,
+              'tanggal_absen' => $currentDate,
+              'status' => "3",
+              'created_by' => $this->session->userdata('user')['id']
+            ];
+            $this->db->insert($table, $data);
+            $currentTimestamp = strtotime("+1 day", $currentTimestamp);
+        }
+    } else {
+      $response = array('status' => false, 'data' => 'Invalid Date Range');
+    }
   }
   
   
