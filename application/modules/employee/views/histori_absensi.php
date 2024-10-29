@@ -14,7 +14,7 @@
         <th>Status</th>
         <th>Verifikasi</th>
         <th>Mesin</th>
-        <th width="170" class="text-center">Option</th>
+        <!--<th width="170" class="text-center">Option</th>-->
     </tr>
     </thead>
 </table>

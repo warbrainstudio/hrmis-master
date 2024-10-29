@@ -571,14 +571,14 @@
                   return data;
                 }
               }
-              },
+              }/*,
             {
               data: null,
               className: "center",
               defaultContent: '<div class="action">' +
                 '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete-histori-absensi"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
                 '</div>'
-            }
+            }*/
           ],
           order: [[1, 'desc']],
           autoWidth: !1,
