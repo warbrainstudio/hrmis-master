@@ -42,7 +42,15 @@
               }
             },
             {
-              data: "nama"
+              data: "nama",
+              render: function(data, type, row, meta) {
+                if(data=='-'){
+                  var link = data;
+                }else{
+                  var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
+                }
+                return link;
+              }
             },
             {
               data: "masuk",

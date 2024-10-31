@@ -13,6 +13,7 @@ class AbsenModel extends CI_Model
         SELECT t.* FROM (
           SELECT 
             ab.*, 
+            p.id as id_pegawai,
             COALESCE(p.nama_lengkap, '-') AS nama,
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '' END) AS verifikasi_m,
             (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '' END) AS verifikasi_p,
