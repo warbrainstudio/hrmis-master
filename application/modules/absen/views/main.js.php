@@ -38,9 +38,10 @@
                     return row.absen_id;
                   }else{
                     var month = moment(data).format('MM');
-                   var getMonth = getMonthNameByNum(month);
-                   var day = moment(data).format('D');
-                    return day+" "+getMonth;
+                    var getMonth = getMonthNameByNum(month);
+                    var day = moment(data).format('ddd');
+                    //var getDay = translateNameDay(day);
+                    return day;
                   }
               }
             },
@@ -59,22 +60,22 @@
               data: "masuk",
               render: function(data, type, row, meta) {
                 if (!data) {
-                  return "-"; // Handles null and empty string
+                  return "-";
                 } else {
-                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
+                  return moment(data).format('HH:mm:ss');
                 }
               }
             },
             {
               data: "verifikasi_m",
               render: function(data, type, row, meta) {
-                let verifiedColor = 'secondary'; // Default color
+                let verifiedColor = 'secondary';
                 if (data === 'Finger') {
                   verifiedColor = 'success';
                 } else if (data === 'Input') {
                   verifiedColor = 'danger';
                 } else {
-                  return "-"; // Directly return if neither
+                  return "-";
                 }
                 return `<span class="badge badge-${verifiedColor}">${data}</span>`;
               }
@@ -82,29 +83,29 @@
             {
               data: "mesin_masuk",
               render: function(data, type, row, meta) {
-                return data ? row.nama_mesin_masuk : "-"; // Returns '-' if data is null or falsy
+                return data ? row.nama_mesin_masuk : "-";
               }
             },
             {
               data: "pulang",
               render: function(data, type, row, meta) {
                 if (!data) {
-                  return "-"; // Handles null and empty string
+                  return "-";
                 } else {
-                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
+                  return moment(data).format('HH:mm:ss');
                 }
               }
             },
             {
               data: "verifikasi_p",
               render: function(data, type, row, meta) {
-                let verifiedColor = 'secondary'; // Default color
+                let verifiedColor = 'secondary';
                 if (data === 'Finger') {
                   verifiedColor = 'success';
                 } else if (data === 'Input') {
                   verifiedColor = 'danger';
                 } else {
-                  return "-"; // Directly return if neither
+                  return "-";
                 }
                 return `<span class="badge badge-${verifiedColor}">${data}</span>`;
               }
@@ -112,7 +113,7 @@
             {
               data: "mesin_pulang",
               render: function(data, type, row, meta) {
-                return data ? row.nama_mesin_pulang : "-"; // Returns '-' if data is null or falsy
+                return data ? row.nama_mesin_pulang : "-";
               }
             },
             {
@@ -211,7 +212,6 @@
       });
     };
 
-    // Adding mouseover and mouseout event listeners to each day
     days.forEach(day => {
         day.addEventListener('mouseover', function() {
             this.style.backgroundColor = '#e0e0e0'; 
