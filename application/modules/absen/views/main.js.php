@@ -40,6 +40,7 @@
                     //var month = moment(data).format('MM');
                     //var getMonth = getMonthNameByNum(month);
                     var day = moment(data).format('dddd');
+                    //var getDay = getTranslateNameDay(day);
                     return day;
                   }
               }
