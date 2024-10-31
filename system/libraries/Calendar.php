@@ -212,7 +212,7 @@ class CI_Calendar {
 		$total_days = $this->get_total_days($month, $year);
 
 		// Set the starting day of the week
-		$start_days	= array('sunday' => 0, 'monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6);
+		$start_days	= array('minggu' => 0, 'senin' => 1, 'selasa' => 2, 'rabu' => 3, 'kamis' => 4, 'jumat' => 5, 'sabtu' => 6);
 		$start_day	= isset($start_days[$this->start_day]) ? $start_days[$this->start_day] : 0;
 
 		// Set the starting day number
@@ -354,11 +354,11 @@ class CI_Calendar {
 	{
 		if ($this->month_type === 'short')
 		{
-			$month_names = array('01' => 'cal_jan', '02' => 'cal_feb', '03' => 'cal_mar', '04' => 'cal_apr', '05' => 'cal_may', '06' => 'cal_jun', '07' => 'cal_jul', '08' => 'cal_aug', '09' => 'cal_sep', '10' => 'cal_oct', '11' => 'cal_nov', '12' => 'cal_dec');
+			$month_names = array('01' => 'cal_jan', '02' => 'cal_feb', '03' => 'cal_mar', '04' => 'cal_apr', '05' => 'cal_mei', '06' => 'cal_jun', '07' => 'cal_jul', '08' => 'cal_aug', '09' => 'cal_sep', '10' => 'cal_okt', '11' => 'cal_nov', '12' => 'cal_des');
 		}
 		else
 		{
-			$month_names = array('01' => 'cal_january', '02' => 'cal_february', '03' => 'cal_march', '04' => 'cal_april', '05' => 'cal_mayl', '06' => 'cal_june', '07' => 'cal_july', '08' => 'cal_august', '09' => 'cal_september', '10' => 'cal_october', '11' => 'cal_november', '12' => 'cal_december');
+			$month_names = array('01' => 'cal_januari', '02' => 'cal_februari', '03' => 'cal_maret', '04' => 'cal_april', '05' => 'cal_mei', '06' => 'cal_juni', '07' => 'cal_juli', '08' => 'cal_agustus', '09' => 'cal_september', '10' => 'cal_oktober', '11' => 'cal_november', '12' => 'cal_desember');
 		}
 
 		return ($this->CI->lang->line($month_names[$month]) === FALSE)
@@ -386,15 +386,15 @@ class CI_Calendar {
 
 		if ($this->day_type === 'long')
 		{
-			$day_names = array('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday');
+			$day_names = array('minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu');
 		}
 		elseif ($this->day_type === 'short')
 		{
-			$day_names = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
+			$day_names = array('min', 'sen', 'sel', 'rab', 'kam', 'jum', 'sab');
 		}
 		else
 		{
-			$day_names = array('su', 'mo', 'tu', 'we', 'th', 'fr', 'sa');
+			$day_names = array('mi', 'se', 'se', 'ra', 'ka', 'ju', 'sa');
 		}
 
 		$days = array();
