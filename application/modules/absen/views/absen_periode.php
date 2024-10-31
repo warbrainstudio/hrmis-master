@@ -2,17 +2,18 @@
     <thead class="thead-default">
         <tr>
             <th width="100">No</th>
-            <th>ID Absen</th>
-            <th>Pegawai</th>
-            <?php if($isDaily=='true') : ?>
-            <th>Jam</th>
-            <?php else : ?>
+            <?php //if($isDaily=='false') : ?>
             <th>Tanggal</th>
-            <?php endif ?>
-            <th>Status</th>
+            <?php //endif ?>
+            <th>Pegawai</th>
+            <th>Masuk</th>
             <th>Verifikasi</th>
             <th>Mesin</th>
-                        <!--<th width="170" class="text-center">Option</th>-->
+            <th>Pulang</th>
+            <th>Verifikasi</th>
+            <th>Mesin</th>
+            <th>Jam Kerja</th>
+            <!--<th width="170" class="text-center">Option</th>-->
         </tr>
     </thead>
 </table>

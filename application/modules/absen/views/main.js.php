@@ -9,6 +9,12 @@
 
     if ($("#" + _table)[0]) {
       var daily = "<?= $isDaily ?>";
+      var tanggal = "";
+      if(daily=='true'){
+        tanggal = null;
+      }else{
+        tanggal = "tanggal_absen";
+      }
       var table = $("#" + _table).DataTable({
         processing: true,
         serverSide: true,
@@ -26,79 +32,94 @@
             }
           },
             {
-              data: "absen_id"
-            },
-            {
-              data: "nama",
-              render: function(data, type, row, meta) {
-                if(data=='-'){
-                  var link = data;
-                }else{
-                  var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
-                }
-                return link;
-              }
-            },
-            {
               data: "tanggal_absen",
               render: function(data, type, row, meta) {
-                if(daily=='true'){
-                  var jam = moment(data).format('HH:mm:ss');
-                  if(jam==='00:00:00'){
-                    return '-';
-                  }else{
-                    return jam;
-                  }
-                }else{
-                  return moment(data).format('DD-MM-YYYY HH:mm:ss');
+                  //if(daily=='true'){
+                    //return null;
+                  //}else{
+                    return moment(data).format('YYYY-MM-DD');
+                  //}
+              }
+            },
+            {
+              data: "nama"
+            },
+            {
+              data: "masuk",
+              render: function(data, type, row, meta) {
+                if (!data) {
+                  return "-"; // Handles null and empty string
+                } else {
+                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
                 }
               }
             },
             {
-              data: "nama_status",
+              data: "verifikasi_m",
               render: function(data, type, row, meta) {
-                  let status;
-                  let verifiedColor;
-                  if (data === 'Masuk') {
-                      status = data;
-                      verifiedColor = 'warning';
-                  } else if (data === 'Cuti'){
-                      status = row.jenis_cuti;
-                      verifiedColor = 'secondary';
-                  }else {
-                      status = data;
-                      verifiedColor = 'primary';
-                  }
-                  return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                let verifiedColor = 'secondary'; // Default color
+                if (data === 'Finger') {
+                  verifiedColor = 'success';
+                } else if (data === 'Input') {
+                  verifiedColor = 'danger';
+                } else {
+                  return "-"; // Directly return if neither
+                }
+                return `<span class="badge badge-${verifiedColor}">${data}</span>`;
               }
             },
             {
-              data: "verifikasi",
+              data: "mesin_masuk",
               render: function(data, type, row, meta) {
-                  let status;
-                  let verifiedColor;
-                  if (data === 'Finger') {
-                      status = data;
-                      verifiedColor = 'success';
-                  } else if (data === 'Input'){
-                      status = data;
-                      verifiedColor = 'danger';
-                  }else {
-                      return '-';
-                  }
-                  return `<span class="badge badge-${verifiedColor}">${status}</span>`;
+                return data ? data : "-"; // Returns '-' if data is null or falsy
               }
             },
             {
-              data: "ipmesin",
-              render: function(data, type, row, meta){
-                if(data === null){
-                  return '-';
-                }else{
-                  return data;
+              data: "pulang",
+              render: function(data, type, row, meta) {
+                if (!data) {
+                  return "-"; // Handles null and empty string
+                } else {
+                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
                 }
               }
-            }/*,
+            },
+            {
+              data: "verifikasi_p",
+              render: function(data, type, row, meta) {
+                let verifiedColor = 'secondary'; // Default color
+                if (data === 'Finger') {
+                  verifiedColor = 'success';
+                } else if (data === 'Input') {
+                  verifiedColor = 'danger';
+                } else {
+                  return "-"; // Directly return if neither
+                }
+                return `<span class="badge badge-${verifiedColor}">${data}</span>`;
+              }
+            },
+            {
+              data: "mesin_pulang",
+              render: function(data, type, row, meta) {
+                return data ? data : "-"; // Returns '-' if data is null or falsy
+              }
+            },
+            {
+              data: "jam_kerja",
+              render: function(data, type, row, meta) {
+                if(data===null){
+                  return "Tidak terhitung";
+                }else{
+                  var _jam = parseFloat(data).toFixed(1) + " Jam";
+                  if (parseFloat(data) >= 0) {
+                      return _jam;
+                  } else {
+                      return "-";
+                  }
+                }
+              }
+            }
+            /*,
           {
             data: null,
             className: "center",
@@ -107,7 +128,6 @@
               '</div>'
           }*/
         ],
-        order: [[3, 'desc']],
         autoWidth: !1,
         responsive: {
           details: {
@@ -130,10 +150,10 @@
         },
         columnDefs: [{
           className: 'desktop',
-          targets: [0, 1, 2, 3, 4, 5, 6]
+          targets: [0, 1, 2, 3, 4, 5, 6, 7]
         }, {
           className: 'tablet',
-          targets: [0, 1, 2, 3, 4, 5, 6]
+          targets: [0, 1, 2, 3, 4]
         }, {
           className: 'mobile',
           targets: [0, 1, 2, 3, 4]

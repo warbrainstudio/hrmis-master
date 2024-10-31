@@ -9,59 +9,24 @@ class AbsenModel extends CI_Model
 
   public function getQuery($filter = null)
   {
-    $query = "
-      SELECT t.* FROM (
-        SELECT 
-          ab.*, 
-          p.id AS id_pegawai,
-          COALESCE(p.nama_lengkap, '-') AS nama,
-          (CASE WHEN ab.status = 0 THEN 'Masuk' WHEN ab.status = 1 THEN 'Pulang' ELSE 'Cuti' END) AS nama_status,
-          (CASE WHEN ab.verified = 1 THEN 'Finger' WHEN ab.verified = 0 THEN 'Input' ELSE '' END) AS verifikasi,
-          c.jenis_cuti
-        FROM absen_pegawai ab
-        LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
-        LEFT JOIN cuti c ON ab.status = c.id
-      ) t
-      WHERE 1=1
-    ";
-
-    if (!is_null($filter)) $query .= $filter;
-    return $query;
-  }
-
-  public function getnullpegawaiQuery($filter = null)
-  {
-    $query = "
+      $query = "
         SELECT t.* FROM (
-          SELECT
-            ab.absen_id, 
-            COUNT(ab.tanggal_absen) AS datetime_count
+          SELECT 
+            ab.*, 
+            COALESCE(p.nama_lengkap, '-') AS nama,
+            (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '' END) AS verifikasi_m,
+            (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '' END) AS verifikasi_p,
+            EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja
           FROM absen_pegawai ab
           LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
-          WHERE p.absen_pegawai_id IS NULL
-          GROUP BY ab.absen_id
+          ORDER BY p.nama_lengkap, ab.tanggal_absen ASC
         ) t
-         WHERE 1=1
-    ";
-    if (!is_null($filter)) $query .= $filter;
-    return $query;
+        WHERE 1=1
+      ";
+
+      if (!is_null($filter)) $query .= $filter;
+      return $query;
   }
-
-  public function getNull(){
-    $query = "
-          SELECT
-            absen_pegawai.absen_id 
-          FROM absen_pegawai
-          LEFT JOIN pegawai ON absen_pegawai.absen_id = pegawai.absen_pegawai_id
-          WHERE pegawai.absen_pegawai_id IS NULL
-          GROUP BY absen_pegawai.absen_id
-    ";
-    
-    $result = $this->db->query($query);
-    return $result->result();
-  }
-
-
 
   public function getAll($params = array(), $orderField = null, $orderBy = 'asc')
   {
@@ -71,20 +36,24 @@ class AbsenModel extends CI_Model
         $dateParam = $params['tanggal_absen'];
 
         $this->db->select('absen_pegawai.tanggal_absen,
-                          TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                          CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
-                          CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE cuti.jenis_cuti END AS nama_status,
-                          COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama,
+                          CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
+                          CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
+                          CASE WHEN absen_pegawai.mesin_masuk IS NULL THEN \'-\' ELSE absen_pegawai.mesin_masuk END AS mesin_m,
+                          CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
+                          CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
+                          CASE WHEN absen_pegawai.mesin_pulang IS NULL THEN \'-\' ELSE absen_pegawai.mesin_pulang END AS mesin_p,
+                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja,
                           pegawai.nrp,
                           COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
-        $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
+        $this->db->where('absen_pegawai_id IS NOT NULL');
+        $this->db->order_by('absen_pegawai.tanggal_absen, pegawai.nama_lengkap ASC');
         
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
 
           list($year, $month) = explode('-', $dateParam);
-          $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
-          $endDate = date('Y-m-d', strtotime("$year-$month-21"));
+          $startDate = date('Y-m-d', strtotime("$year-$month-1"));
+          $endDate = date('Y-m-d', strtotime("last day of $year-$month"));
           $this->db->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'");
 
         }elseif (preg_match('/^\d{4}$/', $dateParam)) {
@@ -107,19 +76,23 @@ class AbsenModel extends CI_Model
     
         return $this->db->get($this->_table)->result();
 
-      }elseif(isset($params['absen_pegawai_id'])){
+      }elseif(isset($params['absen_id'])){
         
         $orderField = 'tanggal_absen';
 
-        $this->db->select('absen_pegawai.absen_id, 
-                TO_CHAR(absen_pegawai.tanggal_absen, \'YYYY-MM-DD\') AS tanggal,
-                TO_CHAR(absen_pegawai.tanggal_absen, \'HH24:MI:SS\') AS jam_absen,
-                CASE WHEN absen_pegawai.verified = 1 THEN \'Finger\' WHEN absen_pegawai.verified = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi, 
-                CASE WHEN absen_pegawai.status = 0 THEN \'Masuk\' WHEN absen_pegawai.status = 1 THEN \'Pulang\' ELSE cuti.jenis_cuti END AS nama_status,
-                COALESCE(absen_pegawai.ipmesin, \'-\') AS mesin_nama');
+        $this->db->select('absen_pegawai.absen_id,
+                          absen_pegawai.tanggal_absen, 
+                          CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
+                          CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
+                          CASE WHEN absen_pegawai.mesin_masuk IS NULL THEN \'-\' ELSE absen_pegawai.mesin_masuk END AS mesin_m,
+                          CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
+                          CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
+                          CASE WHEN absen_pegawai.mesin_pulang IS NULL THEN \'-\' ELSE absen_pegawai.mesin_pulang END AS mesin_p,
+                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja
+                          ');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
-        $this->db->join('cuti', 'absen_pegawai.status = cuti.id', 'left');
         $this->db->where($params);
+        $this->db->order_by('tanggal_absen ASC');
 
         if (!is_null($orderField)) {
           $this->db->order_by($orderField, $orderBy);

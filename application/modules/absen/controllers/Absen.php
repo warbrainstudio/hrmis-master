@@ -114,7 +114,7 @@ class Absen extends AppBackend
 			$formattedMonth = $this->get_month($monthNumber);
 			$formattedDate = $formattedMonth . ' ' . $year;
 			$startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
-        	$endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
+      $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
 			$searchFilter = "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
 			$status = 'false';
 			$card = "Bulan ".$formattedDate;
@@ -250,7 +250,7 @@ class Absen extends AppBackend
           $status = '';
           $formattedDate = $date;
           if (DateTime::createFromFormat('Y-m-d', $date) !== false) {
-              $fileTemplate = FCPATH . 'directory/templates/template-attendance-harian.xlsx';
+              $fileTemplate = FCPATH . 'directory/templates/template-absensi-harian.xlsx';
               $dateTime = DateTime::createFromFormat('Y-m-d', $date);
               $Day = $dateTime->format('D');
               $DayNumber = $dateTime->format('d');
@@ -261,7 +261,7 @@ class Absen extends AppBackend
               $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
               $status = $formattedDate;
           } else if(DateTime::createFromFormat('Y-m', $date) !== false) {
-              $fileTemplate = FCPATH . 'directory/templates/template-attendance.xlsx';
+              $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
               $dateTime = DateTime::createFromFormat('Y-m', $date);
               $monthNumber = $dateTime->format('m');
               $year = $dateTime->format('Y');
@@ -270,7 +270,7 @@ class Absen extends AppBackend
               $status = 'Bulan ' . $formattedDate;
           } else{
               ini_set('memory_limit', '4G');
-              $fileTemplate = FCPATH . 'directory/templates/template-attendance.xlsx';
+              $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
               $status = 'Tahun'; 
           }
           $callbacks = array();
@@ -300,7 +300,7 @@ class Absen extends AppBackend
   {
     try {
         $absen_pegawai_id = $this->input->get('absen_pegawai_id');
-        $fileTemplate = FCPATH . 'directory/templates/template-histori-pegawai.xlsx';
+        $fileTemplate = FCPATH . 'directory/templates/template-absensi-pegawai.xlsx';
         $callbacks = array();
 
         $pegawai = $this->PegawaiModel->getDetail(array('absen_pegawai_id' => $absen_pegawai_id));
