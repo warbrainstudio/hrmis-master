@@ -368,7 +368,7 @@
                 if(row.mesin_masuk===null){
                   mesin = '-';
                 }else{
-                  mesin = row.mesin_masuk;
+                  mesin = row.nama_mesin_masuk;
                 }
                 let verifiedColor = 'secondary'; // Default color
                 if (data === 'Finger') {
@@ -398,7 +398,7 @@
                 if(row.mesin_pulang===null){
                   mesin = '-';
                 }else{
-                  mesin = row.mesin_pulang;
+                  mesin = row.nama_mesin_pulang;
                 }
                 let verifiedColor = 'secondary'; // Default color
                 if (data === 'Finger') {
@@ -415,7 +415,7 @@
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if(data===null){
-                  return "Tidak terhitung";
+                  return "Belum terhitung";
                 }else{
                   var _jam = parseFloat(data).toFixed(1) + " Jam";
                   if (parseFloat(data) >= 0) {

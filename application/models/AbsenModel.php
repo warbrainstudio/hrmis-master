@@ -17,9 +17,13 @@ class AbsenModel extends CI_Model
             COALESCE(p.nama_lengkap, '-') AS nama,
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '' END) AS verifikasi_m,
             (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '' END) AS verifikasi_p,
-            EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja
+            EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
+            m_masuk.nama_mesin as nama_mesin_masuk, 
+            m_pulang.nama_mesin as nama_mesin_pulang
           FROM absen_pegawai ab
           LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
+          LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
+          LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
           ORDER BY p.nama_lengkap, ab.tanggal_absen ASC
         ) t
         WHERE 1=1
@@ -36,18 +40,21 @@ class AbsenModel extends CI_Model
         $orderField = 'tanggal_absen';
         $dateParam = $params['tanggal_absen'];
 
-        $this->db->select('absen_pegawai.tanggal_absen,
+        $this->db->select('absen_pegawai.absen_id,
+                          absen_pegawai.tanggal_absen,
                           CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
                           CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
-                          CASE WHEN absen_pegawai.mesin_masuk IS NULL THEN \'-\' ELSE absen_pegawai.mesin_masuk END AS mesin_m,
                           CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
                           CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
-                          CASE WHEN absen_pegawai.mesin_pulang IS NULL THEN \'-\' ELSE absen_pegawai.mesin_pulang END AS mesin_p,
                           CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja,
                           pegawai.nrp,
-                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama');
+                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama,
+                          m_masuk.nama_mesin as mesin_m, 
+                          m_pulang.nama_mesin as mesin_p');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
-        $this->db->where('absen_pegawai_id IS NOT NULL');
+        $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
+        $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
+        //$this->db->where('absen_pegawai_id IS NOT NULL');
         $this->db->order_by('absen_pegawai.tanggal_absen, pegawai.nama_lengkap ASC');
         
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
@@ -89,9 +96,12 @@ class AbsenModel extends CI_Model
                           CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
                           CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
                           CASE WHEN absen_pegawai.mesin_pulang IS NULL THEN \'-\' ELSE absen_pegawai.mesin_pulang END AS mesin_p,
-                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja
-                          ');
+                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja,
+                          m_masuk.nama_mesin as mesin_m, 
+                          m_pulang.nama_mesin as mesin_p');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
+        $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
+        $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
         $this->db->where($params);
         $this->db->order_by('tanggal_absen ASC');
 
@@ -114,7 +124,6 @@ class AbsenModel extends CI_Model
       }
   }
    
-
   public function getDetail($params = array())
   {
     return $this->db->where($params)->get($this->_table)->row();
@@ -126,21 +135,6 @@ class AbsenModel extends CI_Model
 
     try {
       $this->db->delete($this->_table, array('id' => $id));
-
-      $response = array('status' => true, 'data' => 'Data has been deleted.');
-    } catch (\Throwable $th) {
-      $response = array('status' => false, 'data' => 'Failed to delete your data.');
-    };
-
-    return $response;
-  }
-
-  public function delete_pegawai($absen_id)
-  {
-    $response = array('status' => false, 'data' => 'No operation.');
-
-    try {
-      $this->db->delete($this->_table, array('absen_id' => $absen_id));
 
       $response = array('status' => true, 'data' => 'Data has been deleted.');
     } catch (\Throwable $th) {
@@ -163,6 +157,141 @@ class AbsenModel extends CI_Model
     };
 
     return $response;
+  }
+
+  public function checkIPMachine($IP) { 
+    $timeout = 200; // Timeout in milliseconds
+    $Connect = @fsockopen($IP, 80, $errno, $errstr, $timeout);
+    
+    return $Connect !== false;
+  }
+
+  public function fetchDataFromMachine($IP, $Key, $startDate, $endDate) {
+    $timeout = 200;
+    $Connect = fsockopen($IP, "80", $errno, $errstr, $timeout);
+    $filteredData = [];
+    if ($Connect) {
+        $formattedStartDate = date('Y-m-d\TH:i:s', strtotime($startDate . ' 00:00:00'));
+        $formattedEndDate = date('Y-m-d\TH:i:s', strtotime($endDate . ' 23:59:59'));
+
+        $soap_request = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <soap:Body>
+        <GetAttLog xmlns="http://tempuri.org/">
+            <ArgComKey xsi:type="xsd:integer">$Key</ArgComKey>
+            <Arg></Arg>
+            <DateTimeRange>
+                <StartDate>$formattedStartDate</StartDate>
+                <EndDate>$formattedEndDate</EndDate>
+            </DateTimeRange>
+        </GetAttLog>
+    </soap:Body>
+</soap:Envelope>
+XML;
+
+        $newLine = "\r\n";
+        fputs($Connect, "POST /iWsService HTTP/1.1" . $newLine);
+        fputs($Connect, "Host: $IP" . $newLine);
+        fputs($Connect, "Content-Type: text/xml" . $newLine);
+        fputs($Connect, "Content-Length: " . strlen($soap_request) . $newLine . $newLine);
+        fputs($Connect, $soap_request . $newLine);
+
+        $buffer = "";
+        while (!feof($Connect)) {
+            $Response = fgets($Connect, 1024);
+            if ($Response === false) break;
+            $buffer .= $Response;
+        }
+        fclose($Connect);
+
+        if (strpos($buffer, '500 Internal Server Error') !== false) {
+            echo "The server encountered an error while processing the request.";
+            exit;
+        }
+
+        $this->load->helper('parse');
+        $buffer = Parse_Data($buffer, "<GetAttLogResponse>", "</GetAttLogResponse>");
+        $buffer = explode("\r\n", $buffer);
+
+        foreach ($buffer as $line) {
+            $data = Parse_Data($line, "<Row>", "</Row>");
+            if ($data) {
+                $PIN = Parse_Data($data, "<PIN>", "</PIN>");
+                $DateTime = Parse_Data($data, "<DateTime>", "</DateTime>");
+                $Verified = Parse_Data($data, "<Verified>", "</Verified>");
+                $Status = Parse_Data($data, "<Status>", "</Status>");
+
+                $dataDateTime = date('Y-m-d', strtotime($DateTime));
+
+                if ($dataDateTime >= $startDate && $dataDateTime <= $endDate) {
+                    $filteredData[] = [
+                        'PIN' => htmlspecialchars($PIN),
+                        'DateTime' => htmlspecialchars($DateTime),
+                        'Verified' => htmlspecialchars($Verified),
+                        'Status' => htmlspecialchars($Status),
+                        'Machine' => htmlspecialchars($IP),
+                    ];
+                }
+            }
+        }
+    } else {
+        echo "Connection failed: $errstr ($errno)";
+    }
+
+    return $filteredData;
+}
+
+public function importData($data) {
+  $failedInsertions = [];
+  $existingRecordsCount = 0;
+
+  $this->db->trans_start();
+
+  try {
+      foreach ($data as $row) {
+          $userID = $row['PIN'];
+          $dateTime = $row['DateTime'];
+          $verified = $row['Verified'];
+          $status = $row['Status'];
+          $machine = $row['Machine'];
+
+          $this->db->where('absen_id', $userID);
+          $this->db->where('tanggal_absen', $dateTime);
+          $count = $this->db->count_all_results('attendancelog');
+
+          if ($count == 0) {
+              $data = [
+                  'absen_id' => $userID,
+                  'tanggal_absen' => $dateTime,
+                  'verified' => $verified,
+                  'status' => $status,
+                  'ipmesin' => $machine
+              ];
+              if (!$this->db->insert('attendancelog', $data)) {
+                  $failedInsertions[] = [
+                      'absen_id' => $userID,
+                      'dateTime' => $dateTime,
+                      'error' => $this->db->error()['message']
+                  ];
+              }
+          } else {
+              $existingRecordsCount++;
+          }
+      }
+      $this->db->trans_complete();
+    } catch (Exception $e) {
+        $this->db->trans_rollback();
+        $failedInsertions[] = [
+            'absen_id' => isset($userID) ? $userID : 'N/A',
+            'dateTime' => isset($dateTime) ? $dateTime : 'N/A',
+            'error' => $e->getMessage()
+        ];
+    }
+    return [
+        'failedInsertions' => $failedInsertions,
+        'existingRecordsCount' => $existingRecordsCount
+    ];
   }
 
   function br2nl($text)

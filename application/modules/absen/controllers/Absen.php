@@ -147,24 +147,22 @@ class Absen extends AppBackend
     $tanggal = $this->input->get('tanggal');
     $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
-    $host = 'localhost';
     $api_name = 'simabsen';
     $task = '/fetchData?';
     $tableView = $this->AbsenModel->_tableView;
 
-    $apiUrl = 'http://' . $host . '/' . $api_name . '/api' . $task . http_build_query([
-              'token' => $token,
-              'host' => $host,
-              'port' => $this->db->port,
-              'username' => $this->db->username,
-              'password' => $this->db->password,
-              'database' => $this->db->database,
-              'table' => $tableView,
-              'table_pegawai' => 'pegawai',
-              'alldata' => $status,
-              'start_date' => $tanggal,
-              'end_date' => $tanggal,
-    ]);
+    $apiUrl = base_url('api/fetchData?' . http_build_query([
+        'token' => $token,
+        'host' => 'localhost',
+        'port' => $this->db->port,
+        'username' => $this->db->username,
+        'password' => $this->db->password,
+        'database' => $this->db->database,
+        'table' => $tableView,
+        'alldata' => $status,
+        'start_date' => $tanggal,
+        'end_date' => $tanggal,
+    ]));
 
     $ch = curl_init($apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -276,12 +274,14 @@ class Absen extends AppBackend
           $callbacks = array();
 
           $payload = $this->AbsenModel->getAll(array('tanggal_absen' => $date));
+
+          $user = $this->session->userdata('user')['nama_lengkap'];
   
           if (!is_null($payload)) {
 
               $outputFileName = 'histori absen ' . $formattedDate . '.xlsx';
               $payloadStatic = $this->arrayToSetterSimple(array('tanggal_absen' => $formattedDate,'status' => $status));
-              $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'))));
+              $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'), 'user' => $user)));
               $payload = $this->arrayToSetter($payload);
               $payload = array_merge($payload, $payloadStatic);
   
@@ -302,7 +302,7 @@ class Absen extends AppBackend
         $absen_pegawai_id = $this->input->get('absen_pegawai_id');
         $fileTemplate = FCPATH . 'directory/templates/template-absensi-pegawai.xlsx';
         $callbacks = array();
-
+        $user = $this->session->userdata('user')['nama_lengkap'];
         $pegawai = $this->PegawaiModel->getDetail(array('absen_pegawai_id' => $absen_pegawai_id));
         
         if ($pegawai) {
@@ -316,7 +316,7 @@ class Absen extends AppBackend
             $outputFileName = 'histori absen ' . (!empty($pegawai->nama_lengkap) ? $pegawai->nama_lengkap : 'unknown') . '.xlsx';
 
             $payloadStatic = $this->arrayToSetterSimple(array('nama_lengkap' => $pegawai->nama_lengkap));
-            $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'))));
+            $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'), 'user' => $user)));
             $payloadSimple = $this->arrayToSetterSimple((array) $pegawai);
             $payload = $this->arrayToSetter($payload);
             $payload = array_merge($payload, $payloadSimple, $payloadStatic);

@@ -34,11 +34,11 @@
             {
               data: "tanggal_absen",
               render: function(data, type, row, meta) {
-                  //if(daily=='true'){
-                    //return null;
-                  //}else{
+                  if(daily=='true'){
+                    return row.absen_id;
+                  }else{
                     return moment(data).format('YYYY-MM-DD');
-                  //}
+                  }
               }
             },
             {
@@ -79,7 +79,7 @@
             {
               data: "mesin_masuk",
               render: function(data, type, row, meta) {
-                return data ? data : "-"; // Returns '-' if data is null or falsy
+                return data ? row.nama_mesin_masuk : "-"; // Returns '-' if data is null or falsy
               }
             },
             {
@@ -109,14 +109,14 @@
             {
               data: "mesin_pulang",
               render: function(data, type, row, meta) {
-                return data ? data : "-"; // Returns '-' if data is null or falsy
+                return data ? row.nama_mesin_pulang : "-"; // Returns '-' if data is null or falsy
               }
             },
             {
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if(data===null){
-                  return "Tidak terhitung";
+                  return "Belum terhitung";
                 }else{
                   var _jam = parseFloat(data).toFixed(1) + " Jam";
                   if (parseFloat(data) >= 0) {

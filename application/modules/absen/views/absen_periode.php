@@ -2,9 +2,11 @@
     <thead class="thead-default">
         <tr>
             <th width="100">No</th>
-            <?php //if($isDaily=='false') : ?>
+            <?php if($isDaily=='false') : ?>
             <th>Tanggal</th>
-            <?php //endif ?>
+            <?php else : ?>
+            <th>ID</th>
+            <?php endif ?>
             <th>Pegawai</th>
             <th>Masuk</th>
             <th>Verifikasi</th>

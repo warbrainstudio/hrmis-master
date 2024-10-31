@@ -54,5 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['notification/(:num)'] = 'notification';
 $route['search/(:any)'] = 'search';
+$route['api/fetchData'] = 'ApiAbsen/fetchData';
+$route['api/getData'] = 'ApiAbsen/getData';
 
 $route['setting/nomorsurat'] = 'setting/settingnomorsurat/index';
