@@ -37,10 +37,9 @@
                   if(daily=='true'){
                     return row.absen_id;
                   }else{
-                    var month = moment(data).format('MM');
-                    var getMonth = getMonthNameByNum(month);
+                    //var month = moment(data).format('MM');
+                    //var getMonth = getMonthNameByNum(month);
                     var day = moment(data).format('ddd');
-                    //var getDay = translateNameDay(day);
                     return day;
                   }
               }

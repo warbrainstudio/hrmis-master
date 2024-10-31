@@ -460,27 +460,6 @@ $(".nav-responsive-10:first").responsiveTabs();
 	}
 })();
 
-function translateNameDay(hariText) {
-    switch (hariText) {
-        case "Sun":
-            return "Minggu";
-        case "Mon":
-            return "Senin";
-        case "Tue":
-            return "Selasa";
-        case "Wed":
-            return "Rabu";
-        case "Thu":
-            return "Kamis";
-        case "Fri":
-            return "Jumat";
-        case "Sat":
-            return "Sabtu";
-        default:
-            return "Undefined";
-    }
-}
-
 function getMonthNameByNum(bulanNum) {
 	switch (parseInt(bulanNum)) {
 		case 1:
