@@ -3,7 +3,7 @@
         <tr>
             <th width="100">No</th>
             <?php if($isDaily=='false') : ?>
-            <th>Tanggal</th>
+            <th>Hari</th>
             <?php else : ?>
             <th>ID</th>
             <?php endif ?>
