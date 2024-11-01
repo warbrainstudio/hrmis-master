@@ -145,55 +145,39 @@ class Absen extends AppBackend
 
     $this->handle_ajax_request();
     $tanggal = $this->input->get('tanggal');
-    $status = 'false';
-    $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
-    $api_name = 'simabsen';
-    $task = '/fetchData?';
-    $tableView = $this->AbsenModel->_tableView;
+    $data['filteredData'] = [];
+    $query = $this->db->get('mesin_absen');
+    $mesins = $query->result();
+    foreach ($mesins as $mesin) {
+        $ip = $mesin->ipadress;
+        $key = $mesin->commkey;
+        $data['filteredData'] = array_merge(
+          $data['filteredData'],
+          $this->AbsenModel->fetchDataFromMachine($ip, $key, $tanggal, $tanggal)
+        );
 
-    $apiUrl = base_url('api/fetchData?' . http_build_query([
-        'token' => $token,
-        'host' => 'localhost',
-        'port' => $this->db->port,
-        'username' => $this->db->username,
-        'password' => $this->db->password,
-        'database' => $this->db->database,
-        'table' => $tableView,
-        'alldata' => $status,
-        'start_date' => $tanggal,
-        'end_date' => $tanggal,
-    ]));
+        usort($data['filteredData'], function($a, $b) {
+          return strtotime($a['DateTime']) - strtotime($b['DateTime']);
+        });
 
-    $ch = curl_init($apiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
+        $dataCount['dataCount'] = count($data['filteredData']);
 
-    if (curl_errno($ch)) {
-        curl_close($ch);
-        return json_encode(['error' => 'cURL error: ' . curl_error($ch)]);
+        $result = $this->AbsenModel->import_data($data['filteredData']);
+        $existingRecordsCount = $result['existingRecordsCount'];
+        $failedInsertions = $result['failedInsertions'];
+
+        $response = array(
+          'status' => true,
+          'data' => array(
+              'dataCount' => $dataCount['dataCount'],
+              'existingRecordsCount' => $existingRecordsCount,
+              'failedInsertions' => $failedInsertions
+          )
+        );
     }
-
-    curl_close($ch);
-    $data_api = json_decode($response, true);
-
-    if (is_array($data_api) && isset($data_api['status'])) {
-      if ($data_api['status'] == 'true') {
-          $response = array(
-              'status' => true,
-          );
-      } else {
-          $response = array(
-              'status' => false,
-              'message' => $data_api['message'],
-          );
-      }
-    } else {
-        return json_encode(['error' => 'Invalid response from API']);
-    }
-
-    $this->output
-        ->set_content_type('application/json')
-        ->set_output(json_encode($response));
+      $this->output
+          ->set_content_type('application/json')
+          ->set_output(json_encode($response));
   }
 
   public function ajax_get_all()

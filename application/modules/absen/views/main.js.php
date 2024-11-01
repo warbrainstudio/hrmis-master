@@ -6,6 +6,13 @@
     var _table = "table-absen-periode";
     const calendar = ".calendar";
     const days = document.querySelectorAll(calendar + ' .day');
+    let isFetching = false; 
+    const storedDate = localStorage.getItem('selectedDate');
+
+    if (storedDate) {
+        fetchData(storedDate);
+        localStorage.removeItem('selectedDate');
+    }
 
     if ($("#" + _table)[0]) {
       var daily = "<?= $isDaily ?>";
@@ -277,28 +284,40 @@
             month = String(now.getMonth() + 1).padStart(2, '0');
         }
 
-        const day = parseInt($(this).text(), 10);
+        const day = $(this).text().padStart(2, '0');
         const clickedDate = new Date(year, month - 1, day);
         const limit = new Date('2023-07-03');
 
         if (clickedDate < now && clickedDate > limit) {
             const dateShow = `${day}-${String(month).padStart(2, '0')}-${year}`;
             const tanggal = `${year}-${String(month).padStart(2, '0')}-${day}`;
-            
-            swal({
-                title: "Tarik Data",
-                text: `Data tanggal ${dateShow} belum ada. Ingin tarik data?`,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Ya",
-                cancelButtonText: "Tidak",
-                closeOnConfirm: false
-            }).then((result) => {
-              if (result.value) {
-                fetchData(tanggal);
-              }
-            });
+            if (isFetching) {
+                swal({
+                    title: "Proses sedang berjalan",
+                    text: "Silakan tunggu hingga proses selesai.",
+                    icon: "info",
+                    showCancelButton: false,
+                    closeOnConfirm: true
+                });
+                return;
+            } else {
+              swal({
+                  title: "Tarik Data",
+                  text: `Data tanggal ${dateShow} belum ada. Ingin tarik data?`,
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonText: "Ya",
+                  cancelButtonText: "Tidak",
+                  closeOnConfirm: false
+              }).then((result) => {
+                if (result.value) {
+                  localStorage.setItem('selectedDate', tanggal);
+                  isFetching = true; 
+                }
+              });
+            }
         }
+        
     });
 
 
@@ -307,23 +326,34 @@
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = $(this).find('strong').text();
+        const day = $(this).find('strong').text().padStart(2, '0');
         const tanggal = `${year}-${month}-${day}`;
-
-        swal({
+           
+        if (isFetching) {
+              swal({
+                  title: "Proses sedang berjalan",
+                  text: "Silakan tunggu hingga proses selesai.",
+                  icon: "info",
+                  showCancelButton: false,
+                  closeOnConfirm: true
+              });
+              return;
+        }else{
+            swal({
                 title: "Tarik Data",
-                text: "Data hari ini belum ada. Ingin tarik data?",
-                type: "warning",
+                text: `Data hari ini ${tanggal} belum ada. Ingin tarik data?`,
+                icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Ya",
                 cancelButtonText: "Tidak",
                 closeOnConfirm: false
             }).then((result) => {
-                if (result.value) {
-                  fetchData(tanggal);
-                }
+              if (result.value) {
+                localStorage.setItem('selectedDate', tanggal);
+                isFetching = true;
+              }
             });
-        
+        }
     });
 
     $("#" + _section).on("click", "button." + _section + "-action-add", function(e) {
@@ -331,35 +361,36 @@
       const currentUrl = window.location.href;
       const url = new URL(currentUrl);
       const tanggal = url.searchParams.get("date");
-      swal({
-                title: "Update Data Absen tanggal "+tanggal+"?",
-                text: "",
-                type: "warning",
-                showCancelButton: true,
-                showCancelButton: true,
-                confirmButtonText: "Ya",
-                cancelButtonText: "Tidak",
-                closeOnConfirm: false
-            }).then((result) => {
-                if (result.value) {
-                  fetchData(tanggal);
-                }
-            });
+
+      if (isFetching) {
+          swal({
+            title: "Proses sedang berjalan",
+            text: "Silakan tunggu hingga proses selesai.",
+            icon: "info",
+            showCancelButton: false,
+            closeOnConfirm: true
+          });
+        return;
+      }else{
+        swal({
+          title: "Tarik Data",
+          text: `Update Data absen ${tanggal}?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Ya",
+          cancelButtonText: "Tidak",
+          closeOnConfirm: false
+        }).then((result) => {
+            if (result.value) {
+              localStorage.setItem('selectedDate', tanggal);
+              isFetching = true;
+            }
+        });
+      }
     });
 
     function fetchData(tanggal) {
         const startTime = performance.now();
-
-        swal.fire({
-            title: "Loading...",
-            text: "Sedang menarik data, harap tunggu.",
-            icon: "info",
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                swal.showLoading();
-            }
-        });
 
         $.ajax({
             type: "get",
@@ -369,32 +400,18 @@
             success: function(parsedResponse) {
                 const endTime = performance.now();
                 const duration = ((endTime - startTime) / 1000).toFixed(1);
-                swal.close();
+                var dataCount = parsedResponse.data.dataCount;
 
                 if (parsedResponse.status === true) {
-
-                    var message = " Data tanggal "+tanggal+" Sukses ditarik.";
-                    //var message = parsedResponse.dataCount+" Data tanggal "+tanggal+" Sukses ditarik.";
-
-                    /*if(parsedResponse.dataCount == parsedResponse.existRecord) {
-                        message = "Jumlah data yang ditarik : "+parsedResponse.dataCount+", Jumlah data yang sudah ada : "+parsedResponse.existRecord+
-                        ". Tidak ada data absen baru. Tidak perlu menarik data lagi untuk sekarang.";
-                    }
-
-                    if(parsedResponse.dataCount==0){
-                      message = "Tidak ada data absen baru di tanggal "+tanggal+".";
-                    }*/
-
-                    message += " Waktu Proses: "+duration+" detik.";
-                    
+                  if( dataCount == 0){
                     swal({
-                        title: "Success",
-                        text: message,
-                        icon: "success",
+                        title: "Error",
+                        text: "Data Count "+dataCount,
+                        icon: "error",
                         button: "OK",
-                    }).then(() => {
-                        location.reload();
                     });
+                  }
+                  isFetching = false;
                 } else {
                     swal({
                         title: "Error",
@@ -402,6 +419,7 @@
                         icon: "error",
                         button: "OK",
                     });
+                    isFetching = false;
                 }
             }
         });

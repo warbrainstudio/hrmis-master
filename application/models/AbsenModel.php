@@ -159,13 +159,6 @@ class AbsenModel extends CI_Model
     return $response;
   }
 
-  public function checkIPMachine($IP) { 
-    $timeout = 200; // Timeout in milliseconds
-    $Connect = @fsockopen($IP, 80, $errno, $errstr, $timeout);
-    
-    return $Connect !== false;
-  }
-
   public function fetchDataFromMachine($IP, $Key, $startDate, $endDate) {
     $timeout = 200;
     $Connect = fsockopen($IP, "80", $errno, $errstr, $timeout);
@@ -242,56 +235,116 @@ XML;
     return $filteredData;
 }
 
-public function importData($data) {
-  $failedInsertions = [];
-  $existingRecordsCount = 0;
+  public function import_data($data) {
 
-  $this->db->trans_start();
+    $dataCount = count($data);
 
-  try {
-      foreach ($data as $row) {
-          $userID = $row['PIN'];
-          $dateTime = $row['DateTime'];
-          $verified = $row['Verified'];
-          $status = $row['Status'];
-          $machine = $row['Machine'];
+    if ($dataCount > 0) {
+        $failedInsertions = [];
+        $existingRecordsCount = 0;
 
-          $this->db->where('absen_id', $userID);
-          $this->db->where('tanggal_absen', $dateTime);
-          $count = $this->db->count_all_results('attendancelog');
+        $this->db->trans_start();
+        try {
+            foreach ($data as $row) {
+            
+                $userID = $row['PIN'];
+                $dateTime = $row['DateTime'];
+                $verified = $row['Verified'];
+                $status = $row['Status'];
+                $machine = $row['Machine'];
 
-          if ($count == 0) {
-              $data = [
-                  'absen_id' => $userID,
-                  'tanggal_absen' => $dateTime,
-                  'verified' => $verified,
-                  'status' => $status,
-                  'ipmesin' => $machine
-              ];
-              if (!$this->db->insert('attendancelog', $data)) {
-                  $failedInsertions[] = [
-                      'absen_id' => $userID,
-                      'dateTime' => $dateTime,
-                      'error' => $this->db->error()['message']
-                  ];
-              }
-          } else {
-              $existingRecordsCount++;
-          }
-      }
-      $this->db->trans_complete();
-    } catch (Exception $e) {
-        $this->db->trans_rollback();
-        $failedInsertions[] = [
-            'absen_id' => isset($userID) ? $userID : 'N/A',
-            'dateTime' => isset($dateTime) ? $dateTime : 'N/A',
-            'error' => $e->getMessage()
+                $data = [
+                    'absen_id' => $userID,
+                    'tanggal_absen' => $dateTime
+                ];
+
+                
+                if ($status === "0") { 
+                    $data['masuk'] = $dateTime;
+                    $data['verifikasi_masuk'] = $verified;
+                    $data['mesin_masuk'] = $machine;
+                } else { 
+                    $data['pulang'] = $dateTime;
+                    $data['verifikasi_pulang'] = $verified;
+                    $data['mesin_pulang'] = $machine;
+                }
+
+                
+                $this->db->where('absen_id', $userID);
+                $this->db->where('tanggal_absen', $dateTime);
+                $count = $this->db->count_all_results($this->_table);
+
+                if ($count == 0) {
+                    
+                    if (!$this->db->insert($this->_table, $data)) {
+                        $failedInsertions[] = [
+                            'absen_id' => $userID,
+                            'dateTime' => $dateTime,
+                            'error' => $this->db->error()['message']
+                        ];
+                    }
+                } else {
+                  
+                    if ($status === "0") {
+                        
+                        $this->db->where('absen_id', $userID);
+                        $this->db->where('tanggal_absen', $dateTime);
+                        $this->db->where('masuk IS NULL'); 
+                        if (!$this->db->update($this->_table, [
+                            'masuk' => $dateTime,
+                            'verifikasi_masuk' => $verified,
+                            'mesin_masuk' => $machine
+                        ])) {
+                            $failedInsertions[] = [
+                                'absen_id' => $userID,
+                                'dateTime' => $dateTime,
+                                'error' => $this->db->error()['message']
+                            ];
+                        }
+                    } else {
+                        
+                        $this->db->where('absen_id', $userID);
+                        $this->db->where('tanggal_absen', $dateTime);
+                        $this->db->where('pulang IS NULL'); 
+                        if (!$this->db->update($this->_table, [
+                            'pulang' => $dateTime,
+                            'verifikasi_pulang' => $verified,
+                            'mesin_pulang' => $machine
+                        ])) {
+                            $failedInsertions[] = [
+                                'absen_id' => $userID,
+                                'dateTime' => $dateTime,
+                                'error' => $this->db->error()['message']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $this->db->trans_complete();
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            $failedInsertions[] = [
+                'absen_id' => isset($userID) ? $userID : 'N/A',
+                'dateTime' => isset($dateTime) ? $dateTime : 'N/A',
+                'error' => $e->getMessage()
+            ];
+        }
+
+        $response = [
+            'status' => true
+        ];
+
+    } else {
+        $response = [
+            'status' => false,
+            'message' => "No data to import."
         ];
     }
-    return [
-        'failedInsertions' => $failedInsertions,
-        'existingRecordsCount' => $existingRecordsCount
-    ];
+
+    $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($response));
   }
 
   function br2nl($text)
