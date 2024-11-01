@@ -13,6 +13,7 @@
         <form id="form-mesin" autocomplete="off">
           <!-- CSRF -->
           <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>" />
+          <input type="hidden" name="id" class="form-control mesin-id" maxlength="255" placeholder="ID" required />
 
           <div class="form-group">
             <label required>Nama Mesin</label>

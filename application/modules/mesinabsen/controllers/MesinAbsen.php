@@ -44,7 +44,7 @@ class MesinAbsen extends AppBackend
   public function ajax_save()
   {
     $this->handle_ajax_request();
-    $id = $this->input->post('ref');
+    $id = $this->input->post('id');
     $this->form_validation->set_rules($this->MesinAbsenModel->rules($id));
 
     if ($this->form_validation->run() === true) {

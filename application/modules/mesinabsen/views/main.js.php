@@ -1,7 +1,7 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
-    var _key = "";
+    var _key = "<?= $key ?>";
     var _section = "mesin";
     var _table = "table-mesin";
     var _modal = "modal-form-mesin";
