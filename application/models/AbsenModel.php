@@ -286,7 +286,7 @@ XML;
                         ];
                     }
                 } else {
-                  
+                    //fix reni utari case when masuk from mesin 2 but accidentaly masuk again in mesin 1
                     if ($status === "0") {
                         
                         $this->db->where('absen_id', $userID);
