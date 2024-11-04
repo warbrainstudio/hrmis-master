@@ -10,10 +10,8 @@
             <th>Pegawai</th>
             <th>Masuk</th>
             <th>Verifikasi</th>
-            <th>Mesin</th>
             <th>Pulang</th>
             <th>Verifikasi</th>
-            <th>Mesin</th>
             <th>Jam Kerja</th>
             <!--<th width="170" class="text-center">Option</th>-->
         </tr>

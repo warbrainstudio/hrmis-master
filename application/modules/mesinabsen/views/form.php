@@ -17,17 +17,17 @@
 
           <div class="form-group">
             <label required>Nama Mesin</label>
-            <input type="text" name="nama_mesin" class="form-control mesin-nama_mesin" maxlength="255" placeholder="Nama Mesin" required />
+            <input type="text" name="nama_mesin" class="form-control mesin-nama_mesin" maxlength="255" placeholder="Nama Mesin" required/>
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
             <label required>IP Adress</label>
-            <input type="text" name="ipadress" class="form-control mesin-ipadress" maxlength="30" placeholder="xxx.xxx.xxx.xxx" />
+            <input type="text" name="ipadress" class="form-control mesin-ipadress" maxlength="30" placeholder="xxx.xxx.xxx.xxx" required/>
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
             <label required>Comm Key</label>
-            <input type="text" name="commkey" class="form-control mesin-commkey" maxlength="30" placeholder="Comm Key" />
+            <input type="number" name="commkey" class="form-control mesin-commkey" maxlength="30" placeholder="Comm Key" required/>
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">

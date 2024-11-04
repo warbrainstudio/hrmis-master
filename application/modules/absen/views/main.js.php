@@ -79,19 +79,15 @@
               render: function(data, type, row, meta) {
                 let verifiedColor = 'secondary';
                 if (data === 'Finger') {
-                  verifiedColor = 'success';
+                  verifiedColor = 'primary';
                 } else if (data === 'Input') {
-                  verifiedColor = 'danger';
+                  verifiedColor = 'secondary';
                 } else {
                   return "-";
                 }
-                return `<span class="badge badge-${verifiedColor}">${data}</span>`;
-              }
-            },
-            {
-              data: "mesin_masuk",
-              render: function(data, type, row, meta) {
-                return data ? row.nama_mesin_masuk : "-";
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${data}`;
+                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
+                return verifikasi+" / "+mesin;
               }
             },
             {
@@ -109,19 +105,15 @@
               render: function(data, type, row, meta) {
                 let verifiedColor = 'secondary';
                 if (data === 'Finger') {
-                  verifiedColor = 'success';
+                  verifiedColor = 'primary';
                 } else if (data === 'Input') {
-                  verifiedColor = 'danger';
+                  verifiedColor = 'secondary';
                 } else {
                   return "-";
                 }
-                return `<span class="badge badge-${verifiedColor}">${data}</span>`;
-              }
-            },
-            {
-              data: "mesin_pulang",
-              render: function(data, type, row, meta) {
-                return data ? row.nama_mesin_pulang : "-";
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${data}`;
+                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : "-";
+                return verifikasi+" / "+mesin;
               }
             },
             {
@@ -171,7 +163,7 @@
         },
         columnDefs: [{
           className: 'desktop',
-          targets: [0, 1, 2, 3, 4, 5, 6, 7]
+          targets: [0, 1, 2, 3, 4, 5]
         }, {
           className: 'tablet',
           targets: [0, 1, 2, 3, 4]

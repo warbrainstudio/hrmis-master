@@ -18,8 +18,10 @@ class AbsenModel extends CI_Model
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '' END) AS verifikasi_m,
             (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '' END) AS verifikasi_p,
             EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
-            m_masuk.nama_mesin as nama_mesin_masuk, 
-            m_pulang.nama_mesin as nama_mesin_pulang
+            m_masuk.nama_mesin as nama_mesin_masuk,
+            m_masuk.lokasi as lokasi_masuk, 
+            m_pulang.nama_mesin as nama_mesin_pulang,
+            m_pulang.lokasi as lokasi_pulang
           FROM absen_pegawai ab
           LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk

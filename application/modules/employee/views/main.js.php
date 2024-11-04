@@ -364,21 +364,17 @@
             {
               data: "verifikasi_m",
               render: function(data, type, row, meta) {
-                let mesin;
-                if(row.mesin_masuk===null){
-                  mesin = '-';
-                }else{
-                  mesin = row.nama_mesin_masuk;
-                }
                 let verifiedColor = 'secondary'; // Default color
                 if (data === 'Finger') {
-                  verifiedColor = 'success';
+                  verifiedColor = 'primary';
                 } else if (data === 'Input') {
-                  verifiedColor = 'danger';
+                  verifiedColor = 'secondary';
                 } else {
                   return "-"; // Directly return if neither
                 }
-                return `<span class="badge badge-${verifiedColor}">${data}</span> - ${mesin}`;
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${data}`;
+                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
+                return verifikasi+" / "+mesin;
               }
             },
             {
@@ -394,21 +390,17 @@
             {
               data: "verifikasi_p",
               render: function(data, type, row, meta) {
-                let mesin;
-                if(row.mesin_pulang===null){
-                  mesin = '-';
-                }else{
-                  mesin = row.nama_mesin_pulang;
-                }
                 let verifiedColor = 'secondary'; // Default color
                 if (data === 'Finger') {
-                  verifiedColor = 'success';
+                  verifiedColor = 'primary';
                 } else if (data === 'Input') {
-                  verifiedColor = 'danger';
+                  verifiedColor = 'secondary';
                 } else {
                   return "-"; // Directly return if neither
                 }
-                return `<span class="badge badge-${verifiedColor}">${data}</span> - ${mesin}`;
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${data}`;
+                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : "-";
+                return verifikasi+" / "+mesin;
               }
             },
             {
