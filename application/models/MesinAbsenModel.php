@@ -211,10 +211,13 @@ class MesinAbsenModel extends CI_Model
         $this->updated_by = $this->session->userdata('user')['id'];
         $this->updated_date = date('Y-m-d H:i:s');
         $this->db->update($this->_table, $this, array('ipadress' => $ip));
-
-        $response = array('status' => true, 'data' => 'Ping success.');
+        if($status=="success"){
+          $response = array('status' => true, 'data' => 'Koneksi berhasil');
+        }else{
+          $response = array('status' => false, 'data' => 'Koneksi gagal');
+        }
     } catch (\Throwable $th) {
-        $response = array('status' => false, 'data' => 'Ping Failed.');
+        $response = array('status' => false, 'data' => 'Error.');
     }
 
     return $response;

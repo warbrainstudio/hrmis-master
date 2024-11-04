@@ -149,6 +149,7 @@
             success: function(response) {
                 var response = JSON.parse(response);
                 if (response.status === true) {
+                    notify(response.data, "success");
                     $("#" + _table).DataTable().ajax.reload(null, false);
                 } else {
                     notify(response.data, "danger");
