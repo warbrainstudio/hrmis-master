@@ -44,11 +44,12 @@
                   if(daily=='true'){
                     return row.absen_id;
                   }else{
-                    //var month = moment(data).format('MM');
-                    //var getMonth = getMonthNameByNum(month);
+                    var month = moment(data).format('MM');
+                    var getMonth = getMonthNameByNum(month);
                     var day = moment(data).format('dddd');
+                    var dayDate = moment(data).format('D');
                     //var getDay = getTranslateNameDay(day);
-                    return day;
+                    return dayDate+" ("+day+")";
                   }
               }
             },
@@ -147,6 +148,7 @@
               '</div>'
           }*/
         ],
+        order: [[1, 'asc']],
         autoWidth: !1,
         responsive: {
           details: {
