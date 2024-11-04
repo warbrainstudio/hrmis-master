@@ -122,12 +122,21 @@ class MesinAbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
+    $ip = $this->input->post('ipadress');
+    $pingResult = $this->ping($ip);
+    
+    if ($pingResult) {
+        $status = "success";
+    } else {
+        $status = "failed";
+    }
+
     try {
       $this->nama_mesin = $this->input->post('nama_mesin');
       $this->ipadress = $this->input->post('ipadress');
       $this->commkey = $this->input->post('commkey');
       $this->lokasi = $this->input->post('lokasi');
-      $this->status = $this->status;
+      $this->status = $status;
       $this->updated_by = $this->session->userdata('user')['id'];
       $this->updated_date = date('Y-m-d H:i:s');
       $this->db->update($this->_table, $this, array('id' => $id));

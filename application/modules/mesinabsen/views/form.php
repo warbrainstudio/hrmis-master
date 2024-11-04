@@ -22,7 +22,7 @@
           </div>
           <div class="form-group">
             <label required>IP Adress</label>
-            <input type="text" name="ipadress" class="form-control mesin-ipadress" maxlength="30" placeholder="127.0.0.1" />
+            <input type="text" name="ipadress" class="form-control mesin-ipadress" maxlength="30" placeholder="xxx.xxx.xxx.xxx" />
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">

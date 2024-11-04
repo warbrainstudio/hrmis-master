@@ -6,6 +6,12 @@
     var _table = "table-mesin";
     var _modal = "modal-form-mesin";
     var _form = "form-mesin";
+    var ipv4_address = $("#" + _modal + " ." + _section + "-ipadress");
+    
+    ipv4_address.inputmask({
+        alias: "ip",
+        greedy: false
+    });
 
     // Initialize DataTables: Index
     if ($("#" + _table)[0]) {

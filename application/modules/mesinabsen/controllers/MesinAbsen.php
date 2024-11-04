@@ -16,13 +16,6 @@ class MesinAbsen extends AppBackend
 
   public function index()
   {
-    /*$machines = $this->MesinModel->getAll();
-    $result = $this->init_list($machines, 'id', 'ipadress');
-
-    foreach ($result as $machine) {
-        $ipAddress = $machine['ipadress'];
-        $this->checkConnect($ipAddress);
-    }*/
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('mesinabsen'),
