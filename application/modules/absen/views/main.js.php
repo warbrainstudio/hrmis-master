@@ -368,7 +368,7 @@
       }else{
         swal({
           title: "Tarik Data",
-          text: `Update Data absen ${tanggal}?`,
+          text: `Update Data absen?`,
           icon: "warning",
           showCancelButton: true,
           confirmButtonText: "Ya",
