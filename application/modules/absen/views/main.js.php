@@ -39,15 +39,15 @@
             }
           },
             {
-              data: "tanggal_absen",
+              data: "absen_id",
               render: function(data, type, row, meta) {
                   if(daily=='true'){
-                    return row.absen_id;
+                    return data;
                   }else{
-                    var month = moment(data).format('MM');
+                    var month = moment(row.tanggal_absen).format('MM');
                     var getMonth = getMonthNameByNum(month);
-                    var day = moment(data).format('dddd');
-                    var dayDate = moment(data).format('D');
+                    var day = moment(row.tanggal_absen).format('dddd');
+                    var dayDate = moment(row.tanggal_absen).format('D');
                     //var getDay = getTranslateNameDay(day);
                     return dayDate+" ("+day+")";
                   }
@@ -140,7 +140,7 @@
               '</div>'
           }*/
         ],
-        order: [[1, 'asc']],
+        //order: [[1, 'asc']],
         autoWidth: !1,
         responsive: {
           details: {
