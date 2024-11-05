@@ -70,7 +70,7 @@
                 if (!data) {
                   return "-";
                 } else {
-                  return moment(data).format('HH:mm:ss');
+                  return data;
                 }
               }
             },
@@ -96,7 +96,7 @@
                 if (!data) {
                   return "-";
                 } else {
-                  return moment(data).format('HH:mm:ss');
+                  return data;
                 }
               }
             },

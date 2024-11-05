@@ -346,10 +346,7 @@
               }
             },
             {
-              data: "tanggal_absen",
-              render: function(data, type, row, meta) {
-                return moment(data).format('DD-MM-YYYY');
-              }
+              data: "tanggal_absen"
             },
             {
               data: "masuk",
@@ -357,7 +354,7 @@
                 if (!data) {
                   return "-"; // Handles null and empty string
                 } else {
-                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
+                  return data; // Ensure moment is parsing correctly
                 }
               }
             },
@@ -383,7 +380,7 @@
                 if (!data) {
                   return "-"; // Handles null and empty string
                 } else {
-                  return moment(data).format('HH:mm:ss'); // Ensure moment is parsing correctly
+                  return data; // Ensure moment is parsing correctly
                 }
               }
             },

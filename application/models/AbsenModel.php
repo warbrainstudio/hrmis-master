@@ -255,25 +255,29 @@ XML;
                 $status = $row['Status'];
                 $machine = $row['Machine'];
 
+                $dateObj = new DateTime($dateTime);
+                $date = $dateObj->format('Y-m-d');
+                $time = $dateObj->format('H:i:s');
+
                 $data = [
                     'absen_id' => $userID,
-                    'tanggal_absen' => $dateTime
+                    'tanggal_absen' => $date
                 ];
 
                 
                 if ($status === "0") { 
-                    $data['masuk'] = $dateTime;
+                    $data['masuk'] = $time;
                     $data['verifikasi_masuk'] = $verified;
                     $data['mesin_masuk'] = $machine;
                 } else { 
-                    $data['pulang'] = $dateTime;
+                    $data['pulang'] = $time;
                     $data['verifikasi_pulang'] = $verified;
                     $data['mesin_pulang'] = $machine;
                 }
 
                 
                 $this->db->where('absen_id', $userID);
-                $this->db->where('tanggal_absen', $dateTime);
+                $this->db->where('tanggal_absen', $date);
                 $count = $this->db->count_all_results($this->_table);
 
                 if ($count == 0) {
@@ -281,43 +285,96 @@ XML;
                     if (!$this->db->insert($this->_table, $data)) {
                         $failedInsertions[] = [
                             'absen_id' => $userID,
-                            'dateTime' => $dateTime,
+                            'dateTime' => $date,
                             'error' => $this->db->error()['message']
                         ];
                     }
                 } else {
-                    //fix reni utari case when masuk from mesin 2 but accidentaly masuk again in mesin 1
                     if ($status === "0") {
-                        
                         $this->db->where('absen_id', $userID);
-                        $this->db->where('tanggal_absen', $dateTime);
-                        $this->db->where('masuk IS NULL'); 
-                        if (!$this->db->update($this->_table, [
-                            'masuk' => $dateTime,
-                            'verifikasi_masuk' => $verified,
-                            'mesin_masuk' => $machine
-                        ])) {
-                            $failedInsertions[] = [
-                                'absen_id' => $userID,
-                                'dateTime' => $dateTime,
-                                'error' => $this->db->error()['message']
-                            ];
+                        $this->db->where('tanggal_absen', $date);
+                        $this->db->where('masuk IS NULL');
+                        $count = $this->db->count_all_results($this->_table);
+                        if($count == 0){
+                          $query = $this->db->select('masuk')
+                            ->from($this->_table)
+                            ->where('absen_id', $userID)
+                            ->where('tanggal_absen', $date)
+                            ->get()
+                            ->row();
+                          $exists_masuk = $query->masuk; 
+                          if($exists_masuk > $time){
+                            $this->db->where('absen_id', $userID);
+                            $this->db->where('tanggal_absen', $date);
+                            if (!$this->db->update($this->_table, [
+                                'masuk' => $time,
+                                'verifikasi_masuk' => $verified,
+                                'mesin_masuk' => $machine
+                            ])) {
+                                $failedInsertions[] = [
+                                    'absen_id' => $userID,
+                                    'dateTime' => $date,
+                                    'error' => $this->db->error()['message']
+                                ];
+                            }
+                          }
+                        }else{
+                          $this->db->where('absen_id', $userID);
+                          $this->db->where('tanggal_absen', $date);
+                          if (!$this->db->update($this->_table, [
+                              'masuk' => $time,
+                              'verifikasi_masuk' => $verified,
+                              'mesin_masuk' => $machine
+                          ])) {
+                              $failedInsertions[] = [
+                                  'absen_id' => $userID,
+                                  'dateTime' => $date,
+                                  'error' => $this->db->error()['message']
+                              ];
+                          }
                         }
                     } else {
-                        
                         $this->db->where('absen_id', $userID);
-                        $this->db->where('tanggal_absen', $dateTime);
-                        $this->db->where('pulang IS NULL'); 
-                        if (!$this->db->update($this->_table, [
-                            'pulang' => $dateTime,
-                            'verifikasi_pulang' => $verified,
-                            'mesin_pulang' => $machine
-                        ])) {
-                            $failedInsertions[] = [
-                                'absen_id' => $userID,
-                                'dateTime' => $dateTime,
-                                'error' => $this->db->error()['message']
-                            ];
+                        $this->db->where('tanggal_absen', $date);
+                        $this->db->where('pulang IS NULL');
+                        $count = $this->db->count_all_results($this->_table);
+                        if($count == 0){
+                          $query = $this->db->select('pulang')
+                            ->from($this->_table)
+                            ->where('absen_id', $userID)
+                            ->where('tanggal_absen', $date)
+                            ->get()
+                            ->row();
+                          $exists_pulang = $query->pulang; 
+                          if($exists_pulang < $time){
+                            $this->db->where('absen_id', $userID);
+                            $this->db->where('tanggal_absen', $date);
+                            if (!$this->db->update($this->_table, [
+                                'pulang' => $time,
+                                'verifikasi_pulang' => $verified,
+                                'mesin_pulang' => $machine
+                            ])) {
+                                $failedInsertions[] = [
+                                    'absen_id' => $userID,
+                                    'dateTime' => $date,
+                                    'error' => $this->db->error()['message']
+                                ];
+                            }
+                          }
+                        }else{
+                          $this->db->where('absen_id', $userID);
+                          $this->db->where('tanggal_absen', $date);
+                          if (!$this->db->update($this->_table, [
+                              'pulang' => $time,
+                              'verifikasi_pulang' => $verified,
+                              'mesin_pulang' => $machine
+                          ])) {
+                              $failedInsertions[] = [
+                                  'absen_id' => $userID,
+                                  'dateTime' => $date,
+                                  'error' => $this->db->error()['message']
+                              ];
+                          }
                         }
                     }
                 }
@@ -328,7 +385,7 @@ XML;
             $this->db->trans_rollback();
             $failedInsertions[] = [
                 'absen_id' => isset($userID) ? $userID : 'N/A',
-                'dateTime' => isset($dateTime) ? $dateTime : 'N/A',
+                'dateTime' => isset($date) ? $date : 'N/A',
                 'error' => $e->getMessage()
             ];
         }
