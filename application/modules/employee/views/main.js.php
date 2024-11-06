@@ -352,9 +352,10 @@
               data: "masuk",
               render: function(data, type, row, meta) {
                 if (!data) {
-                  return "-"; // Handles null and empty string
+                  return "-";
                 } else {
-                  return data; // Ensure moment is parsing correctly
+                  let verifiedColor = 'success';
+                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                 }
               }
             },
@@ -380,7 +381,14 @@
                 if (!data) {
                   return "-"; // Handles null and empty string
                 } else {
-                  return data; // Ensure moment is parsing correctly
+                  let verifiedColor = 'success';
+                  var getDateMasuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var getDataPulang = moment(data).format('DD-MM-YYYY');
+                  if(getDateMasuk!=getDataPulang){
+                    let verifiedColor = 'warning';
+                    return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${getDataPulang}">${moment(data).format('HH:mm:ss')}`;
+                  }
+                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                 }
               }
             },
