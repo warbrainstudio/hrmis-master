@@ -346,7 +346,10 @@
               }
             },
             {
-              data: "tanggal_absen"
+              data: "tanggal_absen",
+              render: function(data, type, row, meta) {
+                return moment(data).format('DD-MM-YYYY');
+              }
             },
             {
               data: "masuk",
