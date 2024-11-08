@@ -390,8 +390,9 @@
                   if(DateMasuk!=DatePulang){
                     let verifiedColor = 'warning';
                     return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                  }else{
+                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                   }
-                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                 }
               }
             },
