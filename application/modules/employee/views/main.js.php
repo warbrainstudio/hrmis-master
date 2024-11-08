@@ -425,6 +425,9 @@
                   }
                 }
               }
+            },
+            {
+              data: "jenis_shift"
             }
               /*,
             {
@@ -458,7 +461,7 @@
           },
           columnDefs: [{
             className: 'desktop',
-            targets: [0, 1, 2, 3, 4, 5, 6]
+            targets: [0, 1, 2, 3, 4, 5, 6, 7]
           }, {
             className: 'tablet',
             targets: [0, 1, 2, 3]
