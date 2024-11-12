@@ -7,14 +7,16 @@
                 <div class="row">
                     <div class="table-action">
                         <div class="buttons">
-                            <?php if($isDaily=='true') : ?>
-                            <button class="btn btn-sm btn-primary absen-action-add">
-                                <i class="zmdi zmdi-cloud-download"></i> Update Data Absen
+                            <?php if($isDaily==true) : ?>
+                            <button class="btn btn-sm btn-primary absen-action-add" title="update data absen secara manual">
+                                <i class="zmdi zmdi-cloud-download"></i> Update
                             </button>
                             <?php endif ?>
+                            <?php if($periodeData==true) : ?>
                             <button class="btn btn-sm btn-success absen-export">
-                            <i class="zmdi zmdi-download"></i> Download Data (Excel)
+                                <i class="zmdi zmdi-download"></i> Download Data (Excel)
                             </button>
+                            <?php endif ?>
                             <button class="btn btn-sm btn-dark absen-backButton">
                             <i class="zmdi zmdi-long-arrow-return"></i> Kembali
                             </button>

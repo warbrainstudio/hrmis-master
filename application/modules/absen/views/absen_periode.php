@@ -2,7 +2,7 @@
     <thead class="thead-default">
         <tr>
             <th width="100">No</th>
-            <?php if($isDaily=='false') : ?>
+            <?php if($isDaily==false) : ?>
             <th>Hari</th>
             <?php else : ?>
             <th>ID</th>

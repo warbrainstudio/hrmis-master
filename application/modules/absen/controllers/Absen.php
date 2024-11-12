@@ -105,7 +105,7 @@ class Absen extends AppBackend
       $formattedMonth = $this->get_month($monthNumber);
       $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
 			$searchFilter = "AND tanggal_absen::date='$ref'";
-			$status = 'true';
+			$status = true;
 			$card = "hari ".$formattedDate;
 		}else if(DateTime::createFromFormat('Y-m', $ref) !== false){
 			$dateTime = DateTime::createFromFormat('Y-m', $ref);
@@ -116,7 +116,7 @@ class Absen extends AppBackend
 			$startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
       $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
 			$searchFilter = "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
-			$status = 'false';
+			$status = false;
 			$card = "Bulan ".$formattedDate;
 		}else{
 			show_404();
@@ -132,6 +132,7 @@ class Absen extends AppBackend
 			'card_title' => 'Absen '.$card,
 			'controller' => $this,
 			//'is_mobile' => $agent->isMobile(),
+      'periodeData' => false,
 			'isDaily' => $status,
 			'isAll' => 'false',
 			);

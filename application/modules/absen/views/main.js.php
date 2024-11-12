@@ -41,7 +41,7 @@
             {
               data: "absen_id",
               render: function(data, type, row, meta) {
-                  if(daily=='true'){
+                  if(daily==true){
                     return data;
                   }else{
                     var month = moment(row.tanggal_absen).format('MM');
