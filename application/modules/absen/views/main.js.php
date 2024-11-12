@@ -348,7 +348,7 @@
         }else{
             swal({
                 title: "Tarik Data",
-                text: `Data hari ini ${tanggal} belum ada. Ingin tarik data?`,
+                text: `Data hari ini belum ada. Ingin tarik data?`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Ya",
