@@ -387,9 +387,13 @@
                   let verifiedColor = 'success';
                   var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
                   var DatePulang = moment(data).format('DD-MM-YYYY');
-                  if(DateMasuk!=DatePulang){
-                    let verifiedColor = 'warning';
-                    return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                  if(row.masuk){
+                    if(DateMasuk!=DatePulang){
+                      let verifiedColor = 'warning';
+                      return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                    }else{
+                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    }
                   }else{
                     return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                   }

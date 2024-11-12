@@ -98,13 +98,18 @@
                   return "-"; // Handles null and empty string
                 } else {
                   let verifiedColor = 'success';
-                  var getDateMasuk = moment(row.masuk).format('DD-MM-YYYY');
-                  var getDataPulang = moment(data).format('DD-MM-YYYY');
-                  if(getDateMasuk!=getDataPulang){
-                    let verifiedColor = 'warning';
-                    return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${getDataPulang}">${moment(data).format('HH:mm:ss')}`;
+                  var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var DatePulang = moment(data).format('DD-MM-YYYY');
+                  if(row.masuk){
+                    if(DateMasuk!=DatePulang){
+                      let verifiedColor = 'warning';
+                      return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                    }else{
+                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    }
+                  }else{
+                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                   }
-                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                 }
               }
             },
