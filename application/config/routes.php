@@ -55,6 +55,7 @@ $route['translate_uri_dashes'] = FALSE;
 $route['notification/(:num)'] = 'notification';
 $route['search/(:any)'] = 'search';
 $route['api/fetchData'] = 'ApiAbsen/fetchData';
+$route['api/fetchdata_cron'] = 'ApiAbsen/fetch_data_cron';
 $route['api/getData'] = 'ApiAbsen/getData';
 
 $route['setting/nomorsurat'] = 'setting/settingnomorsurat/index';

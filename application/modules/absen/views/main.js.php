@@ -401,7 +401,7 @@
 
         $.ajax({
             type: "get",
-            url: "<?php echo site_url('absen/ajax_fetch_data'); ?>",
+            url: "<?php echo site_url('absen/ajax_fetch_data_api'); ?>",
             data: { tanggal: tanggal },
             dataType: "json",
             success: function(parsedResponse) {
