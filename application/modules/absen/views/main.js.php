@@ -39,25 +39,21 @@
             }
           },
             {
-              data: "absen_id",
+              data: "tanggal_absen",
               render: function(data, type, row, meta) {
-                  if(daily==true){
-                    return data;
-                  }else{
-                    var month = moment(row.tanggal_absen).format('MM');
+                    var month = moment(data).format('MM');
                     var getMonth = getMonthNameByNum(month);
-                    var day = moment(row.tanggal_absen).format('dddd');
-                    var dayDate = moment(row.tanggal_absen).format('D');
+                    var day = moment(data).format('dddd');
+                    var dayDate = moment(data).format('D');
                     //var getDay = getTranslateNameDay(day);
                     return dayDate+" ("+day+")";
-                  }
               }
             },
             {
               data: "nama",
               render: function(data, type, row, meta) {
                 if(data=='-'){
-                  var link = data;
+                  var link = row.absen_id;
                 }else{
                   var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
                 }
@@ -132,18 +128,31 @@
             {
               data: "jam_kerja",
               render: function(data, type, row, meta) {
-                if(data===null){
-                  return "Belum terhitung";
-                }else{
-                  var _jam = parseFloat(data).toFixed(1) + " Jam";
-                  if (parseFloat(data) >= 0) {
-                      return _jam;
+                if (data === null) {
+                  const date = new Date(row.tanggal_absen);
+                  date.setHours(0, 0, 0, 0);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (date.getTime() === today.getTime()) {
+                    if(!row.masuk && row.pulang){
+                      return "data ambigu";
+                    }else{
+                      return "Belum bisa dihitung";
+                    }
                   } else {
-                      return "-";
+                    return "Tidak bisa dihitung";
+                  }
+                } else {
+                  var jam = parseFloat(data);
+                  if (!isNaN(jam) && jam >= 0) {
+                    return jam.toFixed(1) + " Jam";
+                  } else {
+                    return "-";
                   }
                 }
               }
             }
+
             /*,
           {
             data: null,

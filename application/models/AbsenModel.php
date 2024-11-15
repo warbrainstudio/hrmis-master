@@ -27,7 +27,7 @@ class AbsenModel extends CI_Model
           LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
-          ORDER BY p.nama_lengkap, ab.tanggal_absen ASC
+          ORDER BY p.nama_lengkap, ab.absen_id, ab.tanggal_absen ASC
         ) t
         WHERE 1=1
       ";
@@ -58,7 +58,6 @@ class AbsenModel extends CI_Model
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
         $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
-        //$this->db->where('absen_pegawai_id IS NOT NULL');
         $this->db->order_by('absen_pegawai.tanggal_absen, pegawai.nama_lengkap ASC');
         
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {

@@ -419,14 +419,22 @@
             {
               data: "jam_kerja",
               render: function(data, type, row, meta) {
-                if(data===null){
-                  return "Belum terhitung";
-                }else{
-                  var _jam = parseFloat(data).toFixed(1) + " Jam";
-                  if (parseFloat(data) >= 0) {
-                      return _jam;
+                if (data === null) {
+                  const date = new Date(row.tanggal_absen);
+                  date.setHours(0, 0, 0, 0);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (date.getTime() === today.getTime()) {
+                    return "Belum bisa dihitung";
                   } else {
-                      return "-";
+                    return "Tidak bisa dihitung";
+                  }
+                } else {
+                  var jam = parseFloat(data);
+                  if (!isNaN(jam) && jam >= 0) {
+                    return jam.toFixed(1) + " Jam";
+                  } else {
+                    return "-";
                   }
                 }
               }
