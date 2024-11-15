@@ -41,7 +41,7 @@
             {
               data: "absen_id",
               render: function(data, type, row, meta) {
-                  if(daily=='true'){
+                  if(daily==true){
                     return data;
                   }else{
                     var month = moment(row.tanggal_absen).format('MM');
@@ -348,7 +348,7 @@
         }else{
             swal({
                 title: "Tarik Data",
-                text: `Data hari ini ${tanggal} belum ada. Ingin tarik data?`,
+                text: `Data hari ini belum ada. Ingin tarik data?`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "Ya",
