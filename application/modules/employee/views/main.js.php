@@ -389,7 +389,7 @@
                   var DatePulang = moment(data).format('DD-MM-YYYY');
                   if(row.masuk){
                     if(DateMasuk!=DatePulang){
-                      let verifiedColor = 'warning';
+                      let verifiedColor = 'dark';
                       return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
                     }else{
                       return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
@@ -428,7 +428,7 @@
                     if(!row.masuk && row.pulang){
                       return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"></i></span>`;
                     }else{
-                      return `<span class="badge badge-secondary" title="Data belum lengkap"><i class="zmdi zmdi-spinner"></i></span>`;
+                      return "-";
                     }
                   } else {
                     return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i></span>`;
@@ -438,7 +438,7 @@
                   if (!isNaN(jam) && jam >= 0) {
                     return jam.toFixed(1) + " Jam";
                   } else {
-                    return "-";
+                    return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
                   }
                 }
               }
