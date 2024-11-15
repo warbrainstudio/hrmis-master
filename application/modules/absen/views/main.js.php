@@ -65,7 +65,7 @@
               }
             },
             {
-              data: "nama_sub_unit",
+              data: "nama_unit",
               render: function(data, type, row, meta) {
                 if(!data){
                   return "-";
@@ -157,7 +157,7 @@
                     if(!row.masuk && row.pulang){
                       return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
                     }else{
-                      return "-";
+                      return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
                     }
                   } else {
                     return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
@@ -235,6 +235,9 @@
             '<span class="actions__item zmdi zmdi-refresh" data-table-action="reload" title="Reload" />' +
             '</div>'
           );
+        },
+        drawCallback: function() {
+          handleCxFilter_setXlsx(_table);
         },
       });
 
@@ -461,9 +464,17 @@
         });
     }
 
-    $("#" + _section).on("click", "button." + _section + "-backButton", function(e) {
-        window.history.back();
-    });
+    function handleCxFilter_submit() {
+      var params = handleCxFilter_getParams();
+      $("#" + _table).DataTable().ajax.url("<?php echo base_url('absen/ajax_get_all') ?>" + params);
+      $("#" + _table).DataTable().clear().draw();
+    };
+
+    function handleCxFilter_xlsx() {
+    var params = handleCxFilter_getParams();
+    var url = "<?php echo base_url('absen/excel') ?>" + params;
+    window.location.href = url;
+  };
 
   });
 </script>

@@ -8,7 +8,7 @@
             <th>-</th>
             <?php endif ?>
             <th>Pegawai</th>
-            <th>Sub Unit</th>
+            <th>Unit</th>
             <th>Masuk</th>
             <th>Verifikasi</th>
             <th>Pulang</th>

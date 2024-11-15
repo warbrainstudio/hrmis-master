@@ -434,7 +434,7 @@
                     if(!row.masuk && row.pulang){
                       return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"></i></span>`;
                     }else{
-                      return "-";
+                      return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
                     }
                   } else {
                     return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i></span>`;
