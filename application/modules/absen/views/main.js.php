@@ -65,16 +65,6 @@
               }
             },
             {
-              data: "nama_unit",
-              render: function(data, type, row, meta) {
-                if(!data){
-                  return "-";
-                }else{
-                  return data;
-                }
-              }
-            },
-            {
               data: "nama_sub_unit",
               render: function(data, type, row, meta) {
                 if(!data){
@@ -96,17 +86,20 @@
               }
             },
             {
-              data: "verifikasi_m",
+              data: "verifikasi_masuk",
               render: function(data, type, row, meta) {
                 let verifiedColor = 'secondary';
-                if (data === 'Finger') {
+                let verified = '';
+                if (data === '1') {
                   verifiedColor = 'primary';
-                } else if (data === 'Input') {
+                  verified = 'Finger';
+                } else if (data === '0') {
                   verifiedColor = 'secondary';
+                  verified = 'Input';
                 } else {
                   return "-";
                 }
-                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${data}`;
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${verified}`;
                 var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
                 return verifikasi+" / "+mesin;
               }
@@ -134,17 +127,20 @@
               }
             },
             {
-              data: "verifikasi_p",
+              data: "verifikasi_pulang",
               render: function(data, type, row, meta) {
                 let verifiedColor = 'secondary';
-                if (data === 'Finger') {
+                let verified = '';
+                if (data === '1') {
                   verifiedColor = 'primary';
-                } else if (data === 'Input') {
+                  verified = 'Finger';
+                } else if (data === '0') {
                   verifiedColor = 'secondary';
+                  verified = 'Input';
                 } else {
                   return "-";
                 }
-                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${data}`;
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${verified}`;
                 var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : "-";
                 return verifikasi+" / "+mesin;
               }
