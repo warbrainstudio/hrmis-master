@@ -65,7 +65,7 @@
               }
             },
             {
-              data: "nama_unit",
+              data: "nama_sub_unit",
               render: function(data, type, row, meta) {
                 if(!data){
                   return "-";
@@ -235,9 +235,6 @@
             '<span class="actions__item zmdi zmdi-refresh" data-table-action="reload" title="Reload" />' +
             '</div>'
           );
-        },
-        drawCallback: function() {
-          handleCxFilter_setXlsx(_table);
         },
       });
 
@@ -463,18 +460,6 @@
             }
         });
     }
-
-    function handleCxFilter_submit() {
-      var params = handleCxFilter_getParams();
-      $("#" + _table).DataTable().ajax.url("<?php echo base_url('absen/ajax_get_all') ?>" + params);
-      $("#" + _table).DataTable().clear().draw();
-    };
-
-    function handleCxFilter_xlsx() {
-    var params = handleCxFilter_getParams();
-    var url = "<?php echo base_url('absen/excel') ?>" + params;
-    window.location.href = url;
-  };
 
   });
 </script>

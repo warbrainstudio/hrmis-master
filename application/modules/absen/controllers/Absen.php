@@ -15,10 +15,9 @@ class Absen extends AppBackend
     parent::__construct();
     $this->load->model(array(
       'AppMixModel',
+      //'AppModel',
       'AbsenModel',
-      'PegawaiModel',
-      'UnitModel',
-      'SubunitModel',
+      'PegawaiModel'
     ));
 
     $this->prefs = array(
@@ -89,29 +88,13 @@ class Absen extends AppBackend
 		return $cal_data;
 	}
 
-  private function _getQuery($isExport = false)
-  {
-    $filter = '';
-    $unit_id = $this->input->get('cxfilter_unit_id');
-
-    if (!is_null($unit_id) && $unit_id != 'all') $filter .= " AND unit_id = '$unit_id'";
-
-    return (object) array(
-      'params' => ($isExport === true) ? array(
-        'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
-        ) : array(),
-      'query_string' => $this->AbsenModel->getQuery($filter),
-    );
-  }
-
 	public function detail()
   {
-		
+		//$agent = new Mobile_Detect;
 		$ref = $this->input->get('date');
 		$searchFilter = "";
 		$status = "";
 		$card = "";
-
 		if (DateTime::createFromFormat('Y-m-d', $ref) !== false) {
 			$dateTime = DateTime::createFromFormat('Y-m-d', $ref);
 			$Day = $dateTime->format('D');
@@ -138,12 +121,7 @@ class Absen extends AppBackend
 		}else{
 			show_404();
 		}
-
-    $cxfilter__list_static = '<option value="all">--Semua--</option>';
-    $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
-    
-    $agent = new Mobile_Detect;
-    $data = array(
+			$data = array(
 			'app' => $this->app(),
 			'main_js' => $this->load_main_js('absen', false, array(
 				'action_route' => 'detail',
@@ -153,24 +131,11 @@ class Absen extends AppBackend
 			)),
 			'card_title' => 'Absen '.$card,
 			'controller' => $this,
-			'is_mobile' => $agent->isMobile(),
+			//'is_mobile' => $agent->isMobile(),
       'periodeData' => false,
 			'isDaily' => $status,
 			'isAll' => 'false',
-      'cx_filter' => array(
-        'component' => array(
-          array(
-            'type' => 'combo',
-            'name' => 'unit_id',
-            'label' => 'Unit',
-            'store' => $cxfilter__unit_store,
-          ),
-        ),
-        'cxfilter__submit_filter' => true,
-        'cxfilter__submit_xlsx' => true,
-      ),
-		);
-
+			);
 			//$this->template->set_template('sb_admin_partial');
 			$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
 			$this->template->load_view('view', $data, TRUE);
@@ -275,8 +240,8 @@ class Absen extends AppBackend
   public function ajax_get_all()
   {
     $filter = $this->input->get('filter');
-    $query = $this->_getQuery();
-    $response = $this->AppMixModel->getdata_dtAjax($query->query_string);
+    $query = $this->AbsenModel->getQuery($filter);
+    $response = $this->AppMixModel->getdata_dtAjax($query);
     echo json_encode($response);
   }
 
