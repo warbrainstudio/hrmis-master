@@ -461,5 +461,9 @@
         });
     }
 
+    $("#" + _section).on("click", "button." + _section + "-backButton", function(e) {
+        window.history.back();
+    });
+
   });
 </script>
