@@ -159,12 +159,12 @@
                   today.setHours(0, 0, 0, 0);
                   if (date.getTime() === today.getTime()) {
                     if(!row.masuk && row.pulang){
-                      return "data ambigu";
+                      return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"></i></span>`;
                     }else{
-                      return "Belum bisa dihitung";
+                      return `<span class="badge badge-secondary" title="Data belum lengkap"><i class="zmdi zmdi-spinner"></i></span>`;
                     }
                   } else {
-                    return "Tidak bisa dihitung";
+                    return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i></span>`;
                   }
                 } else {
                   var jam = parseFloat(data);
