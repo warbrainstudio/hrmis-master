@@ -132,7 +132,7 @@ class Absen extends AppBackend
 			'card_title' => 'Absen '.$card,
 			'controller' => $this,
 			//'is_mobile' => $agent->isMobile(),
-      'periodeData' => false,
+      'periodeData' => true,
 			'isDaily' => $status,
 			'isAll' => 'false',
 			);
@@ -286,6 +286,8 @@ class Absen extends AppBackend
   {
       try {
           $date = $this->input->get('date');
+          $unit = 'RS. Jasa Kartini Tasikmalaya';
+          $sub_unit = 'Instalasi Rekam Medik RSJK';
           $status = '';
           $formattedDate = $date;
           if (DateTime::createFromFormat('Y-m-d', $date) !== false) {
@@ -314,7 +316,7 @@ class Absen extends AppBackend
           }
           $callbacks = array();
 
-          $payload = $this->AbsenModel->getAll(array('tanggal_absen' => $date));
+          $payload = $this->AbsenModel->getAll(array('tanggal_absen' => $date,'unit' => $unit, 'sub_unit' => $sub_unit));
 
           $user = $this->session->userdata('user')['nama_lengkap'];
   

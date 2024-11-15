@@ -46,6 +46,8 @@ class AbsenModel extends CI_Model
           
         $orderField = 'tanggal_absen';
         $dateParam = $params['tanggal_absen'];
+        $unitParam = $params['unit'];
+        $sub_unitParam = $params['sub_unit'];
 
         $this->db->select('absen_pegawai.absen_id,
                           absen_pegawai.tanggal_absen,
@@ -58,10 +60,16 @@ class AbsenModel extends CI_Model
                           pegawai.nrp,
                           COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama,
                           m_masuk.nama_mesin as mesin_m, 
-                          m_pulang.nama_mesin as mesin_p');
+                          m_pulang.nama_mesin as mesin_p,
+                          unit.kode_unit,
+                          unit.nama_unit,
+                          sub_unit.kode_sub_unit,
+                          sub_unit.nama_sub_unit');
         $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
         $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
         $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
+        $this->db->join('unit', 'pegawai.unit_id = unit.id', 'left');
+        $this->db->join('sub_unit', 'pegawai.sub_unit_id = sub_unit.id', 'left');
         $this->db->order_by('absen_pegawai.tanggal_absen, pegawai.nama_lengkap ASC');
         
         if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
@@ -70,6 +78,12 @@ class AbsenModel extends CI_Model
           $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
           $endDate = date('Y-m-d', strtotime("$year-$month-21"));
           $this->db->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'");
+          if(!empty($unitParam)){
+            $this->db->where("nama_unit",$unitParam);
+          }
+          if(!empty($sub_unitParam)){
+            $this->db->where("nama_sub_unit",$sub_unitParam);
+          }
 
         }elseif (preg_match('/^\d{4}$/', $dateParam)) {
 
