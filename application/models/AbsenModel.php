@@ -22,9 +22,15 @@ class AbsenModel extends CI_Model
             m_masuk.nama_mesin as nama_mesin_masuk,
             m_masuk.lokasi as lokasi_masuk, 
             m_pulang.nama_mesin as nama_mesin_pulang,
-            m_pulang.lokasi as lokasi_pulang
+            m_pulang.lokasi as lokasi_pulang,
+            u.kode_unit,
+            u.nama_unit,
+            su.kode_sub_unit,
+            su.nama_sub_unit
           FROM absen_pegawai ab
           LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
+          LEFT JOIN unit u ON u.id = p.unit_id
+          LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
           ORDER BY p.nama_lengkap, ab.absen_id, ab.tanggal_absen ASC

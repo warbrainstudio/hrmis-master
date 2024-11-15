@@ -41,23 +41,47 @@
             {
               data: "tanggal_absen",
               render: function(data, type, row, meta) {
+                if(daily==true){
+                    return "-";
+                }else{
                     var month = moment(data).format('MM');
                     var getMonth = getMonthNameByNum(month);
                     var day = moment(data).format('ddd');
                     var dayDate = moment(data).format('D');
                     var getDay = getTranslateNameDay(day);
                     return dayDate+" ("+getDay+")";
+                }
               }
             },
             {
               data: "nama",
               render: function(data, type, row, meta) {
                 if(data=='-'){
-                  var link = row.absen_id;
+                  var link = "ID Absen : "+row.absen_id;
                 }else{
                   var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
                 }
                 return link;
+              }
+            },
+            {
+              data: "nama_unit",
+              render: function(data, type, row, meta) {
+                if(!data){
+                  return "-";
+                }else{
+                  return data;
+                }
+              }
+            },
+            {
+              data: "nama_sub_unit",
+              render: function(data, type, row, meta) {
+                if(!data){
+                  return "-";
+                }else{
+                  return data;
+                }
               }
             },
             {
@@ -185,7 +209,7 @@
         },
         columnDefs: [{
           className: 'desktop',
-          targets: [0, 1, 2, 3, 4, 5]
+          targets: [0, 1, 2, 3, 4, 5, 6, 7]
         }, {
           className: 'tablet',
           targets: [0, 1, 2, 3, 4]

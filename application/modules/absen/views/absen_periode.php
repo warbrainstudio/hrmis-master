@@ -2,8 +2,14 @@
     <thead class="thead-default">
         <tr>
             <th width="100">No</th>
-            <th>Hari</th>
+            <?php if($isDaily==false) : ?>
+            <th width="110">Hari</th>
+            <?php else : ?>
+            <th>-</th>
+            <?php endif ?>
             <th>Pegawai</th>
+            <th>Unit</th>
+            <th>Sub Unit</th>
             <th>Masuk</th>
             <th>Verifikasi</th>
             <th>Pulang</th>
