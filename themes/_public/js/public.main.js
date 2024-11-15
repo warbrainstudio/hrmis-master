@@ -460,7 +460,7 @@ $(".nav-responsive-10:first").responsiveTabs();
 	}
 })();
 
-function getTranslateNameDay(hariText = '') {
+function getTranslateNameDay(hariText) {
     switch (hariText) {
         case "Sun":
             return "Minggu";

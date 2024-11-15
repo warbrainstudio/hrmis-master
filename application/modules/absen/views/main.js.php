@@ -43,10 +43,10 @@
               render: function(data, type, row, meta) {
                     var month = moment(data).format('MM');
                     var getMonth = getMonthNameByNum(month);
-                    var day = moment(data).format('dddd');
+                    var day = moment(data).format('ddd');
                     var dayDate = moment(data).format('D');
-                    //var getDay = getTranslateNameDay(day);
-                    return dayDate+" ("+day+")";
+                    var getDay = getTranslateNameDay(day);
+                    return dayDate+" ("+getDay+")";
               }
             },
             {
@@ -91,7 +91,7 @@
               data: "pulang",
               render: function(data, type, row, meta) {
                 if (!data) {
-                  return "-"; // Handles null and empty string
+                  return "-";
                 } else {
                   let verifiedColor = 'success';
                   var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
