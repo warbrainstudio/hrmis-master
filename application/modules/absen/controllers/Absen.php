@@ -191,18 +191,12 @@ class Absen extends AppBackend
           $filter .= " $searchFilter"; 
       }
   
-      $params = [];
-      if ($isExport === true) {
-          $unit_detail = $this->UnitModel->getDetail(['unit.id' => $unit_id]);
-          $sub_unit_detail = $this->SubunitModel->getDetail(['sub_unit.id' => $sub_unit_id]);
-          $params = array(
-              'cxfilter_unit' => ($unit_detail) ? $unit_detail->nama_unit : 'Semua',
-              'cxfilter_sub_unit' => ($sub_unit_detail) ? $sub_unit_detail->nama_sub_unit : 'Semua',
-          );
-      }
       return (object) array(
-          'params' => $params,
-          'query_string' => $this->AbsenModel->getQuery($filter),
+        'params' => ($isExport === true) ? array(
+            'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
+            'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->SubunitModel->getDetail(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
+        ) : array(),
+        'query_string' => $this->AbsenModel->getQuery($filter),
       );
   }  
 
