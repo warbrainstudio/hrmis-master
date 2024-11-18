@@ -153,7 +153,7 @@ class Absen extends AppBackend
           array(
             'type' => 'combo',
             'name' => 'sub_unit_id',
-            'label' => 'Unit',
+            'label' => 'Sub Unit',
             'store' => $cxfilter__sub_unit_store,
           ),
         ),
@@ -378,7 +378,7 @@ class Absen extends AppBackend
         }
 
         if (!is_null($payload)) {
-            $outputFileName = 'histori absen ' . (!empty($pegawai->nama_lengkap) ? $pegawai->nama_lengkap : 'unknown') . '.xlsx';
+            $outputFileName = 'laporan absen ' . (!empty($pegawai->nama_lengkap) ? $pegawai->nama_lengkap : "ID ".$absen_pegawai_id) . '.xlsx';
 
             $payloadStatic = $this->arrayToSetterSimple(array('nama_lengkap' => $pegawai->nama_lengkap));
             $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'), 'user' => $user)));

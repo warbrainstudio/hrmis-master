@@ -336,7 +336,7 @@
             url: "<?php echo base_url('absen/ajax_get_all/') ?>",
             type: "get",
               data: {
-                filter: "<?= "AND absen_id='$absen_id'" ?>",
+                searchFilter: "<?= "AND absen_id='$absen_id'" ?>",
               },
           },
           columns: [{

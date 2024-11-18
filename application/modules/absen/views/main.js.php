@@ -424,8 +424,8 @@
         return;
       }else{
         swal({
-          title: "Tarik Data",
-          text: `Update Data absen?`,
+          title: "Update Data absen?",
+          text: `data absen akan diperbaharui`,
           icon: "warning",
           showCancelButton: true,
           confirmButtonText: "Ya",
@@ -477,7 +477,11 @@
     }
 
     $("#collapseCardCxFilter [name='cx_filter[unit_id]']").on("change", function() {
-      load_refSubUnit($(this).val());
+      if($(this).val()==='all'){
+        location.reload();
+      }else{
+        load_refSubUnit($(this).val());
+      }
     });
 
     async function load_refSubUnit(unitId) {
