@@ -77,6 +77,16 @@
               }
             },
             {
+              data: "nama_sub_unit",
+              render: function(data, type, row, meta) {
+                if(!data){
+                  return "-";
+                }else{
+                  return data;
+                }
+              }
+            },
+            {
               data: "masuk",
               render: function(data, type, row, meta) {
                 if (!data) {
@@ -465,6 +475,32 @@
             }
         });
     }
+
+    $("#collapseCardCxFilter [name='cx_filter[unit_id]']").on("change", function() {
+      load_refSubUnit($(this).val());
+    });
+
+    async function load_refSubUnit(unitId) {
+      var cmpSubUnit = $("#collapseCardCxFilter [name='cx_filter[sub_unit_id]']");
+      var defaultValue = cmpSubUnit.val();
+
+      // Fetch new option
+      await $.ajax({
+        url: "<?= base_url('ref/ajax_get_list_sub_unit/') ?>",
+        type: "get",
+        data: {
+          "<?= $this->security->get_csrf_token_name(); ?>": "<?= $this->security->get_csrf_hash(); ?>",
+          unit_id: unitId,
+          default_value: defaultValue,
+        },
+        dataType: "json",
+        success: function(response) {
+          var value = (defaultValue != null) ? defaultValue : null;
+          cmpSubUnit.html(response);
+          cmpSubUnit.val(value).trigger("change");
+        }
+      });
+    };
 
     $("#" + _section).on("click", "button." + _section + "-backButton", function(e) {
         window.history.back();

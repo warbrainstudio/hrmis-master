@@ -9,6 +9,7 @@
             <?php endif ?>
             <th>Pegawai</th>
             <th>Unit</th>
+            <th>Sub Unit</th>
             <th>Masuk</th>
             <th>Verifikasi</th>
             <th>Pulang</th>

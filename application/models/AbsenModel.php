@@ -23,6 +23,7 @@ class AbsenModel extends CI_Model
             EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
             (CASE WHEN TO_CHAR(ab.masuk, 'YYYY-mm-dd') != TO_CHAR(ab.pulang, 'YYYY-mm-dd') THEN 'Shift Malam' ELSE '-' END) AS jenis_shift,
             p.unit_id,
+            p.sub_unit_id,
             m_masuk.nama_mesin as nama_mesin_masuk,
             m_masuk.lokasi as lokasi_masuk, 
             m_pulang.nama_mesin as nama_mesin_pulang,
