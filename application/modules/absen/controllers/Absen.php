@@ -125,7 +125,7 @@ class Absen extends AppBackend
       $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21"));
       $searchFilterPeriode .= "AND tanggal_absen BETWEEN '$startDatePeriode' AND '$endDatePeriode'";
 			$status = false;
-			$card = "Bulan ".$formattedDate;
+			$card = "periode bulan ".$formattedDate;
 		}else{
 			show_404();
 		}
@@ -161,7 +161,7 @@ class Absen extends AppBackend
         'cxfilter__submit_xlsx' => true,
       ),
 			'isDaily' => $status,
-			'isAll' => 'false',
+			'isAll' => false,
 		);
 
     //$query = $this->_getQuery(false, $searchFilter);
