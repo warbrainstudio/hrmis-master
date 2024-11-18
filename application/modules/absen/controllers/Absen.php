@@ -164,8 +164,8 @@ class Absen extends AppBackend
 			'isAll' => false,
 		);
 
-    $query = $this->_getQuery(false, $searchFilter);
-    $data['query_string'] = $query->query_string;
+    //$query = $this->_getQuery(false, $searchFilter);
+    //$data['query_string'] = $query->query_string;
 		$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
 		$this->template->load_view('view', $data, TRUE);
 		$this->template->render();
@@ -180,25 +180,38 @@ class Absen extends AppBackend
       if (!is_null($unit_id) && $unit_id != 'all') {
           $filter .= " AND unit_id = '$unit_id'";
       }
-
+  
       if (!is_null($sub_unit_id) && $sub_unit_id != 'all') {
-        if ($sub_unit_id !== 'null') {
-          $filter .= " AND sub_unit_id = '$sub_unit_id'";
-        }
-    }
-
+          if ($sub_unit_id !== 'null') {
+              $filter .= " AND sub_unit_id = '$sub_unit_id'";
+          }
+      }
+  
       if (!empty($searchFilter)) {
           $filter .= " $searchFilter"; 
       }
   
+      // Prepare parameters for export
+      $params = [];
+      if ($isExport === true) {
+          // Get unit details (check for null result)
+          $unit_detail = $this->UnitModel->getDetail(['unit.id' => $unit_id]);
+          // Get subunit details (check for null result)
+          $sub_unit_detail = $this->SubunitModel->getDetail(['sub_unit.id' => $sub_unit_id]);
+  
+          // Check if results exist, otherwise use default 'Semua'
+          $params = array(
+              'cxfilter_unit' => ($unit_detail) ? $unit_detail->nama_unit : 'Semua',
+              'cxfilter_sub_unit' => ($sub_unit_detail) ? $sub_unit_detail->nama_sub_unit : 'Semua',
+          );
+      }
+  
+      // Return the query parameters and the query string
       return (object) array(
-          'params' => ($isExport === true) ? array(
-              'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
-              'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->SubunitModel->getDetail(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
-          ) : array(),
+          'params' => $params,
           'query_string' => $this->AbsenModel->getQuery($filter),
       );
-  }
+  }  
 
   public function ajax_get_all()
   {

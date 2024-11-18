@@ -44,7 +44,11 @@ class SubunitModel extends CI_Model
   public function getDetail($params = array())
   {
     $this->db->join('unit', 'unit.id = sub_unit.unit_id', 'left');
-    $this->db->where($params);
+    if (isset($params['id']) && $params['id'] !== 'null') {
+      $this->db->where('sub_unit.id', $params['id']);
+    } else {
+        $this->db->where('sub_unit.id IS NULL', null, false);
+    }
     return $this->db->get($this->_table)->row();
   }
 
