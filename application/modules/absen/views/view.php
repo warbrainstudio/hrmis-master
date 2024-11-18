@@ -2,13 +2,7 @@
 <section id="absen">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?>
-                <?php if($isDaily==true) : ?>
-                    <button class="btn btn-sm btn-info absen-action-add" title="update data absen secara manual">
-                        <i class="zmdi zmdi-cloud-download"></i> Update
-                    </button>
-                <?php endif ?>
-            </h4>
+            <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?></h4>
             <h6 class="card-subtitle"><?php echo (isset($card_subTitle)) ? $card_subTitle : '' ?></h6>
             <div class="col-xs-12 col-sm-9">
                 <div class="row">
@@ -17,9 +11,18 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-3">
-                <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
-            </div>
+            <?php if($isDaily==true) : ?>
+                <button class="btn btn-sm btn-info absen-action-add" title="update data absen secara manual">
+                    <i class="zmdi zmdi-cloud-download"></i> Update
+                </button>
+                <button class="btn btn-sm btn-success absen-export">
+                    <i class="zmdi zmdi-download"></i> Download Data (Excel)
+                </button>
+            <?php else : ?>
+                <div class="mt-3">
+                    <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
+                </div>
+            <?php endif ?>
             <div class="tab-pane active fade show" id="tab-absen_periode" role="tabpanel">
                 <div class="pt-4">
                     <?php require_once(APPPATH . 'modules/absen/views/absen_periode.php') ?>

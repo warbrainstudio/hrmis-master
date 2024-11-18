@@ -290,7 +290,7 @@
         closeOnConfirm: false
       }).then((result) => {
           if (result.value) {
-            var downloadUrl = "<?= base_url('absen/excel?ref=cxsmi&date=') ?>" + _key;
+            var downloadUrl = "<?= base_url('absen/xlsx_harian?ref=cxsmi&date=') ?>" + _key;
             window.location.href = downloadUrl;
           }
       });

@@ -164,8 +164,8 @@ class Absen extends AppBackend
 			'isAll' => false,
 		);
 
-    //$query = $this->_getQuery(false, $searchFilter);
-    //$data['query_string'] = $query->query_string;
+    $query = $this->_getQuery(false, $searchFilter);
+    $data['query_string'] = $query->query_string;
 		$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
 		$this->template->load_view('view', $data, TRUE);
 		$this->template->render();
@@ -184,7 +184,9 @@ class Absen extends AppBackend
       if (!is_null($sub_unit_id) && $sub_unit_id != 'all') {
         if ($sub_unit_id !== 'null') {
           $filter .= " AND sub_unit_id = '$sub_unit_id'";
-        } 
+        }else{
+          $filter .= " AND sub_unit_id = null";
+        }
     }
 
       if (!empty($searchFilter)) {
@@ -357,8 +359,55 @@ class Absen extends AppBackend
         show_404();
       };
     } catch (\Throwable $th) {
-      show_error('Terjadi kesalahan ketika memproses data.', 500);
+      show_error('Terjadi kesalahan ketika memproses data. '.$th, 500);
     };
+  }
+
+  public function xlsx_harian()
+  {
+      try {
+          $date = $this->input->get('date');
+          $status = '';
+          $formattedDate = $date;
+          if (DateTime::createFromFormat('Y-m-d', $date) !== false) {
+              $fileTemplate = FCPATH . 'directory/templates/template-absensi-harian.xlsx';
+              $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+              $Day = $dateTime->format('D');
+              $DayNumber = $dateTime->format('d');
+              $monthNumber = $dateTime->format('m');
+              $year = $dateTime->format('Y');
+              $formattedDay = $this->get_day($Day);
+              $formattedMonth = $this->get_month($monthNumber);
+              $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
+              $status = $formattedDate;
+          }  else{
+              ini_set('memory_limit', '4G');
+              $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
+              $status = 'Tahun'; 
+          }
+          $callbacks = array();
+
+          $payload = $this->AbsenModel->getAll(array('tanggal_absen' => $date));
+
+          $user = $this->session->userdata('user')['nama_lengkap'];
+  
+          if (!is_null($payload)) {
+
+              $outputFileName = 'histori absen ' . $formattedDate . '.xlsx';
+              $payloadStatic = $this->arrayToSetterSimple(array('tanggal_absen' => $formattedDate,'status' => $status));
+              $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'), 'user' => $user)));
+              $payload = $this->arrayToSetter($payload);
+              $payload = array_merge($payload, $payloadStatic);
+  
+              PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);
+          } else {
+              show_404();
+          }
+      } catch (\Throwable $th) {
+          log_message('error', $th->getMessage());
+  
+          show_error('Terjadi kesalahan ketika memproses data. Detail: ' . $th->getMessage(), 500);
+      }
   }
 
   public function excel_pegawai()
