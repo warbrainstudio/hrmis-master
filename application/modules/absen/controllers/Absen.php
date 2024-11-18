@@ -15,7 +15,7 @@ class Absen extends AppBackend
     parent::__construct();
     $this->load->model(array(
       'AppMixModel',
-      //'AppModel',
+      'UnitModel',
       'AbsenModel',
       'PegawaiModel'
     ));
@@ -90,9 +90,12 @@ class Absen extends AppBackend
 
 	public function detail()
   {
-		//$agent = new Mobile_Detect;
+		$agent = new Mobile_Detect;
 		$ref = $this->input->get('date');
+    $cxfilter__list_static = '<option value="all">--Semua--</option>';
+    $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
 		$searchFilter = "";
+    $searchFilterPeriode = "";
 		$status = "";
 		$card = "";
 		if (DateTime::createFromFormat('Y-m-d', $ref) !== false) {
@@ -104,7 +107,7 @@ class Absen extends AppBackend
       $formattedDay = $this->get_day($Day);
       $formattedMonth = $this->get_month($monthNumber);
       $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
-			$searchFilter = "AND tanggal_absen::date='$ref'";
+			$searchFilter .= "AND tanggal_absen::date='$ref'";
 			$status = true;
 			$card = "hari ".$formattedDate;
 		}else if(DateTime::createFromFormat('Y-m', $ref) !== false){
@@ -113,33 +116,81 @@ class Absen extends AppBackend
 			$year = $dateTime->format('Y');
 			$formattedMonth = $this->get_month($monthNumber);
 			$formattedDate = $formattedMonth . ' ' . $year;
-			$startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
+      $startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
       $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
-			$searchFilter = "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+			$searchFilter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+      $startDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21 -1 month"));
+      $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21"));
+      $searchFilterPeriode .= "AND tanggal_absen BETWEEN '$startDatePeriode' AND '$endDatePeriode'";
 			$status = false;
 			$card = "Bulan ".$formattedDate;
 		}else{
 			show_404();
 		}
-			$data = array(
+
+		$data = array(
 			'app' => $this->app(),
 			'main_js' => $this->load_main_js('absen', false, array(
 				'action_route' => 'detail',
 				'key' => $ref,
 				'searchFilter' => $searchFilter,
+        'searchFilterPeriode' => $searchFilterPeriode,
 				'isDaily' => $status,
 			)),
 			'card_title' => 'Absen '.$card,
 			'controller' => $this,
-			//'is_mobile' => $agent->isMobile(),
-      'periodeData' => true,
+			'is_mobile' => $agent->isMobile(),
+      'cx_filter' => array(
+        'component' => array(
+          array(
+            'type' => 'combo',
+            'name' => 'unit_id',
+            'label' => 'Unit',
+            'store' => $cxfilter__unit_store,
+          ),
+        ),
+        'cxfilter__submit_filter' => true,
+        'cxfilter__submit_xlsx' => true,
+      ),
 			'isDaily' => $status,
 			'isAll' => 'false',
-			);
-			//$this->template->set_template('sb_admin_partial');
-			$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
-			$this->template->load_view('view', $data, TRUE);
-			$this->template->render();
+		);
+
+    //$query = $this->_getQuery(false, $searchFilter);
+    //$data['query_string'] = $query->query_string;
+		$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
+		$this->template->load_view('view', $data, TRUE);
+		$this->template->render();
+  }
+
+  private function _getQuery($isExport = false, $searchFilter = '')
+  {
+      $filter = '';
+      $unit_id = $this->input->get('cxfilter_unit_id');
+  
+      if (!is_null($unit_id) && $unit_id != 'all') {
+          $filter .= " AND unit_id = '$unit_id'";
+      }
+
+      if (!empty($searchFilter)) {
+          $filter .= " $searchFilter"; 
+      }
+  
+      return (object) array(
+          'params' => ($isExport === true) ? array(
+              'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
+          ) : array(),
+          'query_string' => $this->AbsenModel->getQuery($filter),
+      );
+  }
+
+  public function ajax_get_all()
+  {
+    $this->handle_ajax_request();
+    $searchFilter = $this->input->get('searchFilter', true); 
+    $query = $this->_getQuery(false, $searchFilter);
+    $response = $this->AppMixModel->getdata_dtAjax($query->query_string);
+    echo json_encode($response);
   }
 
   public function ajax_fetch_data() {
@@ -237,22 +288,6 @@ class Absen extends AppBackend
         
   }
 
-  public function ajax_get_all()
-  {
-    $filter = $this->input->get('filter');
-    $query = $this->AbsenModel->getQuery($filter);
-    $response = $this->AppMixModel->getdata_dtAjax($query);
-    echo json_encode($response);
-  }
-
-  public function ajax_get_pegawai_item()
-  {
-    $this->handle_ajax_request();
-    $ref = $this->input->get('absen_id');
-    $response = $this->AbsenModel->getAll(['absen_id' => $ref], 'asc');
-    echo json_encode($response);
-  }
-
   public function ajax_save($id = null)
   {
     $this->handle_ajax_request();
@@ -282,12 +317,40 @@ class Absen extends AppBackend
     echo json_encode($this->AbsenModel->deletepegawai($absen_pegawai_id));
   }
 
+  public function xlsx()
+  {
+    try {
+      $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
+      $callbacks = array();
+      $searchFilter = $this->input->get('searchFilterPeriode', true); 
+      $query = $this->_getQuery(true, $searchFilter);
+      $queryString = $query->query_string;
+      //$queryString .= " ORDER BY tanggal_absen ASC";
+      $master = $this->db->query($queryString)->result();
+
+      if (!is_null($master) && count($master) > 0) {
+        $outputFileName = 'absensi_' . date('YmdHis') . '.xlsx';
+        $cxFilter_params = $query->params;
+
+        $payload = $this->arrayToSetter($master);
+        $payloadStatic = $this->arrayToSetterSimple($cxFilter_params);
+        $payload = array_merge($payload, $payloadStatic);
+
+        PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);
+      } else {
+        show_404();
+      };
+    } catch (\Throwable $th) {
+      show_error('Terjadi kesalahan ketika memproses data.', 500);
+    };
+  }
+
   public function excel()
   {
       try {
           $date = $this->input->get('date');
-          $unit = 'RS. Jasa Kartini Tasikmalaya';
-          $sub_unit = 'Instalasi Rekam Medik RSJK';
+          $unit = $this->input->get('unit');
+          $sub_unit = $this->input->get('sub_unit');
           $status = '';
           $formattedDate = $date;
           if (DateTime::createFromFormat('Y-m-d', $date) !== false) {
@@ -337,6 +400,14 @@ class Absen extends AppBackend
   
           show_error('Terjadi kesalahan ketika memproses data. Detail: ' . $th->getMessage(), 500);
       }
+  }
+
+  public function ajax_get_pegawai_item()
+  {
+    $this->handle_ajax_request();
+    $ref = $this->input->get('absen_id');
+    $response = $this->AbsenModel->getAll(['absen_id' => $ref], 'asc');
+    echo json_encode($response);
   }
 
   public function excel_pegawai()

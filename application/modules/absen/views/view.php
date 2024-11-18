@@ -1,3 +1,4 @@
+<?php require_once(APPPATH . 'modules/_cssInject/main.css.php') ?>
 <section id="absen">
     <div class="card">
         <div class="card-body">
@@ -12,17 +13,15 @@
                                 <i class="zmdi zmdi-cloud-download"></i> Update
                             </button>
                             <?php endif ?>
-                            <?php if($periodeData==true) : ?>
-                            <button class="btn btn-sm btn-success absen-export">
-                                <i class="zmdi zmdi-download"></i> Download Data (Excel)
-                            </button>
-                            <?php endif ?>
                             <button class="btn btn-sm btn-dark absen-backButton">
                             <i class="zmdi zmdi-long-arrow-return"></i> Kembali
                             </button>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="mt-3">
+                <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
             </div>
             <div class="tab-pane active fade show" id="tab-absen_periode" role="tabpanel">
                 <div class="pt-4">

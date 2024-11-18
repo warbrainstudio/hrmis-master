@@ -1,13 +1,15 @@
 <script type="text/javascript">
+  var _key = "<?= $key ?>";
+  var _searchFilter = "<?= $searchFilter ?>";
+  var _searchFilterPeriode = "<?= $searchFilterPeriode ?>";
+  var _section = "absen";
+  var _table = "table-absen-periode";
+  const calendar = ".calendar";
+  const days = document.querySelectorAll(calendar + ' .day');
+  let isFetching = false; 
+  const storedDate = localStorage.getItem('selectedDate');
+  
   $(document).ready(function() {
-
-    var _key = "<?= $key ?>";
-    var _section = "absen";
-    var _table = "table-absen-periode";
-    const calendar = ".calendar";
-    const days = document.querySelectorAll(calendar + ' .day');
-    let isFetching = false; 
-    const storedDate = localStorage.getItem('selectedDate');
 
     if (storedDate) {
         fetchData(storedDate);
@@ -29,7 +31,7 @@
           url: "<?php echo base_url('absen/ajax_get_all/') ?>",
           type: "get",
             data: {
-              filter: "<?= $searchFilter ?>",
+              searchFilter: _searchFilter,
             },
         },
         columns: [{
@@ -65,7 +67,7 @@
               }
             },
             {
-              data: "nama_sub_unit",
+              data: "nama_unit",
               render: function(data, type, row, meta) {
                 if(!data){
                   return "-";
@@ -235,6 +237,9 @@
             '<span class="actions__item zmdi zmdi-refresh" data-table-action="reload" title="Reload" />' +
             '</div>'
           );
+        },
+        drawCallback: function() {
+          handleCxFilter_setXlsx(_table);
         },
       });
 
@@ -466,4 +471,17 @@
     });
 
   });
+
+  function handleCxFilter_submit() {
+    var params = handleCxFilter_getParams();
+    $("#" + _table).DataTable().ajax.url("<?php echo base_url('absen/ajax_get_all') ?>" + params);
+    $("#" + _table).DataTable().clear().draw();
+  };
+
+  function handleCxFilter_xlsx() {
+    var params = handleCxFilter_getParams();
+    params += (params ? '&' : '') + 'searchFilterPeriode=' + encodeURIComponent(_searchFilterPeriode);
+    var url = "<?php echo base_url('absen/xlsx') ?>" + params;
+    window.location.href = url;
+  };
 </script>
