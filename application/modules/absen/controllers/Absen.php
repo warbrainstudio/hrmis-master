@@ -184,8 +184,6 @@ class Absen extends AppBackend
       if (!is_null($sub_unit_id) && $sub_unit_id != 'all') {
         if ($sub_unit_id !== 'null') {
           $filter .= " AND sub_unit_id = '$sub_unit_id'";
-        }else{
-          $filter .= " AND sub_unit_id = null";
         }
     }
 
