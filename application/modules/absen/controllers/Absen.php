@@ -125,7 +125,7 @@ class Absen extends AppBackend
       $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21"));
       $searchFilterPeriode .= "AND tanggal_absen BETWEEN '$startDatePeriode' AND '$endDatePeriode'";
 			$status = false;
-			$card = "periode bulan ".$formattedDate;
+			$card = "bulan ".$formattedDate;
 		}else{
 			show_404();
 		}
@@ -164,8 +164,6 @@ class Absen extends AppBackend
 			'isAll' => false,
 		);
 
-    //$query = $this->_getQuery(false, $searchFilter);
-    //$data['query_string'] = $query->query_string;
 		$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
 		$this->template->load_view('view', $data, TRUE);
 		$this->template->render();
@@ -341,15 +339,29 @@ class Absen extends AppBackend
       $searchFilter = $this->input->get('searchFilterPeriode', true); 
       $query = $this->_getQuery(true, $searchFilter);
       $queryString = $query->query_string;
-      //$queryString .= " ORDER BY tanggal_absen ASC";
+      $queryString .= "ORDER BY tanggal_absen ASC";
       $master = $this->db->query($queryString)->result();
 
+      if (preg_match("/BETWEEN '(\d{4}-\d{2}-\d{2})' AND '(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)) {
+          $endDate = $matches[2];
+          $dateObject = new DateTime($endDate);
+          $monthNumber = $dateObject->format('m');
+          $year = $dateObject->format('Y');
+          $formattedMonth = $this->get_month($monthNumber);
+          $formattedDate = $formattedMonth . '_' . $year;
+          $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$year;
+          
+      } else {
+          echo "No date found.";
+      }
+
       if (!is_null($master) && count($master) > 0) {
-        $outputFileName = 'absensi_' . date('YmdHis') . '.xlsx';
+        $outputFileName = 'absensi_pegawai_periode_'.$formattedDate.'.xlsx';
         $cxFilter_params = $query->params;
 
         $payload = $this->arrayToSetter($master);
-        $payloadStatic = $this->arrayToSetterSimple($cxFilter_params);
+        $payloadStatic = $this->arrayToSetterSimple(array('tanggal_periode' => $tanggal_periode));
+        $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple($cxFilter_params));
         $payload = array_merge($payload, $payloadStatic);
 
         PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);
