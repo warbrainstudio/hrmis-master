@@ -28,6 +28,9 @@ class AbsenModel extends CI_Model
             m_masuk.lokasi as lokasi_masuk, 
             m_pulang.nama_mesin as nama_mesin_pulang,
             m_pulang.lokasi as lokasi_pulang,
+            (CASE WHEN ab.masuk IS NULL THEN '-' WHEN ab.pulang IS NULL THEN '-' ELSE j.nama_jadwal END) AS jadwal_nama,
+            j.jadwal_masuk,
+            j.jadwal_pulang,
             u.kode_unit,
             u.nama_unit,
             su.kode_sub_unit,
@@ -38,10 +41,18 @@ class AbsenModel extends CI_Model
           LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
+          LEFT JOIN jadwal j ON j.unit_id = u.id
           ORDER BY p.nama_lengkap, ab.absen_id, ab.tanggal_absen ASC
         ) t
         WHERE 1=1
       ";
+
+      /*LEFT JOIN jadwal j ON (
+              ab.masuk::time >= (j.jam_masuk - interval '10 minute') 
+              AND ab.masuk::time <= (j.jam_masuk + interval '30 minute')
+              AND ab.pulang::time >= (j.jam_pulang - interval '30 minute')
+              
+          )*/
 
       if (!is_null($filter)) $query .= $filter;
       return $query;

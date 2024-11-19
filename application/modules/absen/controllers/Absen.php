@@ -339,7 +339,7 @@ class Absen extends AppBackend
       $searchFilter = $this->input->get('searchFilterPeriode', true); 
       $query = $this->_getQuery(true, $searchFilter);
       $queryString = $query->query_string;
-      $queryString .= "ORDER BY tanggal_absen ASC";
+      //$queryString .= "ORDER BY tanggal_absen ASC";
       $master = $this->db->query($queryString)->result();
 
       if (preg_match("/BETWEEN '(\d{4}-\d{2}-\d{2})' AND '(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)) {

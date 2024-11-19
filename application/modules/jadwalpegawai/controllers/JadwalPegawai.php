@@ -10,6 +10,7 @@ class JadwalPegawai extends AppBackend
     $this->load->model(array(
       'AppModel',
       'JadwalModel',
+      'UnitModel'
     ));
     $this->load->library('form_validation');
   }
@@ -20,6 +21,7 @@ class JadwalPegawai extends AppBackend
       'app' => $this->app(),
       'main_js' => $this->load_main_js('jadwalpegawai'),
       'card_title' => $this->_pageTitle,
+      'list_unit' => $this->init_list($this->UnitModel->getAll(), 'id', 'nama_unit'),
     );
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
@@ -30,7 +32,15 @@ class JadwalPegawai extends AppBackend
   {
     $this->handle_ajax_request();
     $dtAjax_config = array(
+      'select_column' => 'jadwal.id, jadwal.nama_jadwal, jadwal.jadwal_masuk, jadwal.jadwal_pulang, unit.id AS unit_id, unit.nama_unit',
       'table_name' => 'jadwal',
+      'table_join' => array(
+        array(
+          'table_name' => 'unit',
+          'expression' => 'unit.id = jadwal.unit_id',
+          'type' => 'left'
+        ),
+      ),
       'order_column' => 1
     );
     $response = $this->AppModel->getData_dtAjax($dtAjax_config);

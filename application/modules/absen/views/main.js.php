@@ -185,7 +185,14 @@
               }
             },
             {
-              data: "jenis_shift"
+              data: "jadwal_nama",
+              render: function(data, type, row, meta) {
+                var masuk = moment(row.masuk).format('HH:mm:ss');
+                var pulang = moment(row.pulang).format('HH:mm:ss');
+                var jam_masuk = row.jadwal_masuk;
+                var jam_pulang = row.jadwal_pulang;
+                return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
+              }
             }
 
             /*,

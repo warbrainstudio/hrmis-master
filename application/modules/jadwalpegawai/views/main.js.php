@@ -26,10 +26,16 @@
             data: "nama_jadwal"
           },
           {
-            data: "jam_masuk"
+            data: "unit_id",
+            render: function(data, type, row, meta) {
+              return row.nama_unit;
+            }
           },
           {
-            data: "jam_pulang"
+            data: "jadwal_masuk"
+          },
+          {
+            data: "jadwal_pulang"
           },
           {
             data: null,
@@ -62,7 +68,7 @@
         },
         columnDefs: [{
           className: 'desktop',
-          targets: [0, 1, 2, 3]
+          targets: [0, 1, 2, 3, 4]
         }, {
           className: 'tablet',
           targets: [0, 1, 2, 3]

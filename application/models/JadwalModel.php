@@ -39,8 +39,9 @@ class JadwalModel extends CI_Model
 
     try {
       $this->nama_jadwal = $this->input->post('nama_jadwal');
-      $this->jam_masuk = $this->input->post('jam_masuk');
-      $this->jam_pulang = $this->input->post('jam_pulang');
+      $this->unit_id = $this->input->post('unit_id');
+      $this->jadwal_masuk = $this->input->post('jadwal_masuk');
+      $this->jadwal_pulang = $this->input->post('jadwal_pulang');
       $this->db->insert($this->_table, $this);
 
       $response = array('status' => true, 'data' => 'Data has been saved.');
@@ -72,8 +73,9 @@ class JadwalModel extends CI_Model
 
     try {
       $this->nama_jadwal = $this->input->post('nama_jadwal');
-      $this->jam_masuk = $this->input->post('jam_masuk');
-      $this->jam_pulang = $this->input->post('jam_pulang');
+      $this->unit_id = $this->input->post('unit_id');
+      $this->jadwal_masuk = $this->input->post('jadwal_masuk');
+      $this->jadwal_pulang = $this->input->post('jadwal_pulang');
       $this->db->update($this->_table, $this, array('id' => $id));
 
       $response = array('status' => true, 'data' => 'Data has been saved.');

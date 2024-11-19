@@ -20,6 +20,7 @@
                         <tr>
                             <th width="100">No</th>
                             <th>Nama Jadwal</th>
+                            <th>Unit</th>
                             <th>Jam Masuk</th>
                             <th>Jam Pulang</th>
                             <th width="170" class="text-center">#</th>

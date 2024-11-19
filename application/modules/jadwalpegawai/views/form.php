@@ -20,13 +20,22 @@
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
+            <label required>Unit</label>
+            <div class="select">
+              <select name="unit_id" class="form-control select2 jadwal-unit_id" data-placeholder="Pilih &#8595;" required>
+                <?= $list_unit ?>
+              </select>
+              <i class="form-group__bar"></i>
+            </div>
+          </div>
+          <div class="form-group">
             <label required>Jam Masuk</label>
-            <input type="time" name="jam_masuk" class="form-control jadwal-jam_masuk" maxlength="100" required />
+            <input type="time" name="jadwal_masuk" class="form-control jadwal-jadwal_masuk" maxlength="100" required />
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
             <label required>Jam Pulang</label>
-            <input type="time" name="jam_pulang" class="form-control jadwal-jam_pulang" maxlength="100" required />
+            <input type="time" name="jadwal_pulang" class="form-control jadwal-jadwal_pulang" maxlength="100" required />
             <i class="form-group__bar"></i>
           </div>
 
