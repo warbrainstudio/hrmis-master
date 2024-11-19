@@ -187,11 +187,25 @@
             {
               data: "jadwal_nama",
               render: function(data, type, row, meta) {
+                var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
+                var DatePulang = moment(row.pulang).format('DD-MM-YYYY');
                 var masuk = moment(row.masuk).format('HH:mm:ss');
                 var pulang = moment(row.pulang).format('HH:mm:ss');
                 var jam_masuk = row.jadwal_masuk;
                 var jam_pulang = row.jadwal_pulang;
-                return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
+                if(row.masuk){
+                  if(DateMasuk!=DatePulang){
+                    return row.jenis_shift;
+                  }else{
+                    if(jam_masuk && jam_pulang){
+                      return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
+                    }else{
+                      return "-";
+                    }
+                  }
+                }else{
+                  return "-";
+                }
               }
             }
 

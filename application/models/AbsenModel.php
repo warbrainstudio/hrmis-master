@@ -41,18 +41,24 @@ class AbsenModel extends CI_Model
           LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
-          LEFT JOIN jadwal j ON j.unit_id = u.id
+          LEFT JOIN jadwal j ON (
+              ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
+              AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
+              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
+              AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
+          )
           ORDER BY p.nama_lengkap, ab.absen_id, ab.tanggal_absen ASC
         ) t
         WHERE 1=1
       ";
 
       /*LEFT JOIN jadwal j ON (
-              ab.masuk::time >= (j.jam_masuk - interval '10 minute') 
-              AND ab.masuk::time <= (j.jam_masuk + interval '30 minute')
-              AND ab.pulang::time >= (j.jam_pulang - interval '30 minute')
+              ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
+              AND ab.masuk::time <= (j.jadwal_masuk + interval '30 minute')
+              AND ab.pulang::time >= (j.jadwal_pulang - interval '30 minute')
               
-          )*/
+          )
+              LEFT JOIN jadwal j ON j.unit_id = u.id */
 
       if (!is_null($filter)) $query .= $filter;
       return $query;
