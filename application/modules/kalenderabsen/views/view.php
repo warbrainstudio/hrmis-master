@@ -1,5 +1,5 @@
 <?php require_once(APPPATH . 'modules/_cssInject/main.css.php') ?>
-<section id="absen">
+<section id="kalenderabsen">
     <div class="card">
         <div class="card-body">
             <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?></h4>
@@ -16,7 +16,7 @@
             </div>
             <div class="tab-pane active fade show" id="tab-absen_periode" role="tabpanel">
                 <div class="pt-4">
-                    <?php require_once(APPPATH . 'modules/absen/views/absen_periode.php') ?>
+                    <?php require_once(APPPATH . 'modules/kalenderabsen/views/absen_periode.php') ?>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-9">
