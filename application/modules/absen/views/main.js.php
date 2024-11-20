@@ -276,11 +276,23 @@
       }
     });
 
+    $("#collapseCardCxFilter [name='cx_filter[month]']").on("change", function() {
+      if($(this).val()==='all'){
+        location.reload();
+      }
+      var cmpYear = $("#collapseCardCxFilter [name='cx_filter[year]']");
+    });
+
+    $("#collapseCardCxFilter [name='cx_filter[year]']").on("change", function() {
+      if($(this).val()==='all'){
+        location.reload();
+      }
+    });
+
     async function load_refSubUnit(unitId) {
       var cmpSubUnit = $("#collapseCardCxFilter [name='cx_filter[sub_unit_id]']");
       var defaultValue = cmpSubUnit.val();
 
-      // Fetch new option
       await $.ajax({
         url: "<?= base_url('ref/ajax_get_list_sub_unit/') ?>",
         type: "get",
