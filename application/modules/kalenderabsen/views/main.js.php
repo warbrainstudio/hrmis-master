@@ -2,7 +2,7 @@
   var _key = "<?= $key ?>";
   var _searchFilter = "<?= $searchFilter ?>";
   var _searchFilterPeriode = "<?= $searchFilterPeriode ?>";
-  var _section = "absen";
+  var _section = "kalenderabsen";
   var _table = "table-absen-periode";
   const calendar = ".calendar";
   const days = document.querySelectorAll(calendar + ' .day');
