@@ -450,7 +450,7 @@
               }
             },
             {
-              data: "jenis_shift"
+              data: "jadwal_nama"
             }
               /*,
             {
