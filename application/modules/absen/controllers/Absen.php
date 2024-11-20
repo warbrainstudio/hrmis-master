@@ -142,7 +142,7 @@ class Absen extends AppBackend
   public function xlsx()
   {
     try {
-      $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
+      $fileTemplate = FCPATH . 'directory/templates/template-absensi-custom.xlsx';
       $callbacks = array();
       $query = $this->_getQuery(true);
       $queryString = $query->query_string;
