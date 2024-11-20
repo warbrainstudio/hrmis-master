@@ -140,6 +140,8 @@
                   date.setHours(0, 0, 0, 0);
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
+                  const yesterday = new Date(today);
+                  yesterday.setDate(today.getDate() - 1);
                   if (date.getTime() === today.getTime()) {
                     if(!row.masuk && row.pulang){
                       return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
@@ -147,7 +149,15 @@
                       return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
                     }
                   } else {
-                    return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                    if(date.getDate() === yesterday.getDate()){
+                      if(!row.masuk && row.pulang){
+                        return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
+                      }else{
+                        return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
+                      }
+                    }else{
+                      return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                    }
                   }
                 } else {
                   var jam = parseFloat(data);
@@ -162,22 +172,16 @@
             {
               data: "jadwal_nama",
               render: function(data, type, row, meta) {
-                var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
-                var DatePulang = moment(row.pulang).format('DD-MM-YYYY');
                 var masuk = moment(row.masuk).format('HH:mm:ss');
                 var pulang = moment(row.pulang).format('HH:mm:ss');
                 var jam_masuk = row.jadwal_masuk;
                 var jam_pulang = row.jadwal_pulang;
                 if(row.masuk){
-                  /*if(DateMasuk!=DatePulang){
-                    return row.jenis_shift;
-                  }else{*/
                     if(jam_masuk && jam_pulang){
                       return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
                     }else{
                       return "-";
                     }
-                  //}
                 }else{
                   return "-";
                 }
