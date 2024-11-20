@@ -333,7 +333,7 @@
           processing: true,
           serverSide: true,
           ajax: {
-            url: "<?php echo base_url('absen/ajax_get_all/') ?>",
+            url: "<?php echo base_url('kalenderabsen/ajax_get_all/') ?>",
             type: "get",
               data: {
                 searchFilter: "<?= "AND absen_id='$absen_id'" ?>",
