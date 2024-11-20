@@ -71,7 +71,7 @@ class Absen extends AppBackend
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('absen'),
-      'card_title' => $this->_pageTitle,
+      'card_title' => $this->_pageTitle.' periode',
       'controller' => $this,
       'is_mobile' => $agent->isMobile(),
       'cx_filter' => array(
