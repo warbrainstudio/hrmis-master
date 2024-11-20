@@ -194,15 +194,15 @@
                 var jam_masuk = row.jadwal_masuk;
                 var jam_pulang = row.jadwal_pulang;
                 if(row.masuk){
-                  if(DateMasuk!=DatePulang){
+                  /*if(DateMasuk!=DatePulang){
                     return row.jenis_shift;
-                  }else{
+                  }else{*/
                     if(jam_masuk && jam_pulang){
                       return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
                     }else{
                       return "-";
                     }
-                  }
+                  //}
                 }else{
                   return "-";
                 }
@@ -544,7 +544,11 @@
 
   function handleCxFilter_xlsx() {
     var params = handleCxFilter_getParams();
-    params += (params ? '&' : '') + 'searchFilterPeriode=' + encodeURIComponent(_searchFilterPeriode);
+    if(_searchFilterPeriode){
+      params += (params ? '&' : '') + 'searchFilterPeriode=' + encodeURIComponent(_searchFilterPeriode);
+    }else{
+      params += (params ? '&' : '') + 'searchFilterPeriode=' + encodeURIComponent(_searchFilter);
+    }
     var url = "<?php echo base_url('absen/xlsx') ?>" + params;
     window.location.href = url;
   };

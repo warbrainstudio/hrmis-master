@@ -95,7 +95,7 @@ class Absen extends AppBackend
 		$ref = $this->input->get('date');
     $cxfilter__list_static = '<option value="all">--Semua--</option>';
     $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
-    $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll([], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
+    $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll(['unit_id' => @$cxfilter__unit_store->id], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
 		$searchFilter = "";
     $searchFilterPeriode = "";
 		$status = "";
@@ -334,29 +334,39 @@ class Absen extends AppBackend
   public function xlsx()
   {
     try {
-      $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
       $callbacks = array();
       $searchFilter = $this->input->get('searchFilterPeriode', true); 
       $query = $this->_getQuery(true, $searchFilter);
       $queryString = $query->query_string;
-      //$queryString .= "ORDER BY tanggal_absen ASC";
       $master = $this->db->query($queryString)->result();
 
       if (preg_match("/BETWEEN '(\d{4}-\d{2}-\d{2})' AND '(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)) {
-          $endDate = $matches[2];
-          $dateObject = new DateTime($endDate);
-          $monthNumber = $dateObject->format('m');
-          $year = $dateObject->format('Y');
-          $formattedMonth = $this->get_month($monthNumber);
-          $formattedDate = $formattedMonth . '_' . $year;
-          $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$year;
-          
+        $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
+        $endDate = $matches[2];
+        $dateObject = new DateTime($endDate);
+        $monthNumber = $dateObject->format('m');
+        $year = $dateObject->format('Y');
+        $formattedMonth = $this->get_month($monthNumber);
+        $formattedDate = 'periode_'.$formattedMonth . '_' . $year;
+        $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$year;   
+      } elseif(preg_match("/tanggal_absen::date='(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)){
+        $fileTemplate = FCPATH . 'directory/templates/template-absensi-harian.xlsx';
+        $date = $matches[1];
+        $dateObject = new DateTime($date);
+        $Day = $dateObject->format('D');
+        $DayNumber = $dateObject->format('d');
+        $monthNumber = $dateObject->format('m');
+        $year = $dateObject->format('Y');
+        $formattedDay = $this->get_day($Day);
+        $formattedMonth = $this->get_month($monthNumber);
+        $formattedDate = $formattedDay.'_'.$DayNumber.'_'.$formattedMonth . '_' . $year;
+        $tanggal_periode = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
       } else {
-          echo "No date found.";
+        echo "No date found.";
       }
 
       if (!is_null($master) && count($master) > 0) {
-        $outputFileName = 'absensi_pegawai_periode_'.$formattedDate.'.xlsx';
+        $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
         $cxFilter_params = $query->params;
 
         $payload = $this->arrayToSetter($master);
@@ -371,53 +381,6 @@ class Absen extends AppBackend
     } catch (\Throwable $th) {
       show_error('Terjadi kesalahan ketika memproses data. '.$th, 500);
     };
-  }
-
-  public function xlsx_harian()
-  {
-      try {
-          $date = $this->input->get('date');
-          $status = '';
-          $formattedDate = $date;
-          if (DateTime::createFromFormat('Y-m-d', $date) !== false) {
-              $fileTemplate = FCPATH . 'directory/templates/template-absensi-harian.xlsx';
-              $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-              $Day = $dateTime->format('D');
-              $DayNumber = $dateTime->format('d');
-              $monthNumber = $dateTime->format('m');
-              $year = $dateTime->format('Y');
-              $formattedDay = $this->get_day($Day);
-              $formattedMonth = $this->get_month($monthNumber);
-              $formattedDate = $formattedDay.', '.$DayNumber.' '.$formattedMonth . ' ' . $year;
-              $status = $formattedDate;
-          }  else{
-              ini_set('memory_limit', '4G');
-              $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
-              $status = 'Tahun'; 
-          }
-          $callbacks = array();
-
-          $payload = $this->AbsenModel->getAll(array('tanggal_absen' => $date));
-
-          $user = $this->session->userdata('user')['nama_lengkap'];
-  
-          if (!is_null($payload)) {
-
-              $outputFileName = 'histori absen ' . $formattedDate . '.xlsx';
-              $payloadStatic = $this->arrayToSetterSimple(array('tanggal_absen' => $formattedDate,'status' => $status));
-              $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple(array('app_export_date' => date('Y-m-d H:i:s'), 'user' => $user)));
-              $payload = $this->arrayToSetter($payload);
-              $payload = array_merge($payload, $payloadStatic);
-  
-              PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);
-          } else {
-              show_404();
-          }
-      } catch (\Throwable $th) {
-          log_message('error', $th->getMessage());
-  
-          show_error('Terjadi kesalahan ketika memproses data. Detail: ' . $th->getMessage(), 500);
-      }
   }
 
   public function excel_pegawai()

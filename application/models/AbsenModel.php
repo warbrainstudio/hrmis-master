@@ -15,7 +15,7 @@ class AbsenModel extends CI_Model
             ab.*, 
             p.id as id_pegawai,
             p.nrp,
-            COALESCE(p.nama_lengkap, '-') AS nama,
+            (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(ab.absen_id AS VARCHAR) END) AS nama,
             (CASE WHEN ab.masuk IS NULL THEN '-' ELSE TO_CHAR(ab.masuk, 'HH24:MI:SS') END) AS jam_masuk,
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '-' END) AS verifikasi_m, 
             (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') != TO_CHAR(ab.pulang, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'YYYY-MM-DD HH24:MI:SS') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS') END) AS jam_pulang,
@@ -42,21 +42,21 @@ class AbsenModel extends CI_Model
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
           LEFT JOIN jadwal j ON (
-              ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
+              ab.masuk::time >= (j.jadwal_masuk - interval '1 minute') 
               AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
-              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
+              AND ab.pulang::time >= (j.jadwal_pulang - interval '1 minute')
               AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
           )
-          ORDER BY p.nama_lengkap, ab.absen_id, ab.tanggal_absen ASC
+          ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id ASC
         ) t
         WHERE 1=1
       ";
 
       /*LEFT JOIN jadwal j ON (
               ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
-              AND ab.masuk::time <= (j.jadwal_masuk + interval '30 minute')
-              AND ab.pulang::time >= (j.jadwal_pulang - interval '30 minute')
-              
+              AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
+              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
+              AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
           )
               LEFT JOIN jadwal j ON j.unit_id = u.id */
 
@@ -66,62 +66,7 @@ class AbsenModel extends CI_Model
 
   public function getAll($params = array(), $orderField = null, $orderBy = 'asc')
   {
-      if (isset($params['tanggal_absen'])) {
-          
-        $orderField = 'tanggal_absen';
-        $dateParam = $params['tanggal_absen'];
-
-        $this->db->select('absen_pegawai.absen_id,
-                          absen_pegawai.tanggal_absen,
-                          CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
-                          CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
-                          CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' WHEN TO_CHAR(absen_pegawai.masuk, \'YYYY-MM-DD\') != TO_CHAR(absen_pegawai.pulang, \'YYYY-MM-DD\') THEN TO_CHAR(absen_pegawai.pulang, \'YYYY-MM-DD HH24:MI:SS\') ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
-                          CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
-                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja,
-                          CASE WHEN TO_CHAR(absen_pegawai.masuk, \'YYYY-mm-dd\') != TO_CHAR(absen_pegawai.pulang, \'YYYY-mm-dd\') THEN \'Shift Malam\' ELSE \'-\' END AS jenis_shift,
-                          pegawai.nrp,
-                          COALESCE(pegawai.nama_lengkap, \'-\') AS pegawai_nama,
-                          m_masuk.nama_mesin as mesin_m, 
-                          m_pulang.nama_mesin as mesin_p,
-                          unit.kode_unit,
-                          unit.nama_unit,
-                          sub_unit.kode_sub_unit,
-                          sub_unit.nama_sub_unit');
-        $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
-        $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
-        $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
-        $this->db->join('unit', 'pegawai.unit_id = unit.id', 'left');
-        $this->db->join('sub_unit', 'pegawai.sub_unit_id = sub_unit.id', 'left');
-        $this->db->order_by('absen_pegawai.tanggal_absen, pegawai.nama_lengkap ASC');
-        
-        if (preg_match('/^\d{4}-\d{2}$/', $dateParam)) {
-
-          list($year, $month) = explode('-', $dateParam);
-          $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
-          $endDate = date('Y-m-d', strtotime("$year-$month-21"));
-          $this->db->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'");
-
-        }elseif (preg_match('/^\d{4}$/', $dateParam)) {
-
-          $startDate = date('Y-m-d', strtotime("$dateParam-01-01"));
-          $endDate = date('Y-m-d', strtotime("$dateParam-12-31"));
-          $this->db->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'");
-
-        }else{  
-
-          $this->db->where("DATE(absen_pegawai.tanggal_absen)", $dateParam);
-
-        }
-
-        unset($params['tanggal_absen']);
-        
-        if (!is_null($orderField)) {
-          $this->db->order_by($orderField, $orderBy);
-        }
-    
-        return $this->db->get($this->_table)->result();
-
-      }elseif(isset($params['absen_id'])){
+      if(isset($params['absen_id'])){
         
         $orderField = 'tanggal_absen';
 
