@@ -9,6 +9,8 @@ define('SPECIAL_ARRAY_TYPE', CellSetterArrayValueSpecial::class);
 
 class Absen extends AppBackend
 {
+  public $years;
+  public $months;
   function __construct()
   {
     parent::__construct();
@@ -17,7 +19,7 @@ class Absen extends AppBackend
       'UnitModel',
       'SubunitModel',
       'AbsenModel',
-      'PegawaiModel'
+      'PegawaiModel',
     ));
   }
 
@@ -26,8 +28,8 @@ class Absen extends AppBackend
     $filter = '';
     $unit_id = $this->input->get('cxfilter_unit_id');
     $sub_unit_id = $this->input->get('cxfilter_sub_unit_id');
-    $startDate = $this->input->get('cxfilter_date_filter_start');
-    $endDate = $this->input->get('cxfilter_date_filter_end');
+    $month = $this->input->get('cxfilter_month');
+    $year = $this->input->get('cxfilter_year');
 
     if (!is_null($unit_id) && $unit_id != 'all') {
         $filter .= " AND unit_id = '$unit_id'";
@@ -39,8 +41,12 @@ class Absen extends AppBackend
         }
     }
 
-    if(!empty($startDate)){
-      $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'"; 
+    if(!is_null($month) && $month != 'all' || !is_null($year) && $year != 'all'){
+      $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
+      $endDate = date('Y-m-d', strtotime("$year-$month-21"));
+      $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+      $this->months = $month;
+      $this->years = $year;
     }
 
     return (object) array(
@@ -57,6 +63,9 @@ class Absen extends AppBackend
     $cxfilter__list_static = '<option value="all">--Semua--</option>';
     $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
     $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll(['unit_id' => @$cxfilter__unit_store->id], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
+    $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', $cxfilter__list_static);
+    $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', $cxfilter__list_static);
+
 		
     $agent = new Mobile_Detect;
     $data = array(
@@ -69,6 +78,18 @@ class Absen extends AppBackend
         'component' => array(
           array(
             'type' => 'combo',
+            'name' => 'month',
+            'label' => 'Periode bulan ',
+            'store' => $cxfilter__month,
+          ),
+          array(
+            'type' => 'combo',
+            'name' => 'year',
+            'label' => 'Tahun ',
+            'store' => $cxfilter__year,
+          ),
+          array(
+            'type' => 'combo',
             'name' => 'unit_id',
             'label' => 'Unit',
             'store' => $cxfilter__unit_store,
@@ -78,11 +99,6 @@ class Absen extends AppBackend
             'name' => 'sub_unit_id',
             'label' => 'Sub Unit',
             'store' => $cxfilter__sub_unit_store,
-          ),
-          array(
-            'type' => 'date',
-            'name' => 'date_filter',
-            'label' => 'Tanggal ',
           ),
         ),
         'cxfilter__submit_filter' => true,
@@ -147,29 +163,24 @@ class Absen extends AppBackend
       $query = $this->_getQuery(true);
       $queryString = $query->query_string;
       $master = $this->db->query($queryString)->result();
-
-      /*if (preg_match("/BETWEEN '(\d{4}-\d{2}-\d{2})' AND '(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)) {
-        $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
-        $endDate = $matches[2];
-        $dateObject = new DateTime($endDate);
-        $monthNumber = $dateObject->format('m');
-        $year = $dateObject->format('Y');
-        $formattedMonth = $this->get_month($monthNumber);
-        $formattedDate = 'periode_'.$formattedMonth . '_' . $year;
-        $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$year;   
-      } else {
-        echo "No date found.";
-      }*/
+      $bulan = $this->months;
+      $tahun = $this->years;
+      if(!empty($bulan) && !empty($tahun)){
+        $formattedMonth = $this->get_month($bulan);
+        $formattedDate = 'periode_'.$formattedMonth . '_' . $tahun;
+        $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$tahun;
+      }else{
+        $formattedDate = date('YmdHis');
+        $tanggal_periode = date('YmdHis');
+      }
 
       if (!is_null($master) && count($master) > 0) {
-        //$outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
-        $outputFileName = 'absensi_pegawai_' . date('YmdHis') . '.xlsx';
+        $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
         $cxFilter_params = $query->params;
 
         $payload = $this->arrayToSetter($master);
-        $payloadStatic = $this->arrayToSetterSimple($cxFilter_params);
-        //$payloadStatic = $this->arrayToSetterSimple(array('tanggal_periode' => $tanggal_periode));
-        //$payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple($cxFilter_params));
+        $payloadStatic = $this->arrayToSetterSimple(array('tanggal_periode' => $tanggal_periode));
+        $payloadStatic = array_merge($payloadStatic, $this->arrayToSetterSimple($cxFilter_params));
         $payload = array_merge($payload, $payloadStatic);
 
         PhpExcelTemplator::outputToFile($fileTemplate, $outputFileName, $payload, $callbacks);

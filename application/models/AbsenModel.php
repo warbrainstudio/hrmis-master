@@ -106,7 +106,40 @@ class AbsenModel extends CI_Model
 
       }
   }
-   
+  
+  public function getMonth()
+  {
+    $data = array(
+        array('id' => '01', 'text' => 'Januari'),
+        array('id' => '02', 'text' => 'Februari'),
+        array('id' => '03', 'text' => 'Maret'),
+        array('id' => '04', 'text' => 'April'),
+        array('id' => '05', 'text' => 'Mei'),
+        array('id' => '06', 'text' => 'Juni'),
+        array('id' => '07', 'text' => 'Juli'),
+        array('id' => '08', 'text' => 'Agustus'),
+        array('id' => '09', 'text' => 'September'),
+        array('id' => '10', 'text' => 'Oktober'),
+        array('id' => '11', 'text' => 'November'),
+        array('id' => '12', 'text' => 'Desember'),
+    );
+    return $data;
+  }
+
+  public function getYear()
+  {  
+    $startYear = 2023;
+    $currentYear = date('Y');
+
+    $years = array();
+
+    for ($year = $startYear; $year <= $currentYear; $year++) {
+        $years[] = array('id' => $year, 'text' => $year);
+    }
+
+    return $years;
+  }
+
   public function getDetail($params = array())
   {
     return $this->db->where($params)->get($this->_table)->row();
