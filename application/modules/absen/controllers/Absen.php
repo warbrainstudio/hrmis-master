@@ -129,12 +129,12 @@ class Absen extends AppBackend
   }
 
   public function ajax_get_raw()
-  	{
+  {
 		$filter = $this->input->get('filter');
 		$query = $this->AbsenModel->getQueryRaw($filter);
 		$response = $this->AppMixModel->getdata_dtAjax($query);
 		echo json_encode($response);
-  	}
+  }
 
   public function ajax_get_pegawai_item()
   {
