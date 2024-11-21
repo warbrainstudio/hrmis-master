@@ -365,7 +365,7 @@
             {
               data: "verifikasi_masuk",
               render: function(data, type, row, meta) {
-                let verifiedColor = 'secondary'; // Default color
+                let verifiedColor = 'secondary';
                 let verified = '';
                 if (data === '1') {
                   verifiedColor = 'primary';
@@ -374,7 +374,7 @@
                   verifiedColor = 'secondary';
                   verified = 'Input';
                 } else {
-                  return "-"; // Directly return if neither
+                  return "-";
                 }
                 var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${verified}`;
                 var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
@@ -385,7 +385,7 @@
               data: "pulang",
               render: function(data, type, row, meta) {
                 if (!data) {
-                  return "-"; // Handles null and empty string
+                  return "-";
                 } else {
                   let verifiedColor = 'success';
                   var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
@@ -477,14 +477,6 @@
                 }
               }
             }
-              /*,
-            {
-              data: null,
-              className: "center",
-              defaultContent: '<div class="action">' +
-                '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete-histori-absensi"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
-                '</div>'
-            }*/
           ],
           order: [[1, 'asc']],
           autoWidth: !1,

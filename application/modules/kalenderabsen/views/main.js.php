@@ -212,17 +212,7 @@
                 }
               }
             }
-
-            /*,
-          {
-            data: null,
-            className: "center",
-            defaultContent: '<div class="action">' +
-              '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete-histori"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
-              '</div>'
-          }*/
         ],
-        //order: [[1, 'asc']],
         autoWidth: !1,
         responsive: {
           details: {
@@ -344,8 +334,6 @@
         window.location.href = detailUrl;
     });
 
-
-    // Click event for no content days
     $(`${calendar} .day .no_content_fill_day`).on("click", function(e) {
         e.preventDefault();
         const currentUrl = window.location.pathname;
@@ -516,7 +504,6 @@
       var cmpSubUnit = $("#collapseCardCxFilter [name='cx_filter[sub_unit_id]']");
       var defaultValue = cmpSubUnit.val();
 
-      // Fetch new option
       await $.ajax({
         url: "<?= base_url('ref/ajax_get_list_sub_unit/') ?>",
         type: "get",
