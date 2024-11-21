@@ -187,6 +187,9 @@ class Absen extends AppBackend
       if (!is_null($master) && count($master) > 0) {
         $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
         $cxFilter_params = $query->params;
+        if (!isset($cxFilter_params['cxfilter_sub_unit']) || empty($cxFilter_params['cxfilter_sub_unit'])) {
+          $cxFilter_params['cxfilter_sub_unit'] = 'Semua';
+        }
 
         $payload = $this->arrayToSetter($master);
         $payloadStatic = $this->arrayToSetterSimple(array('tanggal_periode' => $tanggal_periode));
