@@ -122,7 +122,7 @@ class KalenderAbsen extends AppBackend
       $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
 			$searchFilter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
       $startDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21 -1 month"));
-      $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21"));
+      $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-20"));
       $searchFilterPeriode .= "AND tanggal_absen BETWEEN '$startDatePeriode' AND '$endDatePeriode'";
 			$status = false;
 			$card = "bulan ".$formattedDate;
