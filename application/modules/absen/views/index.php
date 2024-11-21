@@ -2,7 +2,11 @@
 <section id="absen">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?></h4>
+            <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?>
+                <a href="<?php echo base_url('absen') ?>" class="btn btn-sm btn-success" title="Reset filter">
+                    <i class="zmdi zmdi-refresh"></i>
+                </a>
+            </h4>
             <h6 class="card-subtitle"><?php echo (isset($card_subTitle)) ? $card_subTitle : '' ?></h6>
             <div class="mt-3">
                 <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
