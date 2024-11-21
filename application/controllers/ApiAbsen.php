@@ -434,7 +434,7 @@ XML;
                                                 if (!$this->db->update($arrayDB['table'], [
                                                     'pulang' => $exists_pulang,
                                                     'verifikasi_pulang' => $verifikasi_pulang,
-                                                    'mesin_pulang' => $mesin_pulang
+                                                    'mesin_pulang' => $machine
                                                 ])) {
                                                     $failedInsertions[] = [
                                                         'absen_id' => $userID,
