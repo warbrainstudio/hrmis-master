@@ -23,9 +23,9 @@
                 <div class="row">
                     <div class="table-action">
                         <div class="buttons">
-                            <button class="btn btn--raised btn-dark kalenderabsen-backButton">
-                            <i class="zmdi zmdi-long-arrow-return"></i> Kembali
-                            </button>
+                            <a href="<?= base_url('kalenderabsen') ?>" class="btn btn--raised btn-dark btn--icon-text btn-custom">
+                                <i class="zmdi zmdi-chevron-left"></i> Kembali
+                            </a>
                         </div>
                     </div>
                 </div>
