@@ -83,6 +83,9 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-absensi" role="tab" id="nav-tab-absensi">Absensi</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-absensi-raw" role="tab" id="nav-tab-absensi-raw">Absensi (RAW)</a>
+                        </li>
                         <?php endif ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-family" role="tab" id="nav-tab-family">Keluarga</a>
@@ -114,6 +117,9 @@
                         <?php if(!is_null(@$pegawai->absen_pegawai_id)) : ?>
                         <div class="tab-pane fade show" id="tab-absensi" role="tabpanel">
                             <?php require_once(APPPATH . 'modules/employee/views/histori_absensi.php') ?>
+                        </div>
+                        <div class="tab-pane fade show" id="tab-absensi-raw" role="tabpanel">
+                            <?php require_once(APPPATH . 'modules/employee/views/histori_absensi_raw.php') ?>
                         </div>
                         <?php endif ?>
                         <div class="tab-pane fade show" id="tab-family" role="tabpanel">

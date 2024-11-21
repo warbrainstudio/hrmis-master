@@ -6,6 +6,40 @@ class AbsenModel extends CI_Model
   private $_table = 'absen_pegawai';
   public $_tableView = 'absen_pegawai';
 
+  
+  public function getQueryRaw($filter = null)
+  {
+    $query = "
+      SELECT t.* FROM (
+        SELECT 
+          abr.*,
+          (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(abr.absen_id AS VARCHAR) END) AS nama, 
+          (CASE WHEN abr.status = 0 THEN 'Masuk' WHEN abr.status = 3 THEN 'Cuti' ELSE 'Pulang' END) AS nama_status,
+          (CASE WHEN abr.verified = 1 THEN 'Finger' ELSE 'Input' END) AS verifikasi,
+          p.id as id_pegawai,
+          p.nrp,
+          p.unit_id,
+          p.sub_unit_id,
+          u.kode_unit,
+          u.nama_unit,
+          su.kode_sub_unit,
+          su.nama_sub_unit,
+          m.ipadress, 
+          m.nama_mesin,
+          m.lokasi
+        FROM absen_pegawai_raw abr
+        LEFT JOIN pegawai p ON abr.absen_id = p.absen_pegawai_id
+        LEFT JOIN unit u ON u.id = p.unit_id
+        LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
+        LEFT JOIN mesin_absen m ON m.ipadress = abr.ipmesin
+        ORDER BY abr.tanggal_absen ASC
+      ) t
+      WHERE 1=1
+    ";
+
+    if (!is_null($filter)) $query .= $filter;
+    return $query;
+  }
 
   public function getQuery($filter = null)
   {

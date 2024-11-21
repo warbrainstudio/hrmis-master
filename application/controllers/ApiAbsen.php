@@ -691,6 +691,28 @@ XML;
                             }
                         break;
                     }
+
+                    $this->db->where('absen_id', $userID);
+                    $this->db->where('tanggal_absen', $dateTime);
+                    $count_raw = $this->db->count_all_results('absen_pegawai_raw');
+
+                    if ($count_raw == 0) {
+                        $data_raw = [
+                            'absen_id' => $userID,
+                            'tanggal_absen' => $dateTime,
+                            'verified' => $verified,
+                            'status' => $status,
+                            'ipmesin' => $machine
+                        ];
+                        if (!$this->db->insert('absen_pegawai_raw', $data_raw)) {
+                            $failedInsertions[] = [
+                                'absen_id' => $userID,
+                                'dateTime' => $dateTime,
+                                'error' => $this->db->error()['message']
+                            ];
+                        }
+                    }
+
                 }
     
                 $this->db->trans_complete();

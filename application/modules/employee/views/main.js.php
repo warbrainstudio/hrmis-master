@@ -6,6 +6,7 @@
   var _section = "employee";
   var _table_master = "table-employee";
   var _table_histori_absensi = "table-histori-absensi";
+  var _table_histori_absensi_raw = "table-histori-absensi-raw";
   var _table_histori_skspk = "table-histori-skspk"
   var _table_histori_kontrak = "table-histori-contract"
   var _table_histori_diklat = "table-histori-diklat"
@@ -17,6 +18,7 @@
 
   $(document).ready(function() {
     initTable_historiAbsensi();
+    initTable_historiAbsensiRaw();
     initTable_historiSkSpk();
     initTable_historiKontrak();
     initTable_historiDiklat();
@@ -547,6 +549,130 @@
           var b = $(this).data("table-action");
           if ("reload" === b) {
             $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
+          };
+        });
+      };
+    }
+
+    function initTable_historiAbsensiRaw(){
+      if ($(`#${_table_histori_absensi_raw}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_absensi_raw}`) === false) {
+        var table_histori_absensi_raw = $("#" + _table_histori_absensi_raw).DataTable({
+          processing: true,
+          serverSide: true,
+          ajax: {
+            url: "<?php echo base_url('absen/ajax_get_raw/') ?>",
+            type: "get",
+              data: {
+                filter: "<?= "AND absen_id='$absen_id'" ?>",
+              },
+          },
+          columns: [{
+              data: null,
+              render: function(data, type, row, meta) {
+                return meta.row + meta.settings._iDisplayStart + 1;
+              }
+            },
+            {
+              data: "tanggal_absen",
+              render: function(data, type, row, meta) {
+                return moment(data).format('DD-MM-YYYY');
+              }
+            },
+            {
+              data: "tanggal_absen",
+              render: function(data, type, row, meta) {
+                return moment(data).format('HH:mm:ss');
+              }
+            },
+            {
+              data: "nama_status",
+              render: function(data, type, row, meta) {
+                var statusColor = (data == 'Masuk') ? 'warning' : 'primary';
+                return `<span class="badge badge-${statusColor}">${data}</span>`;
+              }
+            },
+            {
+              data: "verifikasi",
+              render: function(data, type, row, meta) {
+                var verifiedColor = (data == 'Finger') ? 'success' : 'danger';
+                return `<span class="badge badge-${verifiedColor}">${data}</span>`;
+              }
+            },
+            {
+              data: "ipadress",
+              render: function(data, type, row, meta) {
+                return row.nama_mesin+" "+row.lokasi;
+              }
+            }
+          ],
+          autoWidth: !1,
+          responsive: {
+            details: {
+              renderer: function(api, rowIdx, columns) {
+                var hideColumn = [];
+                var data = $.map(columns, function(col, i) {
+                  return ($.inArray(col.columnIndex, hideColumn)) ?
+                    '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                    '<td class="dt-details-td">' + col.title + ':' + '</td> ' +
+                    '<td class="dt-details-td">' + col.data + '</td>' +
+                    '</tr>' :
+                    '';
+                }).join('');
+
+                return data ? $('<table/>').append(data) : false;
+              },
+              type: "inline",
+              target: 'tr',
+            }
+          },
+          columnDefs: [{
+            className: 'desktop',
+            targets: [0, 1, 2, 3, 4, 5]
+          }, {
+            className: 'tablet',
+            targets: [0, 1, 2, 3]
+          }, {
+            className: 'mobile',
+            targets: [0, 1]
+          }, {
+            responsivePriority: 2,
+            targets: -1
+          }],
+          pageLength: 15,
+          language: {
+            searchPlaceholder: "Cari...",
+            sProcessing: '<div style="text-align: center;"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>'
+          },
+          sDom: '<"dataTables_ct"><"dataTables__top"fb>rt<"dataTables__bottom"ip><"clear">',
+          buttons: [{
+            extend: "excelHtml5",
+            title: "Export Result"
+          }, {
+            extend: "print",
+            title: "Export Result"
+          }],
+          initComplete: function(a, b) {
+            $(this).closest(".dataTables_wrapper").find(".dataTables__top").prepend(
+              '<div class="dataTables_buttons hidden-sm-down actions">' +
+              '<span class="actions__item zmdi zmdi-refresh" data-table-action="reload" title="Reload" />' +
+              '</div>'
+            );
+          },
+        });
+
+        $(".dataTables_filter input[type=search]").focus(function() {
+          $(this).closest(".dataTables_filter").addClass("dataTables_filter--toggled")
+        });
+
+        $(".dataTables_filter input[type=search]").blur(function() {
+          $(this).closest(".dataTables_filter").removeClass("dataTables_filter--toggled")
+        });
+
+        $("body").on("click", "[data-table-action]", function(a) {
+          a.preventDefault();
+          var b = $(this).data("table-action");
+          if ("reload" === b) {
+            $("#" + _table_histori_absensi_raw).DataTable().ajax.reload(null, false);
           };
         });
       };
