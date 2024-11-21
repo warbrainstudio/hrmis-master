@@ -41,12 +41,27 @@ class Absen extends AppBackend
         }
     }
 
-    if(!is_null($month) && $month != 'all' || !is_null($year) && $year != 'all'){
-      $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
-      $endDate = date('Y-m-d', strtotime("$year-$month-21"));
+    if(!is_null($month) && $month != 'all'){
+      if(!is_null($year) && $year !== 'all'){
+        $startDate = date('Y-m-d', strtotime("$year-$month-21 -1 month"));
+        $endDate = date('Y-m-d', strtotime("$year-$month-21"));
+        $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+        $this->months = $month;
+        $this->years = $year;
+      }else{
+        $currentYear = date('Y');
+        $startDate = date('Y-m-d', strtotime("$currentYear-$month-21 -1 month"));
+        $endDate = date('Y-m-d', strtotime("$currentYear-$month-21"));
+        $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+        $this->months = $month;
+        $this->years = $currentYear;
+      }
+    }else{
+      $currentMonth = date('m');
+      $currentYear = date('Y');
+      $startDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-21 -1 month"));
+      $endDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-21"));
       $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
-      $this->months = $month;
-      $this->years = $year;
     }
 
     return (object) array(
