@@ -167,7 +167,7 @@ class AbsenModel extends CI_Model
 
     $years = array();
 
-    for ($year = $startYear; $year <= $currentYear; $year++) {
+    for ($year = $startYear; $year < $currentYear; $year++) {
         $years[] = array('id' => $year, 'text' => $year);
     }
 
