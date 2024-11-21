@@ -46,8 +46,6 @@
                 if(daily==true){
                     return "-";
                 }else{
-                    var month = moment(data).format('MM');
-                    var getMonth = getMonthNameByNum(month);
                     var day = moment(data).format('ddd');
                     var dayDate = moment(data).format('D');
                     var getDay = getTranslateNameDay(day);
