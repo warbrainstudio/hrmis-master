@@ -18,7 +18,7 @@ class AbsenModel extends CI_Model
             (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(ab.absen_id AS VARCHAR) END) AS nama,
             (CASE WHEN ab.masuk IS NULL THEN '-' ELSE TO_CHAR(ab.masuk, 'HH24:MI:SS') END) AS jam_masuk,
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '-' END) AS verifikasi_m, 
-            (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') != TO_CHAR(ab.pulang, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'YYYY-MM-DD HH24:MI:SS') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS') END) AS jam_pulang,
+            (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') != TO_CHAR(ab.pulang, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'HH24:MI:SS DD-MM-YYYY ') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS') END) AS jam_pulang,
             (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '-' END) AS verifikasi_p,
             EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
             (CASE WHEN TO_CHAR(ab.masuk, 'YYYY-mm-dd') != TO_CHAR(ab.pulang, 'YYYY-mm-dd') THEN 'Shift Malam' ELSE '-' END) AS jenis_shift,
