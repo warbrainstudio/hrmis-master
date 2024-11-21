@@ -168,7 +168,7 @@ class Absen extends AppBackend
   public function xlsx()
   {
     try {
-      $fileTemplate = FCPATH . 'directory/templates/template-absensi-custom.xlsx';
+      $fileTemplate = FCPATH . 'directory/templates/template-absensi.xlsx';
       $callbacks = array();
       $query = $this->_getQuery(true);
       $queryString = $query->query_string;
@@ -177,7 +177,7 @@ class Absen extends AppBackend
       $tahun = $this->years;
       $formattedMonth = $this->get_month($bulan);
       $formattedDate = 'periode_'.$formattedMonth . '_' . $tahun;
-      $tanggal_periode = 'periode bulan ' . $formattedMonth . ' '.$tahun;
+      $tanggal_periode = $formattedMonth . ' '.$tahun;
 
       if (!is_null($master) && count($master) > 0) {
         $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';

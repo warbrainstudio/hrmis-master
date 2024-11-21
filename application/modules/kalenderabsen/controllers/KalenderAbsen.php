@@ -348,7 +348,7 @@ class KalenderAbsen extends AppBackend
         $year = $dateObject->format('Y');
         $formattedMonth = $this->get_month($monthNumber);
         $formattedDate = 'periode_'.$formattedMonth . '_' . $year;
-        $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$year;   
+        $tanggal_periode = $formattedMonth . ' '.$year;   
       } elseif(preg_match("/tanggal_absen::date='(\d{4}-\d{2}-\d{2})'/", $searchFilter, $matches)){
         $fileTemplate = FCPATH . 'directory/templates/template-absensi-harian.xlsx';
         $date = $matches[1];
@@ -368,6 +368,9 @@ class KalenderAbsen extends AppBackend
       if (!is_null($master) && count($master) > 0) {
         $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
         $cxFilter_params = $query->params;
+        if (!isset($cxFilter_params['cxfilter_sub_unit']) || empty($cxFilter_params['cxfilter_sub_unit'])) {
+          $cxFilter_params['cxfilter_sub_unit'] = 'Semua';
+        }
 
         $payload = $this->arrayToSetter($master);
         $payloadStatic = $this->arrayToSetterSimple(array('tanggal_periode' => $tanggal_periode));
