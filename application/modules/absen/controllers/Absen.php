@@ -73,8 +73,8 @@ class Absen extends AppBackend
     $cxfilter__list_static = '<option value="all">--Semua--</option>';
     $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
     $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll(['unit_id' => @$cxfilter__unit_store->id], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
-    $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', $cxfilter__list_static);
-    $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', $cxfilter__list_static);
+    $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', '<option value="all">--Bulan ini--</option>');
+    $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', '<option value="all">--Tahun ini--</option>');
 
 		
     $agent = new Mobile_Detect;
