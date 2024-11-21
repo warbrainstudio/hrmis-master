@@ -1,6 +1,6 @@
 <div class="table-action">
     <div class="buttons">
-        <button class="btn btn-sm btn-success" onclick="window.location.href='<?= base_url('absen/excel_pegawai/?ref=cxsmi&absen_pegawai_id='.@$pegawai->absen_pegawai_id) ?>'">
+        <button class="btn btn-sm btn-success" onclick="window.location.href='<?= base_url('kalenderabsen/excel_pegawai/?ref=cxsmi&absen_pegawai_id='.@$pegawai->absen_pegawai_id) ?>'">
             <i class="zmdi zmdi-download"></i> Download Laporan Absen (.xlsx)
         </button>
     </div>

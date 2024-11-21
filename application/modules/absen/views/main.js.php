@@ -26,8 +26,12 @@
             {
               data: "tanggal_absen",
               render: function(data, type, row, meta) {
+                var tanggal = moment(data).format('DD-MM-YYYY');
                 //var month = moment(data).format('MM');
-                return data;
+                //var day = moment(data).format('DD');
+                //var getMonth = getMonthNameByNum(month);
+                //return day+" "+getMonth;
+                return tanggal;
               }
             },
             {
