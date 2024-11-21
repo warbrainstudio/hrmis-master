@@ -55,6 +55,8 @@ class Absen extends AppBackend
       $startDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-21 -1 month"));
       $endDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-21"));
       $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+      $this->months = $currentMonth;
+      $this->years = $currentYear;
     }
 
     return (object) array(

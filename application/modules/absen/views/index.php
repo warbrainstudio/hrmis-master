@@ -7,6 +7,7 @@
             <div class="mt-3">
                 <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
             </div>
+            <small class="form-text text-muted">(<label required></label>)Secara default menampilkan absensi periode bulan ini</small>
             <div class="table-responsive">
                 <table id="table-absen" class="table table-bordered">
                 <thead class="thead-default">
