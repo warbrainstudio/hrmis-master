@@ -175,14 +175,9 @@ class Absen extends AppBackend
       $master = $this->db->query($queryString)->result();
       $bulan = $this->months;
       $tahun = $this->years;
-      if(!empty($bulan) && !empty($tahun)){
-        $formattedMonth = $this->get_month($bulan);
-        $formattedDate = 'periode_'.$formattedMonth . '_' . $tahun;
-        $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$tahun;
-      }else{
-        $formattedDate = date('YmdHis');
-        $tanggal_periode = date('YmdHis');
-      }
+      $formattedMonth = $this->get_month($bulan);
+      $formattedDate = 'periode_'.$formattedMonth . '_' . $tahun;
+      $tanggal_periode = 'bulan ' . $formattedMonth . ' '.$tahun;
 
       if (!is_null($master) && count($master) > 0) {
         $outputFileName = 'absensi_pegawai_'.$formattedDate.'.xlsx';
