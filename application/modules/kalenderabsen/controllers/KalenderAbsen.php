@@ -275,7 +275,10 @@ class KalenderAbsen extends AppBackend
 
     if (curl_errno($ch)) {
         curl_close($ch);
-        return json_encode(['error' => 'cURL error: ' . curl_error($ch)]);
+        $response = array(
+          'status' => false,
+          'error' => 'cURL error: ' . curl_error($ch),
+        );
     }
 
     curl_close($ch);
@@ -293,7 +296,10 @@ class KalenderAbsen extends AppBackend
           );
       }
     } else {
-        return json_encode(['error' => 'Invalid response from API']);
+        $response = array(
+          'status' => false,
+          'error' => 'Invalid response from API',
+        );
     }
 
     $this->output
