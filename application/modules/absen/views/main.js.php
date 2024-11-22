@@ -72,7 +72,18 @@
                   return "-";
                 } else {
                   let verifiedColor = 'success';
-                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                  var DateMasuk = moment(data).format('DD-MM-YYYY');
+                  var DatePulang = moment(row.pulang).format('DD-MM-YYYY');
+                  if(row.pulang){
+                    if(DateMasuk!=DatePulang){
+                      let verifiedColor = 'dark';
+                      return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
+                    }else{
+                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    }
+                  }else{
+                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                  }
                 }
               }
             },
@@ -100,20 +111,9 @@
               render: function(data, type, row, meta) {
                 if (!data) {
                   return "-";
-                } else {
+                }  else {
                   let verifiedColor = 'success';
-                  var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
-                  var DatePulang = moment(data).format('DD-MM-YYYY');
-                  if(row.masuk){
-                    if(DateMasuk!=DatePulang){
-                      let verifiedColor = 'dark';
-                      return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
-                    }else{
-                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
-                    }
-                  }else{
-                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
-                  }
+                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                 }
               }
             },
