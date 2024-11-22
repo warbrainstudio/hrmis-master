@@ -207,45 +207,6 @@ class KalenderAbsen extends AppBackend
     echo json_encode($response);
   }
 
-  public function ajax_fetch_data() {
-
-    $this->handle_ajax_request();
-    $tanggal = $this->input->get('tanggal');
-    $data['filteredData'] = [];
-    $query = $this->db->get('mesin_absen');
-    $mesins = $query->result();
-    foreach ($mesins as $mesin) {
-        $ip = $mesin->ipadress;
-        $key = $mesin->commkey;
-        $data['filteredData'] = array_merge(
-          $data['filteredData'],
-          $this->AbsenModel->fetchDataFromMachine($ip, $key, $tanggal, $tanggal)
-        );
-
-        usort($data['filteredData'], function($a, $b) {
-          return strtotime($a['DateTime']) - strtotime($b['DateTime']);
-        });
-
-        $dataCount['dataCount'] = count($data['filteredData']);
-
-        $result = $this->AbsenModel->import_data($data['filteredData']);
-        $existingRecordsCount = $result['existingRecordsCount'];
-        $failedInsertions = $result['failedInsertions'];
-
-        $response = array(
-          'status' => true,
-          'data' => array(
-              'dataCount' => $dataCount['dataCount'],
-              'existingRecordsCount' => $existingRecordsCount,
-              'failedInsertions' => $failedInsertions
-          )
-        );
-    }
-      $this->output
-          ->set_content_type('application/json')
-          ->set_output(json_encode($response));
-  }
-
   public function ajax_fetch_data_api() {
 
     $this->handle_ajax_request();
