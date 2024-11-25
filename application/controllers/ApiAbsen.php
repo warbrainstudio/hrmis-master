@@ -623,7 +623,8 @@ XML;
                                 $exists_pulang = $query->pulang;
                                 
                                 if(!empty($exists_pulang)){
- 
+                                    
+                                    //if $exists_pulang value is less than $dateTime, that mean $dateTime value is bug and can't use to update data
                                     if($exists_pulang < $dateTime){
 
                                         if(empty($exists_masuk)){
@@ -633,13 +634,15 @@ XML;
                                             $this->db->where('pulang', $dateTime);
                                             $yesterdayExistingRecord = $this->db->get($arrayDB['table'])->row();
 
+                                            //check if data is exists in yesterday data
                                             if(empty($yesterdayExistingRecord)){
 
                                                 $this->db->where('absen_id', $userID);
                                                 $this->db->where('tanggal_absen', $date);
                                                 $this->db->where('pulang', $dateTime);
                                                 $existingRecord = $this->db->get($arrayDB['table'])->row();
-
+                                                
+                                                //check if there is already same data
                                                 if (empty($existingRecord)) {
 
                                                     $data['pulang'] = $dateTime;
@@ -684,12 +687,14 @@ XML;
 
                                     if(!empty($exists_masuk)){
 
+                                        //check if $exists_masuk is less than $dateTime
                                         if($exists_masuk < $dateTime){
 
                                             $dateTimeUnix = strtotime($dateTime);
                                             $existsMasukUnix = strtotime($exists_masuk);
                                             $check = ($dateTimeUnix - $existsMasukUnix) / 3600;
                                             
+                                            //count hour. if $check value is more than 1 hour, then update data
                                             if($check > 1){
 
                                                 $this->db->where('absen_id', $userID);
@@ -706,7 +711,8 @@ XML;
                                                         'error' => $this->db->error()['message']
                                                     ];
                                                 }
-
+                                            
+                                            //but if less than 1 hour, code will check if there a data from yesterday who don't have 'pulang'
                                             }else{
 
                                                 $this->db->where('absen_id', $userID);
@@ -714,6 +720,7 @@ XML;
                                                 $this->db->where('pulang IS NULL');
                                                 $pulangNull = $this->db->get($arrayDB['table'])->row();
 
+                                                //if the result is empty, then insert new data
                                                 if(!empty($pulangNull)){
                                                     $masukDate = $pulangNull->masuk;
                                                     $verifikasiMasuk = $pulangNull->verifikasi_masuk;
@@ -757,6 +764,7 @@ XML;
 
                                         }else{
 
+                                            //check if $exists_pulang is empty, then update the data from yesterday, but if not, insert new data
                                             if(empty($exists_pulang)){
 
                                                 $this->db->where('absen_id', $userID);
