@@ -37,8 +37,8 @@
             {
               data: "nama",
               render: function(data, type, row, meta) {
-                if(data=='-'){
-                  var link = "ID Absen : "+row.absen_id;
+                if (data.includes('ID Absen : ')) {
+                  var link = data;
                 }else{
                   var link = `<a href="<?= base_url('employee/detail?ref=') ?>${row.id_pegawai}" class="x-load-partial">${row.nama}</a>&nbsp;`;
                 }
@@ -51,6 +51,7 @@
                 if(!data){
                   return "-";
                 }else{
+                  //return `<a title="${data}">(Detail)</a>`;
                   return data;
                 }
               }
@@ -61,6 +62,7 @@
                 if(!data){
                   return "-";
                 }else{
+                  //return `<a title="${data}">(Detail)</a>`;
                   return data;
                 }
               }
