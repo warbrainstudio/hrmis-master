@@ -266,15 +266,22 @@
     $("#" + _table).on("click", "a.action-edit", function(e) {
       e.preventDefault();
       resetForm();
+
       var temp = table_absen.row($(this).closest('tr')).data();
+      var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
+      var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
 
       _key = temp.id;
 
       var tukar = document.querySelector("."+_section+"-action-change");
       if(temp.masuk!==null && temp.pulang!==null){
         tukar.style.display = 'none';
+        jam_masuk.readOnly = false;
+        jam_pulang.readOnly = false;
       }else{
         tukar.style.display = 'block';
+        jam_masuk.readOnly = true;
+        jam_pulang.readOnly = true;
       }
 
       $.each(temp, function(key, item) {
