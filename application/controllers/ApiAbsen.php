@@ -439,18 +439,20 @@ XML;
                                         $existingRecord = $this->db->get($arrayDB['table'])->row();
 
                                         if (empty($existingRecord)) {
-                                            if (!$this->db->insert($arrayDB['table'], [
-                                                'absen_id' => $userID,
-                                                'tanggal_absen' => $date,
-                                                'masuk' => $dateTime,
-                                                'verifikasi_masuk' => $verified,
-                                                'mesin_masuk' => $machine
-                                            ])) {
-                                                $failedInsertions[] = [
+                                            if(!empty($exists_pulang) && $exists_pulang < $dateTime){
+                                                if (!$this->db->insert($arrayDB['table'], [
                                                     'absen_id' => $userID,
-                                                    'dateTime' => $date,
-                                                    'error' => $this->db->error()['message']
-                                                ];
+                                                    'tanggal_absen' => $date,
+                                                    'masuk' => $dateTime,
+                                                    'verifikasi_masuk' => $verified,
+                                                    'mesin_masuk' => $machine
+                                                ])) {
+                                                    $failedInsertions[] = [
+                                                        'absen_id' => $userID,
+                                                        'dateTime' => $date,
+                                                        'error' => $this->db->error()['message']
+                                                    ];
+                                                }
                                             }
                                         }
 
@@ -524,7 +526,7 @@ XML;
                                 $this->db->where('absen_id', $userID);
                                 $this->db->where('tanggal_absen', $yesterday);
                                 $this->db->where('pulang IS NULL');
-                                $this->db->order_by('masuk DESC');
+                                $this->db->order_by('tanggal_absen ASC, masuk DESC');
                                 $pulangNull = $this->db->get($arrayDB['table'])->row();
 
                                 //if the value $pulangNull is empty, then insert new data

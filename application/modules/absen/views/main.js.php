@@ -145,7 +145,8 @@
               render: function(data, type, row, meta) {
                 if (data === null) {
                   var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
-                  return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
+                  //return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
+                  return span;
                 } else {
                   var jam = parseFloat(data);
                   if (!isNaN(jam) && jam >= 0) {
@@ -174,6 +175,14 @@
                 }
               }
             },
+            {
+              data: null,
+              className: "center",
+              defaultContent: '<div class="action">' +
+                '<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#' + _modal + '"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;' +
+                '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
+                '</div>'
+            }
           ],
           autoWidth: !1,
           responsive: {
@@ -261,6 +270,13 @@
 
       _key = temp.id;
 
+      var tukar = document.querySelector("."+_section+"-action-change");
+      if(temp.masuk!==null && temp.pulang!==null){
+        tukar.style.display = 'none';
+      }else{
+        tukar.style.display = 'block';
+      }
+
       $.each(temp, function(key, item) {
         $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
       });
@@ -317,8 +333,12 @@
       });
     });
 
-    $("#" + _modal + " ." + _section + "-action-delete").on("click", function(e) {
+    //$("#" + _modal + " ." + _section + "-action-delete").on("click", function(e) {
+      //e.preventDefault();
+    $("#" + _table).on("click", "a.action-delete", function(e) {
       e.preventDefault();
+      var temp = table_absen.row($(this).closest('tr')).data();
+
       swal({
         title: "Anda akan menghapus data, lanjutkan?",
         text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
@@ -332,12 +352,12 @@
         if (result.value) {
           $.ajax({
             type: "delete",
-            url: "<?php echo base_url('absen/ajax_delete/') ?>" + _key,
+            url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id, //_key,
             dataType: "json",
             success: function(response) {
               if (response.status) {
                 resetForm();
-                $("#" + _modal).modal("hide");
+                //$("#" + _modal).modal("hide");
                 $("#" + _table).DataTable().ajax.reload(null, false);
                 notify(response.data, "success");
               } else {

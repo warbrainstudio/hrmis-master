@@ -16,7 +16,7 @@
             <th>Verifikasi</th>
             <th>Jam Kerja</th>
             <th>Shift</th>
-            <!--<th width="170" class="text-center">Option</th>-->
+            <th width="170" class="text-center">Option</th>
         </tr>
     </thead>
 </table>

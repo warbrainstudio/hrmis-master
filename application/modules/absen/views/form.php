@@ -22,13 +22,13 @@
           </div>
           <div class="form-group">
             <label required>Jam Masuk</label>
-            <input type="datetime" name="jam_masuk" class="form-control absen-jam_masuk" maxlength="100" readonly />
+            <input type="datetime" name="jam_masuk" class="form-control absen-jam_masuk" maxlength="100" />
             <input type="hidden" name="masuk" class="form-control absen-masuk"/>
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
             <label required>Jam Pulang</label>
-            <input type="datetime" name="jam_pulang" class="form-control absen-jam_pulang" maxlength="100" readonly />
+            <input type="datetime" name="jam_pulang" class="form-control absen-jam_pulang" maxlength="100" />
             <input type="hidden" name="pulang" class="form-control absen-pulang"/>
             <i class="form-group__bar"></i>
           </div>
@@ -47,9 +47,9 @@
         <button type="button" class="btn btn-success btn--icon-text absen-action-save">
           <i class="zmdi zmdi-save"></i> Simpan
         </button>
-        <button type="button" class="btn btn-danger btn--icon-text absen-action-delete">
+        <!--<button type="button" class="btn btn-danger btn--icon-text absen-action-delete">
           <i class="zmdi zmdi-delete"></i> Hapus
-        </button>
+        </button>-->
         <button type="button" class="btn btn-light btn--icon-text absen-action-cancel" data-dismiss="modal">
           Batal
         </button>
