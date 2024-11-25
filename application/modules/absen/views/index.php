@@ -11,6 +11,7 @@
             <a href="<?php echo base_url('absen') ?>" class="btn btn-sm btn-success" title="Reset filter">
                 <i class="zmdi zmdi-refresh"></i>Refresh filter
             </a>
+            <?php include_once('form.php') ?>
             <div class="table-responsive">
                 <table id="table-absen" class="table table-bordered">
                 <thead class="thead-default">

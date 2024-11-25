@@ -4,7 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class AbsenModel extends CI_Model
 {
   private $_table = 'absen_pegawai';
-  public $_tableView = 'absen_pegawai';
+  private $_tableView = '';
 
   
   public function getQueryRaw($filter = null)
@@ -177,6 +177,109 @@ class AbsenModel extends CI_Model
   public function getDetail($params = array())
   {
     return $this->db->where($params)->get($this->_table)->row();
+  }
+
+  public function update($id)
+  {
+    $response = array('status' => false, 'data' => 'No operation.');
+
+    try {
+      $absenId = $this->input->post('absen_id');
+      $date = $this->input->post('tanggal_absen');
+      $masuk = $this->input->post('masuk');
+      $verifikasi_masuk = $this->input->post('verifikasi_masuk');
+      $mesin_masuk = $this->input->post('mesin_masuk');
+      $pulang = $this->input->post('pulang');
+      $verifikasi_pulang = $this->input->post('verifikasi_pulang');
+      $mesin_pulang = $this->input->post('mesin_pulang');
+
+      $this->db->where('id !=', $id);
+      $this->db->where('absen_id', $absenId);
+      $this->db->where('tanggal_absen', $date);
+      $query = $this->db->get($this->_table)->row();
+
+      if($query){
+        
+        $exists_masuk = $query->masuk; 
+        $exists_pulang = $query->pulang;
+        
+        if(empty($exists_masuk) && !empty($exists_pulang)){
+          if($masuk < $exists_pulang){
+            $this->db->where('id !=', $id);
+            $this->db->where('absen_id', $absenId);
+            $this->db->where('tanggal_absen', $date);
+            $this->db->where('masuk IS NULL');
+            if (!$this->db->update($this->_table, [
+                'masuk' => $masuk,
+                'verifikasi_masuk' => $verifikasi_masuk,
+                'mesin_masuk' => $mesin_masuk
+            ])) {
+                $failedInsertions[] = [
+                    'absen_id' => $absenId,
+                    'dateTime' => $date,
+                    'error' => $this->db->error()['message']
+                ];
+            }
+            $this->db->trans_complete();
+            $this->db->delete($this->_table, array('id' => $id));
+          }else{
+            $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
+          }
+        }else{
+          if($pulang > $exists_masuk){
+            $this->db->where('id !=', $id);
+            $this->db->where('absen_id', $absenId);
+            $this->db->where('tanggal_absen', $date);
+            $this->db->where('pulang IS NULL');
+            if (!$this->db->update($this->_table, [
+                'pulang' => $pulang,
+                'verifikasi_pulang' => $verifikasi_pulang,
+                'mesin_pulang' => $mesin_pulang
+            ])) {
+                $failedInsertions[] = [
+                    'absen_id' => $absenId,
+                    'dateTime' => $date,
+                    'error' => $this->db->error()['message']
+                ];
+            }
+            $this->db->trans_complete();
+            $this->db->delete($this->_table, array('id' => $id));
+          }else{
+            $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
+          }
+        }
+      }else{
+        $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
+      }
+      $response = array('status' => true, 'data' => 'Data has been saved.');
+    } catch (\Throwable $th) {
+      $response = array('status' => false, 'data' => 'Failed to save your data.');
+    };
+
+    return $response;
+  }
+
+  public function update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang){
+    $this->masuk = $masuk;
+    $this->verifikasi_masuk = $verifikasi_masuk;
+    $this->mesin_masuk = $mesin_masuk;
+    $this->pulang = $pulang;
+    $this->verifikasi_pulang = $verifikasi_pulang;
+    $this->mesin_pulang = $mesin_pulang;
+    if (empty($this->masuk)) {
+        $this->masuk = NULL;
+    }
+    if (empty($this->pulang)) {
+        $this->pulang = NULL;
+    }
+    if (empty($this->verifikasi_masuk) || !is_numeric($this->verifikasi_masuk)) {
+      $this->verifikasi_masuk = NULL;
+    }
+
+    if (empty($this->verifikasi_pulang) || !is_numeric($this->verifikasi_pulang)) {
+        $this->verifikasi_pulang = NULL;
+    }
+    $this->db->update($this->_table, $this, array('id' => $id));
   }
 
   public function delete($id)

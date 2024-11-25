@@ -2,6 +2,8 @@
   var _key = "";
   var _section = "absen";
   var _table = "table-absen";
+  var _modal = "modal-form-absen";
+  var _form = "form-absen";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_load_partial = "<?= (isset($is_load_partial)) ? $is_load_partial : '0' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
@@ -162,7 +164,8 @@
                         return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
                       }
                     }else{
-                      return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                      var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                      return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
                     }
                   }
                 } else {
@@ -271,6 +274,75 @@
           };
         });
       };
+    };
+
+    $("#" + _table).on("click", "a.action-edit", function(e) {
+      e.preventDefault();
+      resetForm();
+      var temp = table_absen.row($(this).closest('tr')).data();
+
+      _key = temp.id;
+
+      $.each(temp, function(key, item) {
+        $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+      });
+    });
+
+    $("#" + _modal + " ." + _section + "-action-change").on("click", function(e) {
+        var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
+        var masuk = document.querySelector("."+_section+"-masuk");
+        var v_masuk = document.querySelector("."+_section+"-verifikasi_masuk");
+        var m_masuk = document.querySelector("."+_section+"-mesin_masuk");
+        var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
+        var pulang = document.querySelector("."+_section+"-pulang");
+        var v_pulang = document.querySelector("."+_section+"-verifikasi_pulang");
+        var m_pulang = document.querySelector("."+_section+"-mesin_pulang");
+        if (masuk.value !== "" && pulang.value == "") {
+            jam_pulang.value = jam_masuk.value;
+            pulang.value = masuk.value;
+            v_pulang.value = v_masuk.value;
+            m_pulang.value = m_masuk.value;
+            jam_masuk.value = null;
+            masuk.value = null;
+            v_masuk.value = null;
+            m_masuk.value = null;
+        } else {
+            jam_masuk.value = jam_pulang.value;
+            masuk.value = pulang.value;
+            v_masuk.value = v_pulang.value;
+            m_masuk.value = m_pulang.value;
+            jam_pulang.value = null;
+            pulang.value = null;
+            v_pulang.value = null;
+            m_pulang.value = null;
+        }
+    });
+
+
+    $("#" + _modal + " ." + _section + "-action-save").on("click", function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: "post",
+        url: "<?php echo base_url('absen/ajax_save/') ?>" + _key,
+        data: $("#" + _form).serialize(),
+        success: function(response) {
+          var response = JSON.parse(response);
+          if (response.status === true) {
+            resetForm();
+            $("#" + _modal).modal("hide");
+            $("#" + _table).DataTable().ajax.reload(null, false);
+            notify(response.data, "success");
+          } else {
+            notify(response.data, "danger");
+          };
+        }
+      });
+    });
+
+    // Handle form reset
+    resetForm = () => {
+      _key = "";
+      $(`#${_form}`).trigger("reset");
     };
 
     $("#collapseCardCxFilter [name='cx_filter[unit_id]']").on("change", function() {

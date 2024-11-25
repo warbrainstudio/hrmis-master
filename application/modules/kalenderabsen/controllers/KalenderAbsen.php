@@ -215,7 +215,7 @@ class KalenderAbsen extends AppBackend
     $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
     $task = '/fetchData?';
-    $tableView = $this->AbsenModel->_tableView;
+    $tableView = 'absen_pegawai';
 
     $apiUrl = base_url('api/'.$task . http_build_query([
         'token' => $token,
