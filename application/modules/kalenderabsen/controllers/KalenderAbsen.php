@@ -215,7 +215,7 @@ class KalenderAbsen extends AppBackend
     $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
     $task = '/fetchData?';
-    $tableView = 'absen_pegawai';
+    $table = 'absen_pegawai';
 
     $apiUrl = base_url('api/'.$task . http_build_query([
         'token' => $token,
@@ -224,7 +224,7 @@ class KalenderAbsen extends AppBackend
         'username' => $this->db->username,
         'password' => $this->db->password,
         'database' => $this->db->database,
-        'table' => $tableView,
+        'table' => $table,
         'alldata' => $status,
         'start_date' => $tanggal,
         'end_date' => $tanggal,
