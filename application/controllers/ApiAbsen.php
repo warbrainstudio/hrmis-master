@@ -571,6 +571,8 @@ XML;
                                         $data['mesin_pulang'] = $machine;
 
                                         if ($this->db->insert($arrayDB['table'], $data)) {
+
+                                            //deleting data from yesterday who already use
                                             $this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $yesterday);
                                             $this->db->where('pulang IS NULL');
