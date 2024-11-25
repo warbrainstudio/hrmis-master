@@ -144,30 +144,8 @@
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if (data === null) {
-                  const date = new Date(row.tanggal_absen);
-                  date.setHours(0, 0, 0, 0);
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const yesterday = new Date(today);
-                  yesterday.setDate(today.getDate() - 1);
-                  if (date.getTime() === today.getTime()) {
-                    if(!row.masuk && row.pulang){
-                      return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
-                    }else{
-                      return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
-                    }
-                  } else {
-                    if(date.getDate() === yesterday.getDate()){
-                      if(!row.masuk && row.pulang){
-                        return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
-                      }else{
-                        return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
-                      }
-                    }else{
-                      var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
-                      return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
-                    }
-                  }
+                  var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                  return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
                 } else {
                   var jam = parseFloat(data);
                   if (!isNaN(jam) && jam >= 0) {
@@ -336,6 +314,38 @@
             notify(response.data, "danger");
           };
         }
+      });
+    });
+
+    $("#" + _modal + " ." + _section + "-action-delete").on("click", function(e) {
+      e.preventDefault();
+      swal({
+        title: "Anda akan menghapus data, lanjutkan?",
+        text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#DD6B55',
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        closeOnConfirm: false
+      }).then((result) => {
+        if (result.value) {
+          $.ajax({
+            type: "delete",
+            url: "<?php echo base_url('absen/ajax_delete/') ?>" + _key,
+            dataType: "json",
+            success: function(response) {
+              if (response.status) {
+                resetForm();
+                $("#" + _modal).modal("hide");
+                $("#" + _table).DataTable().ajax.reload(null, false);
+                notify(response.data, "success");
+              } else {
+                notify(response.data, "danger");
+              };
+            }
+          });
+        };
       });
     });
 

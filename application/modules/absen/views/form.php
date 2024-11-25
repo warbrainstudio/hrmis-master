@@ -50,7 +50,7 @@
         <button type="button" class="btn btn-danger btn--icon-text absen-action-delete">
           <i class="zmdi zmdi-delete"></i> Hapus
         </button>
-        <button type="button" class="btn btn-light btn--icon-text unit-action-cancel" data-dismiss="modal">
+        <button type="button" class="btn btn-light btn--icon-text absen-action-cancel" data-dismiss="modal">
           Batal
         </button>
       </div>

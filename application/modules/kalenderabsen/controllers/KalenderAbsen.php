@@ -272,17 +272,11 @@ class KalenderAbsen extends AppBackend
   public function ajax_save($id = null)
   {
     $this->handle_ajax_request();
-    $this->form_validation->set_rules($this->AbsenModel->rules());
-
-    if ($this->form_validation->run() === true) {
-      if (is_null($id)) {
-        echo json_encode($this->AbsenModel->insert());
-      } else {
-        echo json_encode($this->AbsenModel->update($id));
-      };
-    } else {
+    if (is_null($id)) {
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
+    } else {
+      echo json_encode($this->AbsenModel->update($id));
     };
   }
 
