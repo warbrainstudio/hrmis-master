@@ -6,6 +6,39 @@ class AbsenModel extends CI_Model
   private $_table = 'absen_pegawai';
   private $_tableView = '';
 
+
+  public function getMonth()
+  {
+    $data = array(
+        array('id' => '01', 'text' => 'Januari'),
+        array('id' => '02', 'text' => 'Februari'),
+        array('id' => '03', 'text' => 'Maret'),
+        array('id' => '04', 'text' => 'April'),
+        array('id' => '05', 'text' => 'Mei'),
+        array('id' => '06', 'text' => 'Juni'),
+        array('id' => '07', 'text' => 'Juli'),
+        array('id' => '08', 'text' => 'Agustus'),
+        array('id' => '09', 'text' => 'September'),
+        array('id' => '10', 'text' => 'Oktober'),
+        array('id' => '11', 'text' => 'November'),
+        array('id' => '12', 'text' => 'Desember'),
+    );
+    return $data;
+  }
+
+  public function getYear()
+  {  
+    $startYear = 2023;
+    $currentYear = date('Y');
+
+    $years = array();
+
+    for ($year = $startYear; $year < $currentYear; $year++) {
+        $years[] = array('id' => $year, 'text' => $year);
+    }
+
+    return $years;
+  }
   
   public function getQueryRaw($filter = null)
   {
@@ -86,14 +119,6 @@ class AbsenModel extends CI_Model
         WHERE 1=1
       ";
 
-      /*LEFT JOIN jadwal j ON (
-              ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
-              AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
-              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
-              AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
-          )
-              LEFT JOIN jadwal j ON j.unit_id = u.id */
-
       if (!is_null($filter)) $query .= $filter;
       return $query;
   }
@@ -139,39 +164,6 @@ class AbsenModel extends CI_Model
         return $this->db->get($this->_table)->result();
 
       }
-  }
-  
-  public function getMonth()
-  {
-    $data = array(
-        array('id' => '01', 'text' => 'Januari'),
-        array('id' => '02', 'text' => 'Februari'),
-        array('id' => '03', 'text' => 'Maret'),
-        array('id' => '04', 'text' => 'April'),
-        array('id' => '05', 'text' => 'Mei'),
-        array('id' => '06', 'text' => 'Juni'),
-        array('id' => '07', 'text' => 'Juli'),
-        array('id' => '08', 'text' => 'Agustus'),
-        array('id' => '09', 'text' => 'September'),
-        array('id' => '10', 'text' => 'Oktober'),
-        array('id' => '11', 'text' => 'November'),
-        array('id' => '12', 'text' => 'Desember'),
-    );
-    return $data;
-  }
-
-  public function getYear()
-  {  
-    $startYear = 2023;
-    $currentYear = date('Y');
-
-    $years = array();
-
-    for ($year = $startYear; $year < $currentYear; $year++) {
-        $years[] = array('id' => $year, 'text' => $year);
-    }
-
-    return $years;
   }
 
   public function getDetail($params = array())
@@ -259,7 +251,8 @@ class AbsenModel extends CI_Model
     return $response;
   }
 
-  public function update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang){
+  public function update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang)
+  {
     $this->masuk = $masuk;
     $this->verifikasi_masuk = $verifikasi_masuk;
     $this->mesin_masuk = $mesin_masuk;

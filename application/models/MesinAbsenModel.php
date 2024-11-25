@@ -194,7 +194,7 @@ class MesinAbsenModel extends CI_Model
     return preg_replace('/[^0-9]/', '', $number);
   }
 
-  public function checkConnect($ip)
+public function checkConnect($ip)
 {
     $response = array('status' => false, 'data' => 'No operation.');
 
