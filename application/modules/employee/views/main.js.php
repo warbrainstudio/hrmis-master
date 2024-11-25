@@ -428,29 +428,9 @@
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if (data === null) {
-                  const date = new Date(row.tanggal_absen);
-                  date.setHours(0, 0, 0, 0);
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const yesterday = new Date(today);
-                  yesterday.setDate(today.getDate() - 1);
-                  if (date.getTime() === today.getTime()) {
-                    if(!row.masuk && row.pulang){
-                      return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
-                    }else{
-                      return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
-                    }
-                  } else {
-                    if(date.getDate() === yesterday.getDate()){
-                      if(!row.masuk && row.pulang){
-                        return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
-                      }else{
-                        return `<span class="badge badge-info" title="belum pulang"><i class="zmdi zmdi-time"></i></span>`;
-                      }
-                    }else{
-                      return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
-                    }
-                  }
+                  var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
+                  return span;
+                  //return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
                 } else {
                   var jam = parseFloat(data);
                   if (!isNaN(jam) && jam >= 0) {
