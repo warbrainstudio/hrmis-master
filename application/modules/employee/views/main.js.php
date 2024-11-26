@@ -3,7 +3,6 @@
 <script type="text/javascript">
   var _action_route = "<?= isset($action_route) ? $action_route : '' ?>";
   var _key = "<?= $key ?>";
-  var _id_absen = "";
   var _section = "employee";
   var _table_master = "table-employee";
   var _table_histori_absensi = "table-histori-absensi";
@@ -14,8 +13,6 @@
   var _table_histori_pembinaan = "table-histori-pembinaan"
   var _table_histori_demosimutasi = "table-histori-demosimutasi"
   var _form = "form-employee";
-  var _modal = "modal-form-absen";
-  var _form_absen = "form-absen";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
 
@@ -461,14 +458,6 @@
                   return "-";
                 }
               }
-            },
-            {
-              data: null,
-              className: "center",
-              defaultContent: '<div class="action">' +
-                '<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#' + _modal + '"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;' +
-                '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
-                '</div>'
             }
           ],
           order: [[1, 'asc']],
@@ -544,113 +533,6 @@
         });
       };
     }
-
-    $("#" + _table_histori_absensi).on("click", "a.action-edit", function(e) {
-      e.preventDefault();
-      
-      var temp = table_histori_absensi.row($(this).closest('tr')).data();
-      var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
-      var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
-
-      _id_absen = temp.id;
-
-      var tukar = document.querySelector("."+_section+"-action-change");
-      if(temp.masuk!==null && temp.pulang!==null){
-        tukar.style.display = 'none';
-        jam_masuk.readOnly = false;
-        jam_pulang.readOnly = false;
-      }else{
-        tukar.style.display = 'block';
-        jam_masuk.readOnly = true;
-        jam_pulang.readOnly = true;
-      }
-
-      $.each(temp, function(key, item) {
-        $(`#${_form_absen} .${_section}-${key}`).val(item).trigger("input").trigger("change");
-      });
-    });
-
-    $("#" + _modal + " ." + _section + "-absen-action-change").on("click", function(e) {
-        var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
-        var masuk = document.querySelector("."+_section+"-masuk");
-        var v_masuk = document.querySelector("."+_section+"-verifikasi_masuk");
-        var m_masuk = document.querySelector("."+_section+"-mesin_masuk");
-        var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
-        var pulang = document.querySelector("."+_section+"-pulang");
-        var v_pulang = document.querySelector("."+_section+"-verifikasi_pulang");
-        var m_pulang = document.querySelector("."+_section+"-mesin_pulang");
-        if (masuk.value !== "" && pulang.value == "") {
-            jam_pulang.value = jam_masuk.value;
-            pulang.value = masuk.value;
-            v_pulang.value = v_masuk.value;
-            m_pulang.value = m_masuk.value;
-            jam_masuk.value = null;
-            masuk.value = null;
-            v_masuk.value = null;
-            m_masuk.value = null;
-        } else {
-            jam_masuk.value = jam_pulang.value;
-            masuk.value = pulang.value;
-            v_masuk.value = v_pulang.value;
-            m_masuk.value = m_pulang.value;
-            jam_pulang.value = null;
-            pulang.value = null;
-            v_pulang.value = null;
-            m_pulang.value = null;
-        }
-    });
-
-
-    $("#" + _modal + " ." + _section + "-absen-action-save").on("click", function(e) {
-      e.preventDefault();
-      $.ajax({
-        type: "post",
-        url: "<?php echo base_url('absen/ajax_save/') ?>" + _id_absen,
-        data: $("#" + _form_absen).serialize(),
-        success: function(response) {
-          var response = JSON.parse(response);
-          if (response.status === true) {
-            $("#" + _modal).modal("hide");
-            $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
-            notify(response.data, "success");
-          } else {
-            notify(response.data, "danger");
-          };
-        }
-      });
-    });
-
-    $("#" + _table_histori_absensi).on("click", "a.action-delete", function(e) {
-      e.preventDefault();
-      var temp = table_histori_absensi.row($(this).closest('tr')).data();
-
-      swal({
-        title: "Anda akan menghapus data, lanjutkan?",
-        text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: '#DD6B55',
-        confirmButtonText: "Ya",
-        cancelButtonText: "Tidak",
-        closeOnConfirm: false
-      }).then((result) => {
-        if (result.value) {
-          $.ajax({
-            type: "delete",
-            url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id, //_key,
-            dataType: "json",
-            success: function(response) {
-              if (response.status) {
-                $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
-                notify(response.data, "success");
-              } else {
-                notify(response.data, "danger");
-              };
-            }
-          });
-        };
-      });
-    });
 
     function initTable_historiAbsensiRaw(){
       if ($(`#${_table_histori_absensi_raw}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_absensi_raw}`) === false) {

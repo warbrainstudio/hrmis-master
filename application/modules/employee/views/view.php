@@ -117,7 +117,6 @@
                         <?php if(!is_null(@$pegawai->absen_pegawai_id)) : ?>
                         <div class="tab-pane fade show" id="tab-absensi" role="tabpanel">
                             <?php require_once(APPPATH . 'modules/employee/views/histori_absensi.php') ?>
-                            <?php include_once('form_absen.php') ?>
                         </div>
                         <div class="tab-pane fade show" id="tab-absensi-raw" role="tabpanel">
                             <?php require_once(APPPATH . 'modules/employee/views/histori_absensi_raw.php') ?>
