@@ -404,6 +404,7 @@ XML;
 
                             }else{
 
+                                //checking if data already exists
                                 $query = $this->db->select('*')
                                         ->from($arrayDB['table'])
                                         ->where('absen_id', $userID)
@@ -413,8 +414,10 @@ XML;
                                 $exists_masuk = $query->masuk; 
                                 $exists_pulang = $query->pulang;
 
+                                //if 'masuk' already exists, code will replace old data 'masuk' or insert new data
                                 if(!empty($exists_masuk)){
 
+                                    //if $exists_masuk is more than $dateTime, then update data masuk
                                     if($exists_masuk > $dateTime){
                                         $this->db->where('absen_id', $userID);
                                         $this->db->where('tanggal_absen', $date);
@@ -429,14 +432,17 @@ XML;
                                                 'error' => $this->db->error()['message']
                                             ];
                                         }
-
+                                    
+                                    //if less, then insert new data
                                     }else{
 
+                                        //check data 'masuk'
                                         $this->db->where('absen_id', $userID);
                                         $this->db->where('tanggal_absen', $date);
                                         $this->db->where('masuk', $dateTime);
                                         $existingRecord = $this->db->get($arrayDB['table'])->row();
 
+                                        //if the result is empty, then insert new data. but if not, don't insert new data
                                         if (empty($existingRecord)) {
 
                                             if (!$this->db->insert($arrayDB['table'], [
@@ -452,14 +458,18 @@ XML;
                                                     'error' => $this->db->error()['message']
                                                 ];
                                             }
-                                            
+
                                         }
 
                                     }
+
+                                //if 'masuk' not exists
                                 }else{
 
+                                    //if 'masuk' not exists but there is data 'pulang'
                                     if(!empty($exists_pulang)){
 
+                                        //if '$exists_pulang' is less than '$dateTime', insert new data because 'dateTime' cannot to be more than '$exists_pulang'
                                         if($exists_pulang < $dateTime){
 
                                             if (!$this->db->insert($arrayDB['table'], [
@@ -476,6 +486,7 @@ XML;
                                                 ];
                                             }
                                             
+                                        //if not less, then update data. to be more spesific, only data who don't have 'masuk'
                                         }else{
 
                                             $this->db->where('absen_id', $userID);
