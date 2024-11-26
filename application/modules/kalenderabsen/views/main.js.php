@@ -355,8 +355,6 @@
       });
     });
 
-    //$("#" + _modal + " ." + _section + "-action-delete").on("click", function(e) {
-      //e.preventDefault();
     $("#" + _table).on("click", "a.action-delete", function(e) {
       e.preventDefault();
       var temp = table.row($(this).closest('tr')).data();
@@ -374,12 +372,11 @@
         if (result.value) {
           $.ajax({
             type: "delete",
-            url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id, //_id,
+            url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id,
             dataType: "json",
             success: function(response) {
               if (response.status) {
                 resetForm();
-                //$("#" + _modal).modal("hide");
                 $("#" + _table).DataTable().ajax.reload(null, false);
                 notify(response.data, "success");
               } else {

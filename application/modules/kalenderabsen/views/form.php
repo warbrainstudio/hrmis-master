@@ -47,9 +47,6 @@
         <button type="button" class="btn btn-success btn--icon-text kalenderabsen-action-save">
           <i class="zmdi zmdi-save"></i> Simpan
         </button>
-        <!--<button type="button" class="btn btn-danger btn--icon-text kalenderabsen-action-delete">
-          <i class="zmdi zmdi-delete"></i> Hapus
-        </button>-->
         <button type="button" class="btn btn-light btn--icon-text kalenderabsen-action-cancel" data-dismiss="modal">
           Batal
         </button>
