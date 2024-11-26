@@ -226,7 +226,7 @@
         },
         columnDefs: [{
           className: 'desktop',
-          targets: [0, 1, 2, 3, 4, 5, 6, 7]
+          targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         }, {
           className: 'tablet',
           targets: [0, 1, 2, 3, 4]
@@ -291,12 +291,12 @@
       var tukar = document.querySelector("."+_section+"-action-change");
       if(temp.masuk!==null && temp.pulang!==null){
         tukar.style.display = 'none';
-        jam_masuk.readOnly = false;
-        jam_pulang.readOnly = false;
+        //jam_masuk.readOnly = false;
+        //jam_pulang.readOnly = false;
       }else{
         tukar.style.display = 'block';
-        jam_masuk.readOnly = true;
-        jam_pulang.readOnly = true;
+        //jam_masuk.readOnly = true;
+        //jam_pulang.readOnly = true;
       }
 
       $.each(temp, function(key, item) {

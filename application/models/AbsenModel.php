@@ -114,7 +114,7 @@ class AbsenModel extends CI_Model
               AND ab.pulang::time >= (j.jadwal_pulang - interval '1 minute')
               AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
           )
-          ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id ASC
+          ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id, masuk, pulang ASC
         ) t
         WHERE 1=1
       ";
