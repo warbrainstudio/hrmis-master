@@ -180,32 +180,12 @@ class AbsenModel extends CI_Model
     try {
       $absenId = $this->input->post('absen_id');
       $date = $this->input->post('tanggal_absen');
-      $jam_masuk = $this->input->post('jam_masuk');
       $masuk = $this->input->post('masuk');
       $verifikasi_masuk = $this->input->post('verifikasi_masuk');
       $mesin_masuk = $this->input->post('mesin_masuk');
-      $jam_pulang = $this->input->post('jam_pulang');
       $pulang = $this->input->post('pulang');
       $verifikasi_pulang = $this->input->post('verifikasi_pulang');
       $mesin_pulang = $this->input->post('mesin_pulang');
-      $timezone = new DateTimeZone(date('P', strtotime($masuk))); 
-
-      if (preg_match("/^([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])$/", $jam_masuk)) {
-        $masukDate = date('Y-m-d', strtotime($masuk));
-        $new_datetime = $masukDate . ' ' . $jam_masuk; 
-        $masuk = date('Y-m-d H:i:s', strtotime($new_datetime)) . date(' P', strtotime($masuk)); 
-      }else {
-        $masukDate = date('Y-m-d', strtotime($masuk)); 
-        $timePart = substr($jam_masuk, 0, 8); 
-        $new_datetime = $masukDate . ' ' . $timePart; 
-        $masuk = date('Y-m-d H:i:s', strtotime($new_datetime)) . date(' P', strtotime($masuk)); 
-      }    
-      
-      if (preg_match("/^([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])$/", $jam_pulang)) {
-        $pulangDate = date('Y-m-d', strtotime($pulang));
-        $new_datetime = $pulangDate . ' ' . $jam_pulang; 
-        $pulang = date('Y-m-d H:i:s', strtotime($new_datetime)) . date(' P', strtotime($pulang)); 
-      }
       
       if (empty($masuk)) {
         $masuk = NULL;
@@ -260,7 +240,7 @@ class AbsenModel extends CI_Model
           }else{
             $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
           }
-        }else{
+        }elseif(!empty($exists_masuk) && empty($exists_pulang)){
           if($pulang > $exists_masuk){
             $this->db->where('id !=', $id);
             $this->db->where('absen_id', $absenId);

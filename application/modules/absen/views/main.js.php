@@ -268,20 +268,20 @@
       resetForm();
 
       var temp = table_absen.row($(this).closest('tr')).data();
-      var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
-      var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
+      var masuk = document.querySelector("."+_section+"-masuk");
+      var pulang = document.querySelector("."+_section+"-pulang");
 
       _key = temp.id;
 
       var tukar = document.querySelector("."+_section+"-action-change");
       if(temp.masuk!==null && temp.pulang!==null){
         tukar.style.display = 'none';
-        //jam_masuk.readOnly = false;
-        //jam_pulang.readOnly = false;
+        //masuk.readOnly = false;
+        //pulang.readOnly = false;
       }else{
         tukar.style.display = 'block';
-        //jam_masuk.readOnly = true;
-        //jam_pulang.readOnly = true;
+        //masuk.readOnly = true;
+        //pulang.readOnly = true;
       }
 
       $.each(temp, function(key, item) {
@@ -290,32 +290,26 @@
     });
 
     $("#" + _modal + " ." + _section + "-action-change").on("click", function(e) {
-        var jam_masuk = document.querySelector("."+_section+"-jam_masuk");
         var masuk = document.querySelector("."+_section+"-masuk");
-        var v_masuk = document.querySelector("."+_section+"-verifikasi_masuk");
-        var m_masuk = document.querySelector("."+_section+"-mesin_masuk");
-        var jam_pulang = document.querySelector("."+_section+"-jam_pulang");
+        var verifikasi_masuk = document.querySelector("."+_section+"-verifikasi_masuk");
+        var mesin_masuk = document.querySelector("."+_section+"-mesin_masuk");
         var pulang = document.querySelector("."+_section+"-pulang");
-        var v_pulang = document.querySelector("."+_section+"-verifikasi_pulang");
-        var m_pulang = document.querySelector("."+_section+"-mesin_pulang");
+        var verifikasi_pulang = document.querySelector("."+_section+"-verifikasi_pulang");
+        var mesin_pulang = document.querySelector("."+_section+"-mesin_pulang");
         if (masuk.value !== "" && pulang.value == "") {
-            jam_pulang.value = jam_masuk.value;
             pulang.value = masuk.value;
-            v_pulang.value = v_masuk.value;
-            m_pulang.value = m_masuk.value;
-            jam_masuk.value = null;
+            verifikasi_pulang.value = verifikasi_masuk.value;
+            mesin_pulang.value = mesin_masuk.value;
             masuk.value = null;
-            v_masuk.value = null;
-            m_masuk.value = null;
+            verifikasi_masuk.value = null;
+            mesin_masuk.value = null;
         } else {
-            jam_masuk.value = jam_pulang.value;
             masuk.value = pulang.value;
-            v_masuk.value = v_pulang.value;
-            m_masuk.value = m_pulang.value;
-            jam_pulang.value = null;
+            verifikasi_masuk.value = verifikasi_pulang.value;
+            mesin_masuk.value = mesin_pulang.value;
             pulang.value = null;
-            v_pulang.value = null;
-            m_pulang.value = null;
+            verifikasi_pulang.value = null;
+            mesin_pulang.value = null;
         }
     });
 
