@@ -585,7 +585,7 @@ XML;
                                         if ($this->db->insert($arrayDB['table'], $data)) {
 
                                             //deleting data from yesterday who already use
-                                            $this->db->where('absen_id', $userID);
+                                            /*$this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $yesterday);
                                             $this->db->where('pulang IS NULL');
 
@@ -595,7 +595,7 @@ XML;
                                                     'tanggal_absen' => $yesterday,
                                                     'error' => $this->db->error()['message']
                                                 ];
-                                            }
+                                            }*/
                                             
                                         } else {
 
@@ -757,8 +757,9 @@ XML;
                                                         ];
 
                                                     } else {
-
-                                                        $this->db->where('absen_id', $userID);
+                                                        
+                                                        //deleting data from yesterday who already use
+                                                        /*$this->db->where('absen_id', $userID);
                                                         $this->db->where('tanggal_absen', $yesterday);
                                                         $this->db->where('pulang IS NULL');
 
@@ -768,7 +769,7 @@ XML;
                                                                 'tanggal_absen' => $yesterday,
                                                                 'error' => $this->db->error()['message']
                                                             ];
-                                                        }
+                                                        }*/
 
                                                     }
                                                     
