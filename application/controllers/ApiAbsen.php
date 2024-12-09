@@ -421,6 +421,7 @@ XML;
                                     if($exists_masuk > $dateTime){
                                         $this->db->where('absen_id', $userID);
                                         $this->db->where('tanggal_absen', $date);
+                                        $this->db->where('masuk', $exists_masuk);
                                         if (!$this->db->update($arrayDB['table'], [
                                             'masuk' => $dateTime,
                                             'verifikasi_masuk' => $verified,
@@ -492,6 +493,7 @@ XML;
                                             $this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $date);
                                             $this->db->where('masuk IS NULL');
+                                            $this->db->where('pulang', $exists_pulang);
                                             if (!$this->db->update($arrayDB['table'], [
                                                 'masuk' => $dateTime,
                                                 'verifikasi_masuk' => $verified,
@@ -510,7 +512,7 @@ XML;
 
                                         $this->db->where('absen_id', $userID);
                                         $this->db->where('tanggal_absen', $date);
-
+                                        
                                         if (!$this->db->update($arrayDB['table'], [
                                             'masuk' => $dateTime,
                                             'verifikasi_masuk' => $verified,
@@ -686,6 +688,7 @@ XML;
                                                         if($masukMistake < $dateTime){
                                                             $this->db->where('absen_id', $userID);
                                                             $this->db->where('tanggal_absen', $date);
+                                                            $this->db->where('masuk', $exists_masuk);
                                                             $this->db->where('pulang IS NULL');
                                                             if (!$this->db->update($arrayDB['table'], [
                                                                 'pulang' => $dateTime,
@@ -723,6 +726,7 @@ XML;
 
                                             $this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $date);
+                                            $this->db->where('masuk', $exists_masuk);
                                             $this->db->where('pulang IS NULL');
 
                                             if (!$this->db->update($arrayDB['table'], [
@@ -757,7 +761,8 @@ XML;
 
                                                 $this->db->where('absen_id', $userID);
                                                 $this->db->where('tanggal_absen', $date);
-
+                                                $this->db->where('masuk', $exists_masuk);
+                                                $this->db->where('pulang IS NULL');
                                                 if (!$this->db->update($arrayDB['table'], [
                                                     'pulang' => $dateTime,
                                                     'verifikasi_pulang' => $verified,
@@ -775,6 +780,7 @@ XML;
 
                                                 $this->db->where('absen_id', $userID);
                                                 $this->db->where('tanggal_absen', $yesterday);
+                                                $this->db->where('masuk', $exists_masuk);
                                                 $this->db->where('pulang IS NULL');
                                                 $pulangNull = $this->db->get($arrayDB['table'])->row();
 
