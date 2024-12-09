@@ -587,6 +587,7 @@ XML;
                                             //deleting data from yesterday who already use
                                             /*$this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $yesterday);
+                                            $this->db->where('masuk', $masukDate);
                                             $this->db->where('pulang IS NULL');
 
                                             if (!$this->db->delete($arrayDB['table'])) {
@@ -804,6 +805,7 @@ XML;
                                                         //deleting data from yesterday who already use
                                                         /*$this->db->where('absen_id', $userID);
                                                         $this->db->where('tanggal_absen', $yesterday);
+                                                        $this->db->where('masuk', $masukDate);
                                                         $this->db->where('pulang IS NULL');
 
                                                         if (!$this->db->delete($arrayDB['table'])) {
