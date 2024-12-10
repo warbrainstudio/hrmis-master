@@ -175,6 +175,8 @@ class AbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
+    $this->db->trans_start();
+
     try {
       $absenId = $this->input->post('absen_id');
       $date = $this->input->post('tanggal_absen');
@@ -184,6 +186,20 @@ class AbsenModel extends CI_Model
       $pulang = $this->input->post('pulang');
       $verifikasi_pulang = $this->input->post('verifikasi_pulang');
       $mesin_pulang = $this->input->post('mesin_pulang');
+      
+      if (empty($masuk)) {
+        $masuk = NULL;
+      }
+      if (empty($pulang)) {
+        $pulang = NULL;
+      }
+      if (empty($verifikasi_masuk) || !is_numeric($verifikasi_masuk)) {
+        $verifikasi_masuk = NULL;
+      }
+
+      if (empty($verifikasi_pulang) || !is_numeric($verifikasi_pulang)) {
+          $verifikasi_pulang = NULL;
+      }
 
       $this->db->where('id !=', $id);
       $this->db->where('absen_id', $absenId);
@@ -201,41 +217,55 @@ class AbsenModel extends CI_Model
             $this->db->where('absen_id', $absenId);
             $this->db->where('tanggal_absen', $date);
             $this->db->where('masuk IS NULL');
-            if (!$this->db->update($this->_table, [
+            if ($this->db->update($this->_table, [
                 'masuk' => $masuk,
                 'verifikasi_masuk' => $verifikasi_masuk,
                 'mesin_masuk' => $mesin_masuk
             ])) {
+              $this->db->where('id', $id);
+              if (!$this->db->delete($this->_table)) {
+                  $failedDeletions[] = [
+                      'absen_id' => $absenId,
+                      'tanggal_absen' => $date,
+                      'error' => $this->db->error()['message']
+                  ];
+              }
+            }else{
                 $failedInsertions[] = [
                     'absen_id' => $absenId,
                     'dateTime' => $date,
                     'error' => $this->db->error()['message']
                 ];
             }
-            $this->db->trans_complete();
-            $this->db->delete($this->_table, array('id' => $id));
           }else{
             $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
           }
-        }else{
+        }elseif(!empty($exists_masuk) && empty($exists_pulang)){
           if($pulang > $exists_masuk){
             $this->db->where('id !=', $id);
             $this->db->where('absen_id', $absenId);
             $this->db->where('tanggal_absen', $date);
             $this->db->where('pulang IS NULL');
-            if (!$this->db->update($this->_table, [
+            if ($this->db->update($this->_table, [
                 'pulang' => $pulang,
                 'verifikasi_pulang' => $verifikasi_pulang,
                 'mesin_pulang' => $mesin_pulang
             ])) {
+              $this->db->where('id', $id);
+              if (!$this->db->delete($this->_table)) {
+                  $failedDeletions[] = [
+                      'absen_id' => $absenId,
+                      'tanggal_absen' => $date,
+                      'error' => $this->db->error()['message']
+                  ];
+              }
+            }else{
                 $failedInsertions[] = [
                     'absen_id' => $absenId,
                     'dateTime' => $date,
                     'error' => $this->db->error()['message']
                 ];
             }
-            $this->db->trans_complete();
-            $this->db->delete($this->_table, array('id' => $id));
           }else{
             $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
           }
@@ -243,6 +273,7 @@ class AbsenModel extends CI_Model
       }else{
         $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
       }
+      $this->db->trans_complete();
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
       $response = array('status' => false, 'data' => 'Failed to save your data.');
@@ -259,19 +290,6 @@ class AbsenModel extends CI_Model
     $this->pulang = $pulang;
     $this->verifikasi_pulang = $verifikasi_pulang;
     $this->mesin_pulang = $mesin_pulang;
-    if (empty($this->masuk)) {
-        $this->masuk = NULL;
-    }
-    if (empty($this->pulang)) {
-        $this->pulang = NULL;
-    }
-    if (empty($this->verifikasi_masuk) || !is_numeric($this->verifikasi_masuk)) {
-      $this->verifikasi_masuk = NULL;
-    }
-
-    if (empty($this->verifikasi_pulang) || !is_numeric($this->verifikasi_pulang)) {
-        $this->verifikasi_pulang = NULL;
-    }
     $this->db->update($this->_table, $this, array('id' => $id));
   }
 

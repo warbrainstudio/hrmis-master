@@ -22,17 +22,14 @@
           </div>
           <div class="form-group">
             <label required>Jam Masuk</label>
-            <input type="datetime" name="jam_masuk" class="form-control absen-jam_masuk" maxlength="100" />
-            <input type="hidden" name="masuk" class="form-control absen-masuk"/>
+            <input type="datetime" name="masuk" class="form-control absen-masuk" maxlength="100" />
             <i class="form-group__bar"></i>
           </div>
           <div class="form-group">
             <label required>Jam Pulang</label>
-            <input type="datetime" name="jam_pulang" class="form-control absen-jam_pulang" maxlength="100" />
-            <input type="hidden" name="pulang" class="form-control absen-pulang"/>
+            <input type="datetime" name="pulang" class="form-control absen-pulang" maxlength="100" />
             <i class="form-group__bar"></i>
           </div>
-          
           <input type="hidden" name="verifikasi_masuk" class="form-control absen-verifikasi_masuk"/>
           <input type="hidden" name="mesin_masuk" class="form-control absen-mesin_masuk"/>
           <input type="hidden" name="verifikasi_pulang" class="form-control absen-verifikasi_pulang"/>
