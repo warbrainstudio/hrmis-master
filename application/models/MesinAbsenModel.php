@@ -6,6 +6,7 @@ class MesinAbsenModel extends CI_Model
   private $_table = 'mesin_absen';
   private $_tableView = '';
   public $status = '';
+  public $ipadress = '';
 
   public function rules($id = null)
   {
@@ -33,7 +34,17 @@ class MesinAbsenModel extends CI_Model
       [
         'field' => 'commkey',
         'label' => 'Comm Key',
-        'rules' => 'required|trim'
+        'rules' => 'required|trim',
+        'rules' => [
+          'required',
+          'trim',
+          [
+            'check_comm_key',
+            function ($value) use ($id) {
+              return $this->_check_comm_key($value, $id);
+            }
+          ]
+        ]
       ],
       [
         'field' => 'lokasi',
@@ -48,7 +59,7 @@ class MesinAbsenModel extends CI_Model
     $temp = $this->ping($value);
     if(empty($id)){
       if ($temp) {
-        $this->status = "success";
+        $this->status = "Connect";
         $this->ipadress = $value;
         return true;
       } else {
@@ -57,13 +68,39 @@ class MesinAbsenModel extends CI_Model
       };
     }else{
       if ($temp) {
-        $this->status = "success";
+        $this->status = "Connect";
         $this->ipadress = $value;
         return true;
       } else {
         $this->form_validation->set_message('check_connect', 'Mesin dengan IP "' . $value . '" tidak bisa terhubung atau sedang offline');
         return false;
       };
+    }
+  }
+
+  private function _check_comm_key($value, $id){
+    if(empty($id)){
+      $IP = $this->ipadress;
+      $Key = $value;
+      $result = $this->fetchDataFromMachine($IP, $Key);
+      if($result){
+        $this->status = "Connect";
+        return true;
+      }else{
+        $this->form_validation->set_message('check_comm_key', 'Comm Key "'.$value.'" yang digunakan untuk Mesin dengan IP "' . $IP . '" salah');
+        return false;
+      }
+    }else{
+      $IP = $this->ipadress;
+      $Key = $value;
+      $result = $this->fetchDataFromMachine($IP, $Key);
+      if($result){
+        $this->status = "Connect";
+        return true;
+      }else{
+        $this->form_validation->set_message('check_comm_key', 'Comm Key "'.$value.'" yang digunakan untuk Mesin dengan IP "' . $IP . '" salah');
+        return false;
+      }
     }
   }
   
@@ -194,24 +231,38 @@ class MesinAbsenModel extends CI_Model
     return preg_replace('/[^0-9]/', '', $number);
   }
 
-public function checkConnect($ip)
-{
+  public function checkConnect($ip)
+  {
     $response = array('status' => false, 'data' => 'No operation.');
 
     $pingResult = $this->ping($ip);
     
     if ($pingResult) {
-        $status = "success";
+      
+      $this->db->where('ipadress', $ip);
+      $query = $this->db->get('mesin_absen');
+      $mesin = $query->row();
+  
+      if ($mesin) {
+          $comm = $mesin->commkey;
+          $commResult = $this->fetchDataFromMachine($ip, $comm);
+          if ($commResult) {
+              $status = "Connect";
+          } else {
+              $status = "Disconnect";
+          }
+      }
     } else {
-        $status = "failed";
+        $status = "Disconnect";
     }
 
     try {
+        $this->ipadress = $ip;
         $this->status = $status; 
         $this->updated_by = $this->session->userdata('user')['id'];
         $this->updated_date = date('Y-m-d H:i:s');
         $this->db->update($this->_table, $this, array('ipadress' => $ip));
-        if($status=="success"){
+        if($status=="Connect"){
           $response = array('status' => true, 'data' => 'Koneksi berhasil');
         }else{
           $response = array('status' => false, 'data' => 'Koneksi gagal');
@@ -221,13 +272,87 @@ public function checkConnect($ip)
     }
 
     return $response;
-}
+  }
 
-public function ping($ip)
-{
-    $reply = 1;
-    $ping = exec("ping -n $reply $ip", $output, $status);
-    return $status === 0;
-}
+  public function ping($ip)
+  {
+      $reply = 1;
+      $ping = exec("ping -n $reply $ip", $output, $status);
+      return $status === 0;
+  }
+
+  public function fetchDataFromMachine($IP, $Key) 
+  {
+      $timeout = 200;
+      $Connect = fsockopen($IP, "80", $errno, $errstr, $timeout);
+      $filteredData = [];
+      $currentDate = date('Y-m-d');
+  
+      if ($Connect) {
+          $formattedStartDate = date('Y-m-d\TH:i:s', strtotime($currentDate . ' 00:00:00'));
+          $formattedEndDate = date('Y-m-d\TH:i:s', strtotime($currentDate . ' 23:59:59'));
+  
+          $soap_request = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Body>
+      <GetAttLog xmlns="http://tempuri.org/">
+          <ArgComKey xsi:type="xsd:integer">$Key</ArgComKey>
+          <Arg></Arg>
+          <DateTimeRange>
+              <StartDate>$formattedStartDate</StartDate>
+              <EndDate>$formattedEndDate</EndDate>
+          </DateTimeRange>
+      </GetAttLog>
+  </soap:Body>
+</soap:Envelope>
+XML;
+  
+          $newLine = "\r\n";
+          fputs($Connect, "POST /iWsService HTTP/1.1" . $newLine);
+          fputs($Connect, "Host: $IP" . $newLine);
+          fputs($Connect, "Content-Type: text/xml" . $newLine);
+          fputs($Connect, "Content-Length: " . strlen($soap_request) . $newLine . $newLine);
+          fputs($Connect, $soap_request . $newLine);
+
+          $startTime = microtime(true);
+          $buffer = "";
+          while (!feof($Connect)) {
+            if (microtime(true) - $startTime > 3) {
+              fclose($Connect);
+              return true;
+            }else{
+              $Response = fgets($Connect, 1024);
+              if ($Response === false) break;
+              $buffer .= $Response;
+            }
+          }
+          fclose($Connect);
+  
+          if (strpos($buffer, '500 Internal Server Error') !== false) {
+              return ["error" => "The server encountered an error while processing the request."];
+          }
+  
+          $this->load->helper('parse');
+          $buffer = Parse_Data($buffer, "<GetAttLogResponse>", "</GetAttLogResponse>");
+          $buffer = explode("\r\n", $buffer);
+  
+          foreach ($buffer as $line) {
+              $data = Parse_Data($line, "<Row>", "</Row>");
+              if ($data) {
+                  $filteredData[] = $data;
+              }
+          }
+  
+          if (!empty($filteredData)) {
+              return true;
+          } else {
+              return false;
+          }
+      } else {
+          return ["error" => "Connection failed: $errstr ($errno)"];
+      }
+  }
+  
 
 }

@@ -124,7 +124,7 @@
                   return "-";
                 }
                 var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${verified}`;
-                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
+                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : row.mesin_masuk;
                 return verifikasi+" / "+mesin;
               }
             },
@@ -154,7 +154,7 @@
                   return "-";
                 }
                 var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${verified}`;
-                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : "-";
+                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : row.mesin_pulang;
                 return verifikasi+" / "+mesin;
               }
             },

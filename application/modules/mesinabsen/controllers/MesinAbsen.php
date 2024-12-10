@@ -2,7 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 require_once(APPPATH . 'controllers/AppBackend.php');
 
-class MesinAbsen extends AppBackend
+class Mesinabsen extends AppBackend
 {
   function __construct()
   {
@@ -56,6 +56,17 @@ class MesinAbsen extends AppBackend
   {
     $this->handle_ajax_request();
     echo json_encode($this->MesinAbsenModel->checkConnect($ip));
+  }
+
+  public function ajax_check_all()
+  {
+    $this->handle_ajax_request();
+    $query = $this->db->get('mesin_absen');
+    $mesins = $query->result();
+    foreach($mesins as $mesin){
+      $ip = $mesin->ipadress;
+      echo json_encode($this->MesinAbsenModel->checkConnect($ip));
+    }
   }
 
   public function ajax_delete($id)

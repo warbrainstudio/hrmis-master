@@ -1,7 +1,7 @@
 <script type="text/javascript">
   $(document).ready(function() {
 
-    var _key = "<?= $key ?>";
+    var _key = "";
     var _section = "mesin";
     var _table = "table-mesin";
     var _modal = "modal-form-mesin";
@@ -12,6 +12,30 @@
         alias: "ip",
         greedy: false
     });
+
+    Swal.fire({
+      title: 'Checking Fingerprint Machine...',
+      text: 'Mohon tunggu sebentar saat proses pengecekan mesin absen',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+          Swal.showLoading();
+      }
+    });
+
+    $.ajax({
+      type: "get",
+      url: "<?php echo base_url('mesinabsen/ajax_check_all/') ?>",
+      success: function(response) {
+        Swal.close();
+      },
+      error: function() {
+        Swal.close(); 
+        notify('An error occurred while checking the connection.', 'danger');
+      }
+    });
+
+        
 
     // Initialize DataTables: Index
     if ($("#" + _table)[0]) {
@@ -43,9 +67,8 @@
           {
             data: "status",
               render: function(data, type, row) {
-                  var connectionStatus = (data === 'success') ? 'Connect' : 'Disconnect';
-                  var statusColor = (data === 'success') ? 'success' : 'danger';
-                  return `<span class="badge badge-${statusColor}">${connectionStatus}</span>`;
+                  var statusColor = (data === 'Connect') ? 'success' : 'danger';
+                  return `<span class="badge badge-${statusColor}">${data}</span>`;
               }
           },
           {
@@ -137,27 +160,42 @@
       resetForm();
     });
 
-    // Handle data add
     $("#" + _table).on("click", "a.action-check-connect", function(e) {
         e.preventDefault();
         var temp = table_mesin.row($(this).closest('tr')).data();
         var ip = temp.ipadress;
+
+        Swal.fire({
+            title: 'Checking Fingerprint Machine...',
+            text: 'Mohon tunggu sebentar saat proses pengecekan mesin absen',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         $.ajax({
             type: "get",
-            url: "<?php echo base_url('mesinabsen/ajax_check/') ?>" + ip,
-            data: $("#" + _form).serialize(),
+            url: "<?php echo base_url('mesinabsen/ajax_check/') ?>"+ip,
             success: function(response) {
                 var response = JSON.parse(response);
+                Swal.close();
+
                 if (response.status === true) {
                     notify(response.data, "success");
                     $("#" + _table).DataTable().ajax.reload(null, false);
                 } else {
                     notify(response.data, "danger");
+                    $("#" + _table).DataTable().ajax.reload(null, false);
                 }
+            },
+            error: function() {
+                Swal.close(); 
+                notify('An error occurred while checking the connection.', 'danger');
             }
         });
     });
-
 
     // Handle data edit
     $("#" + _table).on("click", "a.action-edit", function(e) {
