@@ -585,19 +585,22 @@ XML;
 
                                         if ($this->db->insert($arrayDB['table'], $data)) {
 
-                                            //deleting data from yesterday who already use
-                                            /*$this->db->where('absen_id', $userID);
+                                            //updating data from yesterday who already use
+                                            $this->db->where('absen_id', $userID);
                                             $this->db->where('tanggal_absen', $yesterday);
-                                            $this->db->where('masuk', $masukDate);
                                             $this->db->where('pulang IS NULL');
 
-                                            if (!$this->db->delete($arrayDB['table'])) {
-                                                $failedDeletions[] = [
+                                            if (!$this->db->update($arrayDB['table'], [
+                                                'pulang' => $dateTime,
+                                                'verifikasi_pulang' => $verified,
+                                                'mesin_pulang' => $machine
+                                            ])) {
+                                                $failedInsertions[] = [
                                                     'absen_id' => $userID,
-                                                    'tanggal_absen' => $yesterday,
+                                                    'dateTime' => $date,
                                                     'error' => $this->db->error()['message']
                                                 ];
-                                            }*/
+                                            }
                                             
                                         } else {
 
@@ -804,19 +807,22 @@ XML;
 
                                                     } else {
                                                         
-                                                        //deleting data from yesterday who already use
-                                                        /*$this->db->where('absen_id', $userID);
+                                                        //updating data from yesterday who already use
+                                                        $this->db->where('absen_id', $userID);
                                                         $this->db->where('tanggal_absen', $yesterday);
-                                                        $this->db->where('masuk', $masukDate);
                                                         $this->db->where('pulang IS NULL');
 
-                                                        if (!$this->db->delete($arrayDB['table'])) {
-                                                            $failedDeletions[] = [
+                                                        if (!$this->db->update($arrayDB['table'], [
+                                                            'pulang' => $dateTime,
+                                                            'verifikasi_pulang' => $verified,
+                                                            'mesin_pulang' => $machine
+                                                        ])) {
+                                                            $failedInsertions[] = [
                                                                 'absen_id' => $userID,
-                                                                'tanggal_absen' => $yesterday,
+                                                                'dateTime' => $date,
                                                                 'error' => $this->db->error()['message']
                                                             ];
-                                                        }*/
+                                                        }
 
                                                     }
                                                     
