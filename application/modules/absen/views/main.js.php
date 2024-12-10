@@ -69,12 +69,17 @@
                   return "-";
                 } else {
                   let verifiedColor = 'success';
+                  var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
                   var DateMasuk = moment(data).format('DD-MM-YYYY');
                   var DatePulang = moment(row.pulang).format('DD-MM-YYYY');
                   if(row.pulang){
                     if(DateMasuk!=DatePulang){
-                      let verifiedColor = 'dark';
-                      return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
+                      if(DateMasuk==tanggal){
+                        return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                      }else{
+                        let verifiedColor = 'dark';
+                        return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
+                      }
                     }else{
                       return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
                     }
@@ -110,7 +115,23 @@
                   return "-";
                 }  else {
                   let verifiedColor = 'success';
-                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                  var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
+                  var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var DatePulang = moment(data).format('DD-MM-YYYY');
+                  if(row.pulang){
+                    if(DateMasuk!=DatePulang){
+                      if(DatePulang==tanggal){
+                        return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                      }else{
+                        let verifiedColor = 'dark';
+                        return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                      }
+                    }else{
+                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    }
+                  }else{
+                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                  }
                 }
               }
             },
