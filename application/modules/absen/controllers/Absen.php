@@ -20,6 +20,7 @@ class Absen extends AppBackend
       'SubunitModel',
       'AbsenModel',
       'PegawaiModel',
+      'MesinAbsenModel',
     ));
   }
 
@@ -75,8 +76,16 @@ class Absen extends AppBackend
     $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll(['unit_id' => @$cxfilter__unit_store->id], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
     $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', '<option value="all">--Bulan ini--</option>');
     $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', '<option value="all">--Tahun ini--</option>');
-
 		
+    $query = $this->db->get('jadwal');
+    $jadwals = $query->result();
+    $list_jadwal = '';
+    if (isset($jadwals) && is_array($jadwals)) {
+        foreach ($jadwals as $jadwal) {
+            $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
+        }
+    }
+
     $agent = new Mobile_Detect;
     $data = array(
       'app' => $this->app(),
@@ -114,6 +123,9 @@ class Absen extends AppBackend
         'cxfilter__submit_filter' => true,
         'cxfilter__submit_xlsx' => true,
       ),
+      'list_verifikasi' => $this->init_list($this->AbsenModel->getVerifikasi(), 'id', 'text'),
+      'list_mesin' => $this->init_list($this->MesinAbsenModel->getAll(), 'ipadress', 'nama_mesin'),
+      'list_jadwal' => $list_jadwal,
     );
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
@@ -152,6 +164,17 @@ class Absen extends AppBackend
       echo json_encode(array('status' => false, 'data' => $errors));
     } else {
       echo json_encode($this->AbsenModel->update($id));
+    };
+  }
+
+  public function ajax_change_jadwal($id = null)
+  {
+    $this->handle_ajax_request();
+    if (is_null($id)) {
+      $errors = validation_errors('<div>- ', '</div>');
+      echo json_encode(array('status' => false, 'data' => $errors));
+    } else {
+      echo json_encode($this->AbsenModel->update_jadwal($id));
     };
   }
 

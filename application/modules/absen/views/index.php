@@ -4,6 +4,7 @@
         <div class="card-body">
             <h4 class="card-title"><?php echo (isset($card_title)) ? $card_title : '' ?></h4>
             <h6 class="card-subtitle"><?php echo (isset($card_subTitle)) ? $card_subTitle : '' ?></h6>
+            <?php include_once('form.php') ?>
             <div class="mt-3">
                 <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
             </div>
@@ -11,7 +12,6 @@
             <a href="<?php echo base_url('absen') ?>" class="btn btn-sm btn-success" title="Reset filter">
                 <i class="zmdi zmdi-refresh"></i>Refresh filter
             </a>
-            <?php include_once('form.php') ?>
             <div class="table-responsive">
                 <table id="table-absen" class="table table-bordered">
                 <thead class="thead-default">

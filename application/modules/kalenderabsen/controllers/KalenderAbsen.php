@@ -7,7 +7,7 @@ use alhimik1986\PhpExcelTemplator\setters\CellSetterArrayValueSpecial;
 
 define('SPECIAL_ARRAY_TYPE', CellSetterArrayValueSpecial::class);
 
-class KalenderAbsen extends AppBackend
+class Kalenderabsen extends AppBackend
 {
   public $prefs;
   function __construct()
@@ -18,7 +18,9 @@ class KalenderAbsen extends AppBackend
       'UnitModel',
       'SubunitModel',
       'AbsenModel',
-      'PegawaiModel'
+      'PegawaiModel',
+      'MesinAbsenModel',
+      'JadwalModel',
     ));
 
     $this->prefs = array(
@@ -119,7 +121,7 @@ class KalenderAbsen extends AppBackend
 			$formattedMonth = $this->get_month($monthNumber);
 			$formattedDate = $formattedMonth . ' ' . $year;
       $startDate = date('Y-m-d', strtotime("$year-$monthNumber-1"));
-      $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month"));
+      $endDate = date('Y-m-d', strtotime("$year-$monthNumber-1 +1 month -1 day"));
 			$searchFilter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
       $startDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-21 -1 month"));
       $endDatePeriode = date('Y-m-d', strtotime("$year-$monthNumber-20"));
@@ -129,6 +131,15 @@ class KalenderAbsen extends AppBackend
 		}else{
 			show_404();
 		}
+
+    $query = $this->db->get('jadwal');
+    $jadwals = $query->result();
+    $list_jadwal = '';
+    if (isset($jadwals) && is_array($jadwals)) {
+        foreach ($jadwals as $jadwal) {
+            $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
+        }
+    }
 
 		$data = array(
 			'app' => $this->app(),
@@ -162,6 +173,9 @@ class KalenderAbsen extends AppBackend
       ),
 			'isDaily' => $status,
 			'isAll' => false,
+      'list_verifikasi' => $this->init_list($this->AbsenModel->getVerifikasi(), 'id', 'text'),
+      'list_mesin' => $this->init_list($this->MesinAbsenModel->getAll(), 'ipadress', 'nama_mesin'),
+      'list_jadwal' => $list_jadwal,
 		);
 
 		$this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
@@ -277,6 +291,17 @@ class KalenderAbsen extends AppBackend
       echo json_encode(array('status' => false, 'data' => $errors));
     } else {
       echo json_encode($this->AbsenModel->update($id));
+    };
+  }
+
+  public function ajax_change_jadwal($id = null)
+  {
+    $this->handle_ajax_request();
+    if (is_null($id)) {
+      $errors = validation_errors('<div>- ', '</div>');
+      echo json_encode(array('status' => false, 'data' => $errors));
+    } else {
+      echo json_encode($this->AbsenModel->update_jadwal($id));
     };
   }
 

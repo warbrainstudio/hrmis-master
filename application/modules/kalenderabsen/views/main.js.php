@@ -49,10 +49,10 @@
                 if(daily==true){
                     return "-";
                 }else{
-                    var day = moment(data).format('ddd');
-                    var dayDate = moment(data).format('D');
-                    var getDay = getTranslateNameDay(day);
-                    return dayDate+" ("+getDay+")";
+                    //var day = moment(data).format('ddd');
+                    //var dayDate = moment(data).format('DD');
+                    //var getDay = getTranslateNameDay(day);
+                    return moment(data).format('DD');
                 }
               }
             },
@@ -73,7 +73,6 @@
                 if(!data){
                   return "-";
                 }else{
-                  //return `<a title="${data}">(Detail)</a>`;
                   return data;
                 }
               }
@@ -84,7 +83,6 @@
                 if(!data){
                   return "-";
                 }else{
-                  //return `<a title="${data}">(Detail)</a>`;
                   return data;
                 }
               }
@@ -164,15 +162,27 @@
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if (data === null) {
-                  var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
-                  //return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
-                  return span;
+                  if(row.masuk!==null && row.pulang===null){
+                    var masuk = moment(row.jam_masuk, 'HH:mm:ss');
+                    var compareTime = moment('19:00:00', 'HH:mm:ss');
+                    if (masuk.isAfter(compareTime)) {
+                      return `<span class="badge badge-dark" title="absensi pulang bisa di cek di hari selanjutnya"><i class="zmdi zmdi-check-circle"></i> Shift Malam</span>`;
+                    }else{
+                      return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                    }
+                  }else{
+                    return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                  }
                 } else {
                   var jam = parseFloat(data);
                   if (!isNaN(jam) && jam >= 0) {
-                    return jam.toFixed(1) + " Jam";
+                    if(jam < 6.9){
+                      return `<span class="badge badge-warning" title="Jam kerja kurang"><i class="zmdi zmdi-minus-circle"></i> ${jam.toFixed(1)} Jam</span>`;
+                    }else{
+                      return `<span class="badge badge-info"><i class="zmdi zmdi-check-all"></i> ${jam.toFixed(1)} Jam</span>`;
+                    }
                   } else {
-                    return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
+                    return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"></i> Notice</span>`;
                   }
                 }
               }
@@ -184,24 +194,39 @@
                 var pulang = moment(row.pulang).format('HH:mm:ss');
                 var jam_masuk = row.jadwal_masuk;
                 var jam_pulang = row.jadwal_pulang;
-                if(row.masuk){
-                    if(jam_masuk && jam_pulang){
-                      return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
-                    }else{
-                      return "-";
-                    }
+                if(row.jadwal_id===null){
+                  if(row.masuk){
+                      if(masuk && pulang){
+                        if(data===null){
+                          return `<a href="javascript:;" title="Sistem tidak bisa menentukan shift. Tentukan shift manual ?" class="btn btn-sm btn-warning btn-table-action action-edit-jadwal" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-help"></i></a>&nbsp;`;
+                        }else{
+                          row.jadwal_id = row.id_jadwal;
+                          return `<a title="dari ${jam_masuk} s/d ${jam_pulang}">${data}</a>`;
+                        }
+                      }else{
+                        return "-";
+                      }
+                  }else{
+                    return "-";
+                  }
                 }else{
-                  return "-";
+                  return `<a title="dari ${jam_masuk} s/d ${jam_pulang}">${row.nama_jadwal}</a>`;
                 }
               }
             },
             {
               data: null,
-              className: "center",
-              defaultContent: '<div class="action">' +
-                '<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#' + _modal + '"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;' +
-                '<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>' +
-                '</div>'
+              render: function(data, type, row, meta) {
+                var del = `<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>`;
+                var edit = `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
+                var masuk = moment(row.jam_masuk, 'HH:mm:ss');
+                var compareTime = moment('19:00:00', 'HH:mm:ss');
+                if (masuk.isAfter(compareTime) && row.pulang === null) {
+                  return `<div class="action" style="display: flex; flex-direction: row;">${del}</div>`;
+                }else{
+                  return `<div class="action" style="display: flex; flex-direction: row;">${edit} ${del}</div>`;
+                }
+              }
             }
         ],
         autoWidth: !1,
@@ -279,53 +304,118 @@
       });
     };
 
-    $("#" + _table).on("click", "a.action-edit", function(e) {
+    $("#" + _table).on("click", "a.action-edit-jadwal", function(e) {
       e.preventDefault();
       resetForm();
+
       var temp = table.row($(this).closest('tr')).data();
       var masuk = document.querySelector("."+_section+"-masuk");
+      var verifikasi_masuk = document.querySelector("."+_section+"-row_verifikasi_masuk");
+      var mesin_masuk = document.querySelector("."+_section+"-row_mesin_masuk");
       var pulang = document.querySelector("."+_section+"-pulang");
+      var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
+      var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
+      var change = document.querySelector("."+_section+"-action-change");
+      var save = document.querySelector("."+_section+"-action-save");
 
-      _id = temp.id;
+      _key = temp.id;
 
-      var tukar = document.querySelector("."+_section+"-action-change");
-      if(temp.masuk!==null && temp.pulang!==null){
-        tukar.style.display = 'none';
-        //masuk.readOnly = false;
-        //pulang.readOnly = false;
-      }else{
-        tukar.style.display = 'block';
-        //masuk.readOnly = true;
-        //pulang.readOnly = true;
-      }
+      save.style.display = "none";
+      change.style.display  = "block";
+      verifikasi_masuk.style.display  = "none";
+      mesin_masuk.style.display  = "none";
+      verifikasi_pulang.style.display  = "none";
+      mesin_pulang.style.display  = "none";
 
       $.each(temp, function(key, item) {
         $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
       });
+
+      if(temp.masuk==null){
+        masuk.disabled = false;
+        let pulangDate = new Date(temp.pulang);
+        pulangDate.setHours(pulangDate.getHours() + 7);
+        let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+      }else{
+        masuk.disabled = true;
+        let masukDate = new Date(temp.masuk);
+        masukDate.setHours(masukDate.getHours() + 7);
+        let masukFormatted = masukDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+      }
+
+      if(temp.pulang==null){
+        pulang.disabled = false;
+        let masukDate = new Date(temp.masuk);
+        masukDate.setHours(masukDate.getHours() + 7);
+        let masukFormatted = masukDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+      }else{
+        pulang.disabled = true;
+        let pulangDate = new Date(temp.pulang);
+        pulangDate.setHours(pulangDate.getHours() + 7);
+        let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+      }
+
     });
 
-    $("#" + _modal + " ." + _section + "-action-change").on("click", function(e) {
-        var masuk = document.querySelector("."+_section+"-masuk");
-        var verifikasi_masuk = document.querySelector("."+_section+"-verifikasi_masuk");
-        var mesin_masuk = document.querySelector("."+_section+"-mesin_masuk");
-        var pulang = document.querySelector("."+_section+"-pulang");
-        var verifikasi_pulang = document.querySelector("."+_section+"-verifikasi_pulang");
-        var mesin_pulang = document.querySelector("."+_section+"-mesin_pulang");
-        if (masuk.value !== "" && pulang.value == "") {
-            pulang.value = masuk.value;
-            verifikasi_pulang.value = verifikasi_masuk.value;
-            mesin_pulang.value = mesin_masuk.value;
-            masuk.value = null;
-            verifikasi_masuk.value = null;
-            mesin_masuk.value = null;
-        } else {
-            masuk.value = pulang.value;
-            verifikasi_masuk.value = verifikasi_pulang.value;
-            mesin_masuk.value = mesin_pulang.value;
-            pulang.value = null;
-            verifikasi_pulang.value = null;
-            mesin_pulang.value = null;
-        }
+    $("#" + _table).on("click", "a.action-edit", function(e) {
+      e.preventDefault();
+      resetForm();
+
+      var temp = table.row($(this).closest('tr')).data();
+      var masuk = document.querySelector("."+_section+"-masuk");
+      var verifikasi_masuk = document.querySelector("."+_section+"-row_verifikasi_masuk");
+      var mesin_masuk = document.querySelector("."+_section+"-row_mesin_masuk");
+      var pulang = document.querySelector("."+_section+"-pulang");
+      var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
+      var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
+      var change = document.querySelector("."+_section+"-action-change");
+      var save = document.querySelector("."+_section+"-action-save");
+
+      _key = temp.id;
+
+      masuk.disabled = false;
+      pulang.disabled = false;
+      save.style.display = "block";
+      change.style.display  = "none";
+      verifikasi_masuk.style.display  = "block";
+      mesin_masuk.style.display  = "block";
+      verifikasi_pulang.style.display  = "block";
+      mesin_pulang.style.display  = "block";
+
+      $.each(temp, function(key, item) {
+        $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+      });
+      
+      if(temp.masuk==null){
+        pulang.disabled = true;
+        let pulangDate = new Date(temp.pulang);
+        pulangDate.setHours(pulangDate.getHours() + 7);
+        let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+      }else{
+        let masukDate = new Date(temp.masuk);
+        masukDate.setHours(masukDate.getHours() + 7);
+        let masukFormatted = masukDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+      }
+
+      if(temp.pulang==null){
+        masuk.disabled = true;
+        let masukDate = new Date(temp.masuk);
+        masukDate.setHours(masukDate.getHours() + 7);
+        let masukFormatted = masukDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+      }else{
+        let pulangDate = new Date(temp.pulang);
+        pulangDate.setHours(pulangDate.getHours() + 7);
+        let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+        $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+      }
+
     });
 
 
@@ -333,7 +423,7 @@
       e.preventDefault();
       $.ajax({
         type: "post",
-        url: "<?php echo base_url('absen/ajax_save/') ?>" + _id,
+        url: "<?php echo base_url('kalenderabsen/ajax_save/') ?>" + _id,
         data: $("#" + _form).serialize(),
         success: function(response) {
           var response = JSON.parse(response);
@@ -344,6 +434,26 @@
             notify(response.data, "success");
           } else {
             notify(response.data, "danger");
+          };
+        }
+      });
+    });
+
+    $("#" + _modal + " ." + _section + "-action-change").on("click", function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: "post",
+        url: "<?php echo base_url('kalenderabsen/ajax_change_jadwal/') ?>" + _key,
+        data: $("#" + _form).serialize(),
+        success: function(response) {
+          var response = JSON.parse(response);
+          if (response.status === true) {
+            resetForm();
+            $("#" + _modal).modal("hide");
+            $("#" + _table).DataTable().ajax.reload(null, false);
+            notify(response.data, "success");
+          } else {
+            notify(response.error, "danger");
           };
         }
       });
@@ -566,17 +676,8 @@
             success: function(parsedResponse) {
                 const endTime = performance.now();
                 const duration = ((endTime - startTime) / 1000).toFixed(1);
-                var dataCount = parsedResponse.data.dataCount;
 
                 if (parsedResponse.status === true) {
-                  if( dataCount == 0){
-                    swal({
-                        title: "Error",
-                        text: "Data Count "+dataCount,
-                        icon: "error",
-                        button: "OK",
-                    });
-                  }
                   isFetching = false;
                 } else {
                     swal({

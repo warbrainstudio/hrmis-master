@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal-form-kalenderabsen" data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-x1">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title pull-left">
@@ -13,34 +13,90 @@
         <form id="form-kalenderabsen" autocomplete="off">
           <!-- CSRF -->
           <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>" />
-          <input type="hidden" name="absen_id" class="form-control kalenderabsen-absen_id"/>
-          <input type="hidden" name="tanggal_absen" class="form-control kalenderabsen-tanggal_absen"/>
+          
           <div class="form-group">
             <label required>Nama Pegawai</label>
             <input type="text" name="nama" class="form-control kalenderabsen-nama" maxlength="100" readonly />
             <i class="form-group__bar"></i>
           </div>
-          <div class="form-group">
-            <label required>Jam Masuk</label>
-            <input type="datetime" name="masuk" class="form-control kalenderabsen-masuk" maxlength="100" />
-            <i class="form-group__bar"></i>
+          <div class="row">
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group">
+                <label required>Jam Masuk</label>
+                <input type="datetime-local" name="masuk" class="form-control kalenderabsen-masuk" maxlength="100" />
+                <i class="form-group__bar"></i>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group">
+                <label required>Jam Pulang</label>
+                <input type="datetime-local" name="pulang" class="form-control kalenderabsen-pulang" maxlength="100" />
+                <i class="form-group__bar"></i>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group kalenderabsen-row_verifikasi_masuk">
+                <label required>Verifikasi Masuk</label>
+                <div class="select">
+                  <select name="verifikasi_masuk" class="form-control select2 kalenderabsen-verifikasi_masuk" data-placeholder="Pilih &#8595;" required>
+                    <?= $list_verifikasi ?>
+                  </select>
+                  <i class="form-group__bar"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group kalenderabsen-row_verifikasi_pulang">
+                <label required>Verifikasi Pulang</label>
+                <div class="select">
+                  <select name="verifikasi_pulang" class="form-control select2 kalenderabsen-verifikasi_pulang" data-placeholder="Pilih &#8595;" required>
+                    <?= $list_verifikasi ?>
+                  </select>
+                  <i class="form-group__bar"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group kalenderabsen-row_mesin_masuk">
+                <label required>Mesin Masuk</label>
+                <div class="select">
+                  <select name="mesin_masuk" class="form-control select2 kalenderabsen-mesin_masuk" data-placeholder="Pilih &#8595;" required>
+                    <?= $list_mesin ?>
+                  </select>
+                  <i class="form-group__bar"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <div class="form-group kalenderabsen-row_mesin_pulang">
+                <label required>Mesin Pulang</label>
+                <div class="select">
+                  <select name="mesin_pulang" class="form-control select2 kalenderabsen-mesin_pulang" data-placeholder="Pilih &#8595;" required>
+                    <?= $list_mesin ?>
+                  </select>
+                  <i class="form-group__bar"></i>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="form-group">
-            <label required>Jam Pulang</label>
-            <input type="datetime" name="pulang" class="form-control kalenderabsen-pulang" maxlength="100" />
-            <i class="form-group__bar"></i>
+            <label required>Jadwal</label>
+            <div class="select">
+              <select name="jadwal_id" class="form-control select2 kalenderabsen-jadwal_id" data-placeholder="Pilih &#8595;" required>
+                <?= $list_jadwal ?>
+              </select>
+              <i class="form-group__bar"></i>
+            </div>
           </div>
-          
-          <input type="hidden" name="verifikasi_masuk" class="form-control kalenderabsen-verifikasi_masuk"/>
-          <input type="hidden" name="mesin_masuk" class="form-control kalenderabsen-mesin_masuk"/>
-          <input type="hidden" name="verifikasi_pulang" class="form-control kalenderabsen-verifikasi_pulang"/>
-          <input type="hidden" name="mesin_pulang" class="form-control kalenderabsen-mesin_pulang"/>
-
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" title="Tukar absen dari masuk ke pulang atau pulang ke masuk" class="btn btn-warning btn--icon-text kalenderabsen-action-change">
-        <i class="zmdi zmdi-swap"></i> Tukar
+      <button type="button" class="btn btn-warning btn--icon-text kalenderabsen-action-change">
+          <i class="zmdi zmdi-save"></i> Update
         </button>
         <button type="button" class="btn btn-success btn--icon-text kalenderabsen-action-save">
           <i class="zmdi zmdi-save"></i> Simpan

@@ -6,6 +6,14 @@ class AbsenModel extends CI_Model
   private $_table = 'absen_pegawai';
   private $_tableView = '';
 
+  public function getVerifikasi()
+  {
+    $data = array(
+        array('id' => '0', 'text' => 'Input'),
+        array('id' => '1', 'text' => 'Finger'),
+    );
+    return $data;
+  }
 
   public function getMonth()
   {
@@ -96,6 +104,8 @@ class AbsenModel extends CI_Model
             m_pulang.nama_mesin as nama_mesin_pulang,
             m_pulang.lokasi as lokasi_pulang,
             (CASE WHEN ab.masuk IS NULL THEN '-' WHEN ab.pulang IS NULL THEN '-' ELSE j.nama_jadwal END) AS jadwal_nama,
+            j.id as id_jadwal,
+            j.nama_jadwal,
             j.jadwal_masuk,
             j.jadwal_pulang,
             u.kode_unit,
@@ -109,10 +119,12 @@ class AbsenModel extends CI_Model
           LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
           LEFT JOIN jadwal j ON (
-              ab.masuk::time >= (j.jadwal_masuk - interval '1 minute') 
+              ab.jadwal_id = j.id
+              OR ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
               AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
-              AND ab.pulang::time >= (j.jadwal_pulang - interval '1 minute')
+              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
               AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
+              AND p.unit_id = j.unit_id
           )
           ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id, masuk, pulang ASC
         ) t
@@ -129,8 +141,11 @@ class AbsenModel extends CI_Model
         
         $orderField = 'tanggal_absen';
 
-        $this->db->select('absen_pegawai.absen_id,
-                          absen_pegawai.tanggal_absen, 
+        $this->db->select('absen_pegawai.id,
+                          absen_pegawai.absen_id,
+                          absen_pegawai.tanggal_absen,
+                          absen_pegawai.masuk,
+                          absen_pegawai.pulang, 
                           CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
                           CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
                           CASE WHEN absen_pegawai.mesin_masuk IS NULL THEN \'-\' ELSE absen_pegawai.mesin_masuk END AS mesin_m,
@@ -175,8 +190,6 @@ class AbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
-    $this->db->trans_start();
-
     try {
       $absenId = $this->input->post('absen_id');
       $date = $this->input->post('tanggal_absen');
@@ -186,13 +199,20 @@ class AbsenModel extends CI_Model
       $pulang = $this->input->post('pulang');
       $verifikasi_pulang = $this->input->post('verifikasi_pulang');
       $mesin_pulang = $this->input->post('mesin_pulang');
+      $jadwal_id = $this->input->post('jadwal_id');
       
       if (empty($masuk)) {
-        $masuk = NULL;
+        $masuk = null;
+        $verifikasi_masuk = null;
+        $mesin_masuk = null;
       }
+
       if (empty($pulang)) {
-        $pulang = NULL;
+        $pulang = null;
+        $verifikasi_pulang = null;
+        $mesin_pulang = null;
       }
+
       if (empty($verifikasi_masuk) || !is_numeric($verifikasi_masuk)) {
         $verifikasi_masuk = NULL;
       }
@@ -201,96 +221,36 @@ class AbsenModel extends CI_Model
           $verifikasi_pulang = NULL;
       }
 
-      $this->db->where('id !=', $id);
-      $this->db->where('absen_id', $absenId);
-      $this->db->where('tanggal_absen', $date);
-      $query = $this->db->get($this->_table)->row();
+      $this->masuk = $masuk;
+      $this->verifikasi_masuk = $verifikasi_masuk;
+      $this->mesin_masuk = $mesin_masuk;
+      $this->pulang = $pulang;
+      $this->verifikasi_pulang = $verifikasi_pulang;
+      $this->mesin_pulang = $mesin_pulang;
+      $this->jadwal_id = $jadwal_id;
+      $this->db->update($this->_table, $this, array('id' => $id));
+      $response = array('status' => true, 'data' => 'Data has been saved.');
+    } catch (\Throwable $th) {
+      $response = array('status' => false, 'data' => 'Failed to save your data.', 'error' => $th);
+    };
 
-      if($query){
-        
-        $exists_masuk = $query->masuk; 
-        $exists_pulang = $query->pulang;
-        
-        if(empty($exists_masuk) && !empty($exists_pulang)){
-          if($masuk < $exists_pulang){
-            $this->db->where('id !=', $id);
-            $this->db->where('absen_id', $absenId);
-            $this->db->where('tanggal_absen', $date);
-            $this->db->where('masuk IS NULL');
-            if ($this->db->update($this->_table, [
-                'masuk' => $masuk,
-                'verifikasi_masuk' => $verifikasi_masuk,
-                'mesin_masuk' => $mesin_masuk
-            ])) {
-              $this->db->where('id', $id);
-              if (!$this->db->delete($this->_table)) {
-                  $failedDeletions[] = [
-                      'absen_id' => $absenId,
-                      'tanggal_absen' => $date,
-                      'error' => $this->db->error()['message']
-                  ];
-              }
-            }else{
-                $failedInsertions[] = [
-                    'absen_id' => $absenId,
-                    'dateTime' => $date,
-                    'error' => $this->db->error()['message']
-                ];
-            }
-          }else{
-            $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
-          }
-        }elseif(!empty($exists_masuk) && empty($exists_pulang)){
-          if($pulang > $exists_masuk){
-            $this->db->where('id !=', $id);
-            $this->db->where('absen_id', $absenId);
-            $this->db->where('tanggal_absen', $date);
-            $this->db->where('pulang IS NULL');
-            if ($this->db->update($this->_table, [
-                'pulang' => $pulang,
-                'verifikasi_pulang' => $verifikasi_pulang,
-                'mesin_pulang' => $mesin_pulang
-            ])) {
-              $this->db->where('id', $id);
-              if (!$this->db->delete($this->_table)) {
-                  $failedDeletions[] = [
-                      'absen_id' => $absenId,
-                      'tanggal_absen' => $date,
-                      'error' => $this->db->error()['message']
-                  ];
-              }
-            }else{
-                $failedInsertions[] = [
-                    'absen_id' => $absenId,
-                    'dateTime' => $date,
-                    'error' => $this->db->error()['message']
-                ];
-            }
-          }else{
-            $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
-          }
-        }
-      }else{
-        $this->update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang);
-      }
-      $this->db->trans_complete();
+    return $response;
+  }
+
+  public function update_jadwal($id)
+  {
+    $response = array('status' => false, 'data' => 'No operation.');
+
+    try {
+      $this->jadwal_id = $this->input->post('jadwal_id');
+      $this->db->update($this->_table, $this, array('id' => $id));
+
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
       $response = array('status' => false, 'data' => 'Failed to save your data.');
     };
 
     return $response;
-  }
-
-  public function update_single($id, $masuk, $verifikasi_masuk, $mesin_masuk, $pulang, $verifikasi_pulang, $mesin_pulang)
-  {
-    $this->masuk = $masuk;
-    $this->verifikasi_masuk = $verifikasi_masuk;
-    $this->mesin_masuk = $mesin_masuk;
-    $this->pulang = $pulang;
-    $this->verifikasi_pulang = $verifikasi_pulang;
-    $this->mesin_pulang = $mesin_pulang;
-    $this->db->update($this->_table, $this, array('id' => $id));
   }
 
   public function delete($id)
