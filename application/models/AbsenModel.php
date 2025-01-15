@@ -158,48 +158,15 @@ class AbsenModel extends CI_Model
 
   public function getAll($params = array(), $orderField = null, $orderBy = 'asc')
   {
-      if(isset($params['absen_id'])){
+
+    $this->db->where($params);
+
+    if (!is_null($orderField)) {
+      $this->db->order_by($orderField, $orderBy);
+    }
         
-        $orderField = 'tanggal_absen';
+    return $this->db->get($this->_table)->result();
 
-        $this->db->select('absen_pegawai.id,
-                          absen_pegawai.absen_id,
-                          absen_pegawai.tanggal_absen,
-                          absen_pegawai.masuk,
-                          absen_pegawai.pulang, 
-                          CASE WHEN absen_pegawai.masuk IS NULL THEN \'-\' ELSE TO_CHAR(absen_pegawai.masuk, \'HH24:MI:SS\') END AS jam_masuk,
-                          CASE WHEN absen_pegawai.verifikasi_masuk = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_masuk = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_m, 
-                          CASE WHEN absen_pegawai.mesin_masuk IS NULL THEN \'-\' ELSE absen_pegawai.mesin_masuk END AS mesin_m,
-                          CASE WHEN absen_pegawai.pulang IS NULL THEN \'-\' WHEN TO_CHAR(absen_pegawai.masuk, \'YYYY-MM-DD\') != TO_CHAR(absen_pegawai.pulang, \'YYYY-MM-DD\') THEN TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS DD-MM-YYYY\') ELSE TO_CHAR(absen_pegawai.pulang, \'HH24:MI:SS\') END AS jam_pulang,
-                          CASE WHEN absen_pegawai.verifikasi_pulang = 1 THEN \'Finger\' WHEN absen_pegawai.verifikasi_pulang = 0 THEN \'Input\' ELSE \'-\' END AS verifikasi_p,
-                          CASE WHEN absen_pegawai.mesin_pulang IS NULL THEN \'-\' ELSE absen_pegawai.mesin_pulang END AS mesin_p,
-                          CASE WHEN absen_pegawai.pulang - absen_pegawai.masuk IS NULL THEN \'-\' ELSE (EXTRACT(EPOCH FROM (absen_pegawai.pulang - absen_pegawai.masuk)) / 3600)::text END AS jam_kerja,
-                          CASE WHEN TO_CHAR(absen_pegawai.masuk, \'YYYY-mm-dd\') != TO_CHAR(absen_pegawai.pulang, \'YYYY-mm-dd\') THEN \'Shift Malam\' ELSE \'-\' END AS jenis_shift,
-                          m_masuk.nama_mesin as mesin_m, 
-                          m_pulang.nama_mesin as mesin_p');
-        $this->db->join('pegawai', 'absen_pegawai.absen_id = pegawai.absen_pegawai_id', 'left');
-        $this->db->join('mesin_absen m_masuk', 'm_masuk.ipadress = absen_pegawai.mesin_masuk', 'left');
-        $this->db->join('mesin_absen m_pulang', 'm_pulang.ipadress = absen_pegawai.mesin_pulang', 'left');
-        $this->db->where($params);
-        $this->db->order_by('tanggal_absen ASC');
-
-        if (!is_null($orderField)) {
-          $this->db->order_by($orderField, $orderBy);
-        }
-        
-        return $this->db->get($this->_table)->result();
-
-      }else{
-
-        $this->db->where($params);
-
-        if (!is_null($orderField)) {
-          $this->db->order_by($orderField, $orderBy);
-        }
-        
-        return $this->db->get($this->_table)->result();
-
-      }
   }
 
   public function getDetail_sub_unit($params = array())

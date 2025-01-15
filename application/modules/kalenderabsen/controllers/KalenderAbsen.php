@@ -347,9 +347,12 @@ class Kalenderabsen extends AppBackend
         $callbacks = array();
         $user = $this->session->userdata('user')['nama_lengkap'];
         $pegawai = $this->PegawaiModel->getDetail(array('absen_pegawai_id' => $absen_pegawai_id));
+        $filter = '';
         
         if ($pegawai) {
-            $payload = $this->AbsenModel->getAll(array('absen_id' => $pegawai->absen_pegawai_id));
+            $filter .= " AND t.absen_id = '$pegawai->absen_pegawai_id'";
+            $query = $this->AbsenModel->getQuery($filter);
+            $payload = $this->db->query($query)->result();
         } else {
             show_404();
             return;

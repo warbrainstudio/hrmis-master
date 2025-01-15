@@ -389,7 +389,7 @@
           processing: true,
           serverSide: true,
           ajax: {
-            url: "<?php echo base_url('absen/ajax_get_all/') ?>",
+            url: "<?php echo base_url('kalenderabsen/ajax_get_all/') ?>",
             type: "get",
               data: {
                 searchFilter: "<?= "AND absen_id='$absen_id'" ?>",
@@ -796,7 +796,7 @@
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "<?php echo base_url('absen/ajax_save/') ?>" + _id,
+          url: "<?php echo base_url('kalenderabsen/ajax_save/') ?>" + _id,
           data: $("#" + _formAbsen).serialize(),
           success: function(response) {
             var response = JSON.parse(response);
@@ -815,7 +815,7 @@
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>" + _id,
+          url: "<?php echo base_url('kalenderabsen/ajax_change_jadwal/') ?>" + _id,
           data: $("#" + _formAbsen).serialize(),
           success: function(response) {
             var response = JSON.parse(response);
@@ -847,7 +847,7 @@
           if (result.value) {
             $.ajax({
               type: "delete",
-              url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id,
+              url: "<?php echo base_url('kalenderabsen/ajax_delete/') ?>" + temp.id,
               dataType: "json",
               success: function(response) {
                 if (response.status) {
