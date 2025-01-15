@@ -191,6 +191,7 @@ class Employee extends AppBackend
 
     $agent = new Mobile_Detect;
     $ref = $this->input->get('ref');
+    $openAbsen = $this->input->get('openabsen');
     $ref = (!is_null($ref) && is_numeric($ref)) ? $ref : null;
     $actionLabel = '<span class="badge badge-info">View</span> ';
 
@@ -211,6 +212,7 @@ class Employee extends AppBackend
         'key' => $ref,
         'pegawai_id' => @$pegawai->id,
         'absen_id' => @$pegawai->absen_pegawai_id,
+        'open_absen' => $openAbsen,
       )),
       'card_title' => $actionLabel . $this->_pageTitle,
       'controller' => $this,

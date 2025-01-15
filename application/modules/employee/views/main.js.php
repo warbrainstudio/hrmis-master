@@ -3,6 +3,8 @@
 <script type="text/javascript">
   var _action_route = "<?= isset($action_route) ? $action_route : '' ?>";
   var _key = "<?= $key ?>";
+  var _absen = "<?= $absen_id ?>";
+  var _openAbsen = "<?= $open_absen ?>";
   var _id = "";
   var _section = "employee";
   var _table_master = "table-employee";
@@ -20,6 +22,18 @@
   var _formAbsen = "form-absen_employee";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
+
+  if(_openAbsen){
+    $('#nav-tab-absensi').addClass('active');
+    $('#tab-absensi').addClass('active');
+    $('#nav-tab-basic_information').removeClass('active');
+    $('#tab-basic_information').removeClass('active');
+  }else{
+    $('#nav-tab-absensi').removeClass('active');
+    $('#tab-absensi').removeClass('active');
+    $('#nav-tab-basic_information').addClass('active');
+    $('#tab-basic_information').addClass('active show');
+  }
 
   $(document).ready(function() {
     initTable_historiAbsensi();
@@ -392,7 +406,7 @@
             url: "<?php echo base_url('kalenderabsen/ajax_get_all/') ?>",
             type: "get",
               data: {
-                searchFilter: "<?= "AND absen_id='$absen_id'" ?>",
+                searchFilter: "<?= "AND absen_id="?>"+_absen,
               },
           },
           columns: [{
@@ -873,7 +887,7 @@
             url: "<?php echo base_url('absen/ajax_get_raw/') ?>",
             type: "get",
               data: {
-                filter: "<?= "AND absen_id='$absen_id'" ?>",
+                filter: "<?= "AND absen_id=" ?>"+_absen,
               },
           },
           columns: [{
