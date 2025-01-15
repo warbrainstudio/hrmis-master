@@ -676,7 +676,7 @@
         });
       };
 
-      $("#" + table_histori_absensis).on("click", "a.action-edit-jadwal", function(e) {
+      $("#" + table_histori_absensi).on("click", "a.action-edit-jadwal", function(e) {
         e.preventDefault();
         resetForm();
 
