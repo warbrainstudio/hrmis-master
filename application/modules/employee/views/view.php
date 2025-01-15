@@ -76,7 +76,7 @@
             <div class="tab-container">
                 <ul class="nav nav-tabs nav-responsive" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#tab-basic_information" role="tab">Informasi Dasar</a>
+                        <a class="nav-link active" data-toggle="tab" href="#tab-basic_information" role="tab" id="nav-tab-basic_information">Informasi Dasar</a>
                     </li>
                     <?php if (!is_null($pegawai)) : ?>
                         <?php if(!is_null(@$pegawai->absen_pegawai_id)) : ?>
