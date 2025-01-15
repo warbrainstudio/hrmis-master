@@ -1,3 +1,4 @@
+<?php include_once('form_absen.php') ?>
 <div class="table-action">
     <div class="buttons">
         <button class="btn btn-sm btn-success" onclick="window.location.href='<?= base_url('kalenderabsen/excel_pegawai/?ref=cxsmi&absen_pegawai_id='.@$pegawai->absen_pegawai_id) ?>'">
@@ -16,7 +17,7 @@
         <th class="text-center">Verifikasi</th>
         <th>Jam Kerja</th>
         <th>Jenis Shift</th>
-        <th width="170" class="text-center">Option</th>
+        <th width="170" class="text-center">#</th>
     </tr>
     </thead>
 </table>

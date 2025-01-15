@@ -2,6 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 require_once(APPPATH . 'controllers/AppBackend.php');
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use alhimik1986\PhpExcelTemplator\PhpExcelTemplator;
 use alhimik1986\PhpExcelTemplator\setters\CellSetterArrayValueSpecial;
 
@@ -242,6 +243,74 @@ class Employee extends AppBackend
   {
     $this->handle_ajax_request();
     echo json_encode($this->PegawaiModel->delete($id));
+  }
+
+
+  public function ajax_import()
+  {
+    $this->handle_ajax_request();
+
+    ini_set('max_execution_time', 0);
+    set_time_limit(0);
+
+    try {
+      $sourceFile = $_FILES['source_file']['tmp_name'];
+
+      if (empty($sourceFile)) {
+        echo json_encode(['status' => false, 'data' => 'The Berkas field is required.']);
+        return;
+      };
+
+      $startDataIndex = 4;
+      $payload = [];
+
+      $spreadsheet = IOFactory::load($sourceFile);
+      $sheet = $spreadsheet->getSheet(0);
+      $sheetData = $sheet->toArray();
+
+      if (count($sheetData) > 0) {
+        foreach ($sheetData as $index => $item) {
+          if ($index >= $startDataIndex) {
+            $payload[] = [
+              'nrp' => @$item[0],
+              'nama_lengkap' => @$item[1],
+              'kategori_pegawai_id' => @$item[2],
+              'jenis_pegawai_id' => @$item[3],
+              'status_kontrak_id' => @$item[4],
+              'unit_id' => @$item[5],
+              'sub_unit_id' => @$item[6],
+              'jabatan_id' => @$item[7],
+              'tenaga_unit_id' => @$item[8],
+              'alamat_ktp' => @$item[9],
+              'tempat_lahir' => @$item[10],
+              'tanggal_lahir' => @$item[11],
+              'jenis_kelamin' => @$item[12],
+              'status_kawin' => @$item[13],
+              'pendidikan_terakhir' => @$item[14],
+              'no_ktp' => @$item[15],
+              'no_bpjs_kesehatan' => @$item[16],
+              'no_bpjs_tk' => @$item[17],
+              'npwp' => @$item[18],
+              'no_hp' => @$item[19],
+              'mcu' => @$item[20],
+              'status_active' => @$item[21],
+              'created_by' => $this->session->userdata('user')['id'],
+            ];
+          };
+        };
+      };
+
+      if (count($payload) === 0) {
+        echo json_encode(['status' => true, 'data' => 'No record found.']);
+        return;
+      };
+
+      $response = $this->PegawaiModel->importBatch($payload);
+
+      echo json_encode($response);
+    } catch (\Throwable $th) {
+      echo json_encode(['status' => false, 'data' => $th->getMessage()]);
+    };
   }
 
   private function upload_foto()

@@ -11,6 +11,9 @@
                     <a href="<?php echo base_url('employee/input') ?>" class="btn btn--raised btn-primary btn--icon-text x-load-partial">
                         <i class="zmdi zmdi-plus"></i> Buat Baru
                     </a>
+                    <button class="btn btn--raised btn-dark btn--icon-text" data-toggle="modal" data-target="#modal-form-import">
+                        <i class="zmdi zmdi-file-plus"></i> Import
+                    </button>
                 </div>
             </div>
 
@@ -37,3 +40,5 @@
         </div>
     </div>
 </section>
+
+<?php include_once('form_import.php') ?>

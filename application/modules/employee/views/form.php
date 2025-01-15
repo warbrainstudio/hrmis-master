@@ -93,7 +93,7 @@
                                 <a class="nav-link" data-toggle="tab" href="#tab-family" role="tab" id="nav-tab-family">Keluarga</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tab-sk_perijinan" role="tab">SK / Perijinan</a>
+                                <a class="nav-link" data-toggle="tab" href="#tab-sk_perijinan" role="tab">SK Pegawai</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#tab-kontrak_kerja" role="tab">Kontrak Kerja</a>

@@ -6,13 +6,15 @@
   var _section = "employee";
   var _table_master = "table-employee";
   var _table_histori_absensi = "table-histori-absensi";
-  var _table_histori_absensi_raw = "table-histori-absensi-raw";
+  var _table_histori_absensi_raw = "table-histori-absensi-raw";  
   var _table_histori_skspk = "table-histori-skspk"
   var _table_histori_kontrak = "table-histori-contract"
   var _table_histori_diklat = "table-histori-diklat"
   var _table_histori_pembinaan = "table-histori-pembinaan"
   var _table_histori_demosimutasi = "table-histori-demosimutasi"
   var _form = "form-employee";
+  var _modalImport = "modal-form-import";
+  var _formImport = "form-import";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
 
@@ -213,7 +215,7 @@
         var temp = table_master.row($(this).closest('tr')).data();
         swal({
           title: "Anda akan menghapus data, lanjutkan?",
-          text: "Data pada SK / Perijinan dan Kontrak Kerja akan ikut terhapus. Setelah dihapus, data tidak dapat dikembalikan lagi!",
+          text: "Data pada SK Pegawai dan Kontrak Kerja akan ikut terhapus. Setelah dihapus, data tidak dapat dikembalikan lagi!",
           type: "warning",
           showCancelButton: true,
           confirmButtonColor: '#DD6B55',
@@ -329,6 +331,55 @@
       });
     });
 
+    // Handle submit import
+    $(document).on("click", "#import-submit", function(e) {
+      e.preventDefault();
+
+      swal({
+        title: "Anda akan mengimport data, lanjutkan?",
+        text: "Data yang sudah ada akan diupdate berdasarkan NRP, proses ini tidak dapat dibatalkan.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#DD6B55',
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        closeOnConfirm: false
+      }).then((result) => {
+        if (result.value) {
+          var form = $("#" + _formImport)[0];
+          var data = new FormData(form);
+
+          $.ajax({
+            type: "post",
+            url: "<?php echo base_url('employee/ajax_import/') ?>",
+            data: data,
+            dataType: "json",
+            enctype: "multipart/form-data",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function(response) {
+              if (response.status === true) {
+                table_master.ajax.reload(null, false);
+                notify(response.data, "success");
+                $("#" + _modalImport).modal("hide");
+              } else {
+                notify(response.data, "danger");
+              };
+            },
+            error: function() {
+              notify("Failed to save your data.", "danger");
+            },
+          });
+        };
+      });
+    });
+
+    // Handle import modal close event
+    $("#" + _modalImport).on("hidden.bs.modal", function() {
+      $("#" + _formImport).trigger("reset");
+    });
+
     function initTable_historiAbsensi(){
       if ($(`#${_table_histori_absensi}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_absensi}`) === false) {
         var table_histori_absensi = $("#" + _table_histori_absensi).DataTable({
@@ -359,18 +410,35 @@
                 if (!data) {
                   return "-";
                 } else {
+                  var jam = parseFloat(row.cek_waktu_masuk).toFixed(0);
+                  var status = "";
+                  if (!isNaN(jam)) {
+                    if(jam < 0){
+                      status = "cepat";
+                    }else{
+                      status = "Telat";
+                    }
+                    jam += " Menit";
+                  }else{
+                    jam = '-';
+                  }
                   let verifiedColor = 'success';
+                  var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
                   var DateMasuk = moment(data).format('DD-MM-YYYY');
                   var DatePulang = moment(row.pulang).format('DD-MM-YYYY');
                   if(row.pulang){
                     if(DateMasuk!=DatePulang){
-                      let verifiedColor = 'dark';
-                      return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
+                      if(DateMasuk==tanggal){
+                        return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
+                      }else{
+                        let verifiedColor = 'dark';
+                        return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
+                      }
                     }else{
-                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                      return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                     }
                   }else{
-                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                   }
                 }
               }
@@ -390,7 +458,7 @@
                   return "-";
                 }
                 var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${verified}`;
-                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : "-";
+                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : row.mesin_masuk;
                 return verifikasi+" / "+mesin;
               }
             },
@@ -400,8 +468,36 @@
                 if (!data) {
                   return "-";
                 }  else {
+                  var jam = parseFloat(row.cek_waktu_pulang).toFixed(0);
+                  var status = "";
+                  if (!isNaN(jam)) {
+                    if(jam < 0){
+                      status = "Awal";
+                    }else{
+                      status = "Lebih";
+                    }
+                    jam += " Menit";
+                  }else{
+                    jam = '-';
+                  }
                   let verifiedColor = 'success';
-                  return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                  var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
+                  var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var DatePulang = moment(data).format('DD-MM-YYYY');
+                  if(row.pulang){
+                    if(DateMasuk!=DatePulang){
+                      if(DatePulang==tanggal){
+                        return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
+                      }else{
+                        let verifiedColor = 'dark';
+                        return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
+                      }
+                    }else{
+                      return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
+                    }
+                  }else{
+                    return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
+                  }
                 }
               }
             },
@@ -417,10 +513,10 @@
                   verifiedColor = 'secondary';
                   verified = 'Input';
                 } else {
-                  return "-"; 
+                  return "-";
                 }
                 var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${verified}`;
-                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : "-";
+                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : row.mesin_pulang;
                 return verifikasi+" / "+mesin;
               }
             },
@@ -428,15 +524,33 @@
               data: "jam_kerja",
               render: function(data, type, row, meta) {
                 if (data === null) {
-                  var span = `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"> Notice</i></span>`;
-                  return span;
-                  //return `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" title="Ubah data?" data-toggle="modal" data-target="#${_modal}">${span}</a>&nbsp;`;
+                  if(row.masuk!==null && row.pulang===null){
+                    var masuk = moment(row.jam_masuk, 'HH:mm:ss');
+                    var compareTime = moment('19:00:00', 'HH:mm:ss');
+                    if (masuk.isAfter(compareTime)) {
+                      var tanggal_masuk = moment(row.masuk).format('DD-MM-YYYY');
+                      var yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
+                      if (tanggal_masuk === yesterday) {
+                        return `<span class="badge badge-dark" title="data akan muncul setelah penarikan data"><i class="zmdi zmdi-check-circle"></i> Shift Malam</span>`;
+                      }else{
+                        return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                      }
+                    }else{
+                      return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                    }
+                  }else{
+                    return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                  }
                 } else {
                   var jam = parseFloat(data);
                   if (!isNaN(jam) && jam >= 0) {
-                    return jam.toFixed(1) + " Jam";
+                    if(jam < 6.9){
+                      return `<span class="badge badge-warning" title="Jam kerja kurang"><i class="zmdi zmdi-minus-circle"></i> ${jam.toFixed(1)} Jam</span>`;
+                    }else{
+                      return `<span class="badge badge-info"><i class="zmdi zmdi-check-all"></i> ${jam.toFixed(1)} Jam</span>`;
+                    }
                   } else {
-                    return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"> Notice</i></span>`;
+                    return `<span class="badge badge-warning" title="Data ambigu"><i class="zmdi zmdi-info-outline"></i> Notice</span>`;
                   }
                 }
               }
@@ -448,14 +562,43 @@
                 var pulang = moment(row.pulang).format('HH:mm:ss');
                 var jam_masuk = row.jadwal_masuk;
                 var jam_pulang = row.jadwal_pulang;
-                if(row.masuk){
-                    if(jam_masuk && jam_pulang){
-                      return `<a title="${jam_masuk}-${jam_pulang}">${data}</a>`;
-                    }else{
-                      return "-";
-                    }
+                if(row.jadwal_id===null){
+                  if(row.masuk){
+                      if(masuk && pulang){
+                        if(data===null){
+                          return `<a href="javascript:;" title="Sistem tidak bisa menentukan shift. Tentukan shift manual ?" class="btn btn-sm btn-warning btn-table-action action-edit-jadwal" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-help"></i></a>&nbsp;`;
+                        }else{
+                          row.jadwal_id = row.id_jadwal;
+                          return `<a title="${jam_masuk} s/d ${jam_pulang}">${data}</a>`;
+                        }
+                      }else{
+                        return "-";
+                      }
+                  }else{
+                    return "-";
+                  }
                 }else{
-                  return "-";
+                  return `<a title="${jam_masuk} s/d ${jam_pulang}">${row.nama_jadwal}</a>`;
+                }
+              }
+            },
+            {
+              data: null,
+              render: function(data, type, row, meta) {
+                var del = `<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>`;
+                var edit = `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
+                var masuk = moment(row.jam_masuk, 'HH:mm:ss');
+                var compareTime = moment('19:00:00', 'HH:mm:ss');
+                if (masuk.isAfter(compareTime) && row.pulang === null) {
+                  var tanggal_masuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
+                  if (tanggal_masuk === yesterday) {
+                    return `<div class="action" style="display: flex; flex-direction: row;">${del}</div>`;
+                  }else{
+                    return `<div class="action" style="display: flex; flex-direction: row;">${edit} ${del}</div>`;
+                  }
+                }else{
+                  return `<div class="action" style="display: flex; flex-direction: row;">${edit} ${del}</div>`;
                 }
               }
             }
@@ -532,6 +675,196 @@
           };
         });
       };
+
+      $("#" + table_histori_absensis).on("click", "a.action-edit-jadwal", function(e) {
+        e.preventDefault();
+        resetForm();
+
+        var _section = "employee";
+
+        var temp = table_absen.row($(this).closest('tr')).data();
+        var masuk = document.querySelector("."+_section+"-masuk");
+        var verifikasi_masuk = document.querySelector("."+_section+"-row_verifikasi_masuk");
+        var mesin_masuk = document.querySelector("."+_section+"-row_mesin_masuk");
+        var pulang = document.querySelector("."+_section+"-pulang");
+        var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
+        var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
+        var change = document.querySelector("."+_section+"-action-change");
+        var save = document.querySelector("."+_section+"-action-save");
+
+        _key = temp.id;
+
+        save.style.display = "none";
+        change.style.display  = "block";
+        verifikasi_masuk.style.display  = "none";
+        mesin_masuk.style.display  = "none";
+        verifikasi_pulang.style.display  = "none";
+        mesin_pulang.style.display  = "none";
+
+        $.each(temp, function(key, item) {
+          $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+        });
+
+        if(temp.masuk==null){
+          masuk.disabled = false;
+          let pulangDate = new Date(temp.pulang);
+          pulangDate.setHours(pulangDate.getHours() + 7);
+          let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+        }else{
+          masuk.disabled = true;
+          let masukDate = new Date(temp.masuk);
+          masukDate.setHours(masukDate.getHours() + 7);
+          let masukFormatted = masukDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+        }
+
+        if(temp.pulang==null){
+          pulang.disabled = false;
+          let masukDate = new Date(temp.masuk);
+          masukDate.setHours(masukDate.getHours() + 7);
+          let masukFormatted = masukDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+        }else{
+          pulang.disabled = true;
+          let pulangDate = new Date(temp.pulang);
+          pulangDate.setHours(pulangDate.getHours() + 7);
+          let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+        }
+
+      });
+
+      $("#" + _table_histori_absensi).on("click", "a.action-edit", function(e) {
+        e.preventDefault();
+        resetForm();
+
+        var _section = "employee";
+
+        var temp = table_histori_absensi.row($(this).closest('tr')).data();
+        var masuk = document.querySelector("."+_section+"-masuk");
+        var verifikasi_masuk = document.querySelector("."+_section+"-row_verifikasi_masuk");
+        var mesin_masuk = document.querySelector("."+_section+"-row_mesin_masuk");
+        var pulang = document.querySelector("."+_section+"-pulang");
+        var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
+        var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
+        var change = document.querySelector("."+_section+"-action-change");
+        var save = document.querySelector("."+_section+"-action-save");
+
+        _key = temp.id;
+
+        masuk.disabled = false;
+        pulang.disabled = false;
+        save.style.display = "block";
+        change.style.display  = "none";
+        verifikasi_masuk.style.display  = "block";
+        mesin_masuk.style.display  = "block";
+        verifikasi_pulang.style.display  = "block";
+        mesin_pulang.style.display  = "block";
+
+        $.each(temp, function(key, item) {
+          $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+        });
+        
+        if(temp.masuk==null){
+          let pulangDate = new Date(temp.pulang);
+          pulangDate.setHours(pulangDate.getHours() + 7);
+          let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+        }else{
+          let masukDate = new Date(temp.masuk);
+          masukDate.setHours(masukDate.getHours() + 7);
+          let masukFormatted = masukDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+        }
+
+        if(temp.pulang==null){
+          let masukDate = new Date(temp.masuk);
+          masukDate.setHours(masukDate.getHours() + 7);
+          let masukFormatted = masukDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+        }else{
+          let pulangDate = new Date(temp.pulang);
+          pulangDate.setHours(pulangDate.getHours() + 7);
+          let pulangFormatted = pulangDate.toISOString().slice(0, 19);
+          $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+        }
+
+      });
+
+
+      $("#modal-form-absen .employee-action-save").on("click", function(e) {
+        e.preventDefault();
+        $.ajax({
+          type: "post",
+          url: "<?php echo base_url('absen/ajax_save/') ?>" + _key,
+          data: $("#" + _form).serialize(),
+          success: function(response) {
+            var response = JSON.parse(response);
+            if (response.status === true) {
+              resetForm();
+              $("#modal-form-absen").modal("hide");
+              $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
+              notify(response.data, "success");
+            } else {
+              notify(response.error, "danger");
+            };
+          }
+        });
+      });
+
+      $("#modal-form-absen .employee-action-change").on("click", function(e) {
+        e.preventDefault();
+        $.ajax({
+          type: "post",
+          url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>" + _key,
+          data: $("#" + _form).serialize(),
+          success: function(response) {
+            var response = JSON.parse(response);
+            if (response.status === true) {
+              resetForm();
+              $("#modal-form-absen").modal("hide");
+              $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
+              notify(response.data, "success");
+            } else {
+              notify(response.error, "danger");
+            };
+          }
+        });
+      });
+
+      $("#" + _table_histori_absensi).on("click", "a.action-delete", function(e) {
+        e.preventDefault();
+        var temp = table_histori_absensi.row($(this).closest('tr')).data();
+
+        swal({
+          title: "Anda akan menghapus data, lanjutkan?",
+          text: "Setelah dihapus, data tidak dapat dikembalikan lagi!",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: "Ya",
+          cancelButtonText: "Tidak",
+          closeOnConfirm: false
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+              type: "delete",
+              url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id,
+              dataType: "json",
+              success: function(response) {
+                if (response.status) {
+                  resetForm();
+                  $("#" + _table).DataTable().ajax.reload(null, false);
+                  notify(response.data, "success");
+                } else {
+                  notify(response.data, "danger");
+                };
+              }
+            });
+          };
+        });
+      });
     }
 
     function initTable_historiAbsensiRaw(){
@@ -657,8 +990,8 @@
         });
       };
     }
-
-    // Init dataTable: Histori SK / Perijinan
+    
+    // Init dataTable: Histori SK Pegawai
     function initTable_historiSkSpk() {
       if ($(`#${_table_histori_skspk}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_skspk}`) === false) {
         var table_historiSkSpk = $(`#${_table_histori_skspk}`).DataTable({
@@ -1029,7 +1362,7 @@
       };
     };
 
-    // Init dataTable: Histori SK / Perijinan
+    // Init dataTable: Histori Pembinaan
     function initTable_historiPembinaan() {
       if ($(`#${_table_histori_pembinaan}`)[0] && $.fn.DataTable.isDataTable(`#${_table_histori_pembinaan}`) === false) {
         var table_historiPembinaan = $(`#${_table_histori_pembinaan}`).DataTable({
