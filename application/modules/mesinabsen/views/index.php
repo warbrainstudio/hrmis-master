@@ -20,7 +20,7 @@
                         <tr>
                             <th width="100">No</th>
                             <th>Nama Mesin</th>
-                            <th>IP Adress</th>
+                            <th>IP Address</th>
                             <th>Comm Key</th>
                             <th>Lokasi</th>
                             <th>Status</th>

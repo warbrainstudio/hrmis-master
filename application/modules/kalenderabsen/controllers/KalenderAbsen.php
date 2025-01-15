@@ -43,16 +43,19 @@ class Kalenderabsen extends AppBackend
 			'cal_cell_content'			=> '<a class="content_fill_day" href="'.base_url('kalenderabsen/detail?date=').'{content}" title="Click untuk lihat data absen tanggal {content}">{day}</a>',
 			'cal_cell_content_today'	=> '<a class="content_fill_today" href="'.base_url('kalenderabsen/detail?date=').'{content}" title="Click untuk lihat data absen hari ini"><strong>{day}</strong></a>',
 			'cal_cell_no_content'		=> '<p class="no_content_fill_day" title="Data absen belum ada. click untuk tarik data">{day}</p>',
-			'cal_cell_no_content_today'	=> '<a class="no_content_fill_today" title="Data absen belum ada. Click untuk tarik data hari ini"><strong>{day}</strong></a>'
+			//'cal_cell_no_content_today'	=> '<a class="no_content_fill_today" title="Data absen belum ada. Click untuk tarik data hari ini"><strong>{day}</strong></a>'
+      'cal_cell_no_content_today'	=> '<a title="Data absen hari ini akan tersedia besok"><strong>{day}</strong></a>'
 		);
   }
 
   public function index($year = NULL , $month = NULL)
 	{
+
 		if(empty($year)||empty($month)){
 			$year = date('Y');
 			$month = date('m');
 		}
+
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('kalenderabsen'),
@@ -62,6 +65,7 @@ class Kalenderabsen extends AppBackend
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
     $this->template->render();
+    
   }
 
   public function getcalender($year , $month)
@@ -74,7 +78,7 @@ class Kalenderabsen extends AppBackend
 	public function get_calender_data($year , $month)
 	{
 		$startDate = date('Y-m-d', strtotime("$year-$month-1"));
-        $endDate = date('Y-m-d', strtotime("$year-$month-1 +1 month"));
+        $endDate = date('Y-m-d', strtotime("$year-$month-1 +1 month -1 day"));
 		$query = $this->db->select('DATE(tanggal_absen) AS absendate, COUNT(tanggal_absen) AS attendance_count')
 							->from('absen_pegawai')
           					->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'")
@@ -102,7 +106,9 @@ class Kalenderabsen extends AppBackend
     $searchFilterPeriode = "";
 		$status = "";
 		$card = "";
+
 		if (DateTime::createFromFormat('Y-m-d', $ref) !== false) {
+
 			$dateTime = DateTime::createFromFormat('Y-m-d', $ref);
 			$Day = $dateTime->format('D');
       $DayNumber = $dateTime->format('d');
@@ -114,7 +120,9 @@ class Kalenderabsen extends AppBackend
 			$searchFilter .= "AND tanggal_absen::date='$ref'";
 			$status = true;
 			$card = "hari ".$formattedDate;
+
 		}else if(DateTime::createFromFormat('Y-m', $ref) !== false){
+
 			$dateTime = DateTime::createFromFormat('Y-m', $ref);
 			$monthNumber = $dateTime->format('m');
 			$year = $dateTime->format('Y');
@@ -128,17 +136,23 @@ class Kalenderabsen extends AppBackend
       $searchFilterPeriode .= "AND tanggal_absen BETWEEN '$startDatePeriode' AND '$endDatePeriode'";
 			$status = false;
 			$card = "bulan ".$formattedDate;
+
 		}else{
+
 			show_404();
+
 		}
 
     $query = $this->db->get('jadwal');
     $jadwals = $query->result();
     $list_jadwal = '';
+    
     if (isset($jadwals) && is_array($jadwals)) {
+
         foreach ($jadwals as $jadwal) {
             $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
         }
+
     }
 
 		$data = array(
@@ -171,6 +185,7 @@ class Kalenderabsen extends AppBackend
         'cxfilter__submit_filter' => true,
         'cxfilter__submit_xlsx' => true,
       ),
+      'url_detail' => base_url('kalenderabsen/detail?date='.$ref),
 			'isDaily' => $status,
 			'isAll' => false,
       'list_verifikasi' => $this->init_list($this->AbsenModel->getVerifikasi(), 'id', 'text'),
@@ -206,7 +221,7 @@ class Kalenderabsen extends AppBackend
       return (object) array(
         'params' => ($isExport === true) ? array(
             'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
-            'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->SubunitModel->getDetail(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
+            'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->AbsenModel->getDetail_sub_unit(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
         ) : array(),
         'query_string' => $this->AbsenModel->getQuery($filter),
       );
@@ -225,62 +240,14 @@ class Kalenderabsen extends AppBackend
 
     $this->handle_ajax_request();
     $tanggal = $this->input->get('tanggal');
-
-    $status = 'false';
-    $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
-    $task = '/fetchData?';
-    $table = 'absen_pegawai';
-
-    $apiUrl = base_url('api/'.$task . http_build_query([
-        'token' => $token,
-        'host' => 'localhost',
-        'port' => $this->db->port,
-        'username' => $this->db->username,
-        'password' => $this->db->password,
-        'database' => $this->db->database,
-        'table' => $table,
-        'alldata' => $status,
-        'start_date' => $tanggal,
-        'end_date' => $tanggal,
-    ]));
-
-    $ch = curl_init($apiUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        curl_close($ch);
-        $response = array(
-          'status' => false,
-          'error' => 'cURL error: ' . curl_error($ch),
-        );
-    }
-
-    curl_close($ch);
-    $data_api = json_decode($response, true);
-
-    if (is_array($data_api) && isset($data_api['status'])) {
-      if ($data_api['status'] == 'true') {
-          $response = array(
-              'status' => true,
-          );
-      } else {
-          $response = array(
-              'status' => false,
-              'message' => $data_api['message'],
-          );
-      }
+    $start_date = $tanggal;
+    $end_date = $tanggal;
+    $response = $this->AbsenModel->fetchData($start_date, $end_date); 
+    if ($response) {
+        echo json_encode(['status' => true, 'data' => $response]);
     } else {
-        $response = array(
-          'status' => false,
-          'error' => 'Invalid response from API',
-        );
-    }
-
-    $this->output
-        ->set_content_type('application/json')
-        ->set_output(json_encode($response));
-        
+        echo json_encode(['status' => false, 'message' => 'No data found']);
+    }  
   }
 
   public function ajax_save($id = null)

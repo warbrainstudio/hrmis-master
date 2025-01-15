@@ -16,7 +16,7 @@
                     <thead class="thead-default">
                         <tr>
                             <th width="70">No</th>
-                            <th>No. SK / Perijinan</th>
+                            <th>No. SK Pegawai</th>
                             <th width="170">NRP</th>
                             <th>Nama Lengkap</th>
                             <th>Keterangan</th>

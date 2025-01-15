@@ -38,7 +38,8 @@ class Mesinabsen extends AppBackend
   {
     $this->handle_ajax_request();
     $id = $this->input->post('id');
-    $this->form_validation->set_rules($this->MesinAbsenModel->rules($id));
+    $ip = $this->input->post('ipadress');
+    $this->form_validation->set_rules($this->MesinAbsenModel->rules($id, $ip));
 
     if ($this->form_validation->run() === true) {
       if (is_null($id) || empty($id)) {
@@ -63,9 +64,11 @@ class Mesinabsen extends AppBackend
     $this->handle_ajax_request();
     $query = $this->db->get('mesin_absen');
     $mesins = $query->result();
-    foreach($mesins as $mesin){
-      $ip = $mesin->ipadress;
-      echo json_encode($this->MesinAbsenModel->checkConnect($ip));
+    if($mesins){
+      foreach($mesins as $mesin){
+        $ip = $mesin->ipadress;
+        echo json_encode($this->MesinAbsenModel->checkConnect($ip));
+      }
     }
   }
 

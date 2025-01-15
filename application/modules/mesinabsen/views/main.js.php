@@ -13,9 +13,9 @@
         greedy: false
     });
 
-    Swal.fire({
+    /*Swal.fire({
       title: 'Checking Fingerprint Machine...',
-      text: 'Mohon tunggu sebentar saat proses pengecekan mesin absen',
+      text: 'Sedang mengecek mesin absensi. mohon tunggu sebentar',
       allowOutsideClick: false,
       showConfirmButton: false,
       didOpen: () => {
@@ -25,17 +25,20 @@
 
     $.ajax({
       type: "get",
-      url: "<?php echo base_url('mesinabsen/ajax_check_all/') ?>",
+      url: "<//?php echo base_url('mesinabsen/ajax_check_all/') ?>",
       success: function(response) {
         Swal.close();
       },
       error: function() {
         Swal.close(); 
-        notify('An error occurred while checking the connection.', 'danger');
       }
+    });*/
+
+    $.ajax({
+      type: "get",
+      url: "<?php echo base_url('mesinabsen/ajax_check_all/') ?>"
     });
 
-        
 
     // Initialize DataTables: Index
     if ($("#" + _table)[0]) {
@@ -56,10 +59,24 @@
             data: "nama_mesin",
           },
           {
-            data: "ipadress"
+            data: "ipadress",
+            render: function(data, type, row) {
+              var statusColor = (row.status_ip === 'Connect') ? 'info' : 'danger';
+              var status = (row.status_ip === 'Connect') ? 
+                `<span class="badge badge-${statusColor}"><i class="zmdi zmdi-check-circle"></i> ${data}</span>` : 
+                `<span class="badge badge-${statusColor}" title="IP Address tidak terhubung atau sedang offline"><i class="zmdi zmdi-close-circle"></i> ${data}</span>`;
+              return status;
+            }
           },
           {
-            data: "commkey"
+            data: "commkey",
+            render: function(data, type, row) {
+              var statusColor = (row.status_commkey === 'Connect') ? 'info' : 'danger';
+              var status = (row.status_commkey === 'Connect') ? 
+                `<span class="badge badge-${statusColor}"><i class="zmdi zmdi-check-circle"></i> ${data}</span>` : 
+                `<span class="badge badge-${statusColor}" title="Comm Key salah. Cek mesin absen"><i class="zmdi zmdi-close-circle"></i> ${data}</span>`;
+              return status;
+            }
           },
           {
             data: "lokasi"
@@ -67,8 +84,11 @@
           {
             data: "status",
               render: function(data, type, row) {
-                  var statusColor = (data === 'Connect') ? 'success' : 'danger';
-                  return `<span class="badge badge-${statusColor}">${data}</span>`;
+                var statusColor = (data === 'Connect') ? 'info' : 'danger';
+                var status = (data === 'Connect') ? 
+                  `<span class="badge badge-${statusColor}"><i class="zmdi zmdi-check-circle"></i> ${data}</span>` : 
+                  `<span class="badge badge-${statusColor}" title="Mesin tidak bisa terhubung. Ubah data mesin"><i class="zmdi zmdi-close-circle"></i> ${data}</span>`;
+                return status;
               }
           },
           {

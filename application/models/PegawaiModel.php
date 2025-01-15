@@ -247,9 +247,12 @@ class PegawaiModel extends CI_Model
     $this->db->join('status_kontrak', 'status_kontrak.id = pegawai.status_kontrak_id', 'left');
     $this->db->join('jenis_pegawai', 'jenis_pegawai.id = pegawai.jenis_pegawai_id', 'left');
     $this->db->join('kategori_pegawai', 'kategori_pegawai.id = pegawai.kategori_pegawai_id', 'left');
-    $this->db->where('status_active', 1);
-    $this->db->like('lower(nrp)', $value);
-    $this->db->or_like('lower(nama_lengkap)', $value);
+    $this->db->where('pegawai.status_active', 1);
+    $this->db->group_start();
+    $this->db->like('lower(pegawai.nrp)', $value);
+    $this->db->or_like('lower(pegawai.nama_lengkap)', $value);
+    $this->db->group_end();
+    $this->db->limit(100);
     return $this->db->get()->result();
   }
 
@@ -410,6 +413,50 @@ class PegawaiModel extends CI_Model
       $this->db->update($this->_table, $this, array('id' => $pegawaiId));
 
       $response = array('status' => true, 'data' => 'Data has been saved.');
+    } catch (\Throwable $th) {
+      $response = array('status' => false, 'data' => 'Failed to save your data.');
+    };
+
+    return $response;
+  }
+
+  public function importBatch($data)
+  {
+    $response = array('status' => false, 'data' => 'No operation.');
+    $nrpCollection = array_column($data, 'nrp');
+    $existingTemp = [];
+
+    try {
+      $existing = $this->db->select('nrp')->from($this->_table)->where_in('nrp', $nrpCollection)->get()->result();
+
+      if (count($existing) > 0) {
+        $existingTemp = array_map(function ($item) {
+          return $item->nrp;
+        }, $existing);
+      };
+
+      $this->db->trans_begin();
+
+      foreach ($data as $index => $item) {
+        if (in_array($item['nrp'], $existingTemp) === true) {
+          $item['updated_by'] = $this->session->userdata('user')['id'];
+          $item['updated_date'] = date('Y-m-d H:i:s');
+
+          $this->db->update($this->_table, $item, array('nrp' => $item['nrp']));
+        } else {
+          $this->db->insert($this->_table, $item);
+        };
+      };
+
+      if ($this->db->trans_status() === FALSE) {
+        $this->db->trans_rollback();
+
+        $response = array('status' => false, 'data' => 'Failed to save your data.');
+      } else {
+        $this->db->trans_commit();
+
+        $response = array('status' => true, 'data' => 'Data has been saved.');
+      };
     } catch (\Throwable $th) {
       $response = array('status' => false, 'data' => 'Failed to save your data.');
     };

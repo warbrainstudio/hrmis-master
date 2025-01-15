@@ -5,10 +5,11 @@ class MesinAbsenModel extends CI_Model
 {
   private $_table = 'mesin_absen';
   private $_tableView = '';
-  public $status = '';
+  public $status_ip = '';
+  public $status_commkey = '';
   public $ipadress = '';
 
-  public function rules($id = null)
+  public function rules($id = null, $ip)
   {
     return array(
       [
@@ -20,16 +21,6 @@ class MesinAbsenModel extends CI_Model
         'field' => 'ipadress',
         'label' => 'IP Adress',
         'rules' => 'required|trim',
-        'rules' => [
-          'required',
-          'trim',
-          [
-            'check_connect',
-            function ($value) use ($id) {
-              return $this->_check_connect($value, $id);
-            }
-          ]
-        ]
       ],
       [
         'field' => 'commkey',
@@ -39,9 +30,9 @@ class MesinAbsenModel extends CI_Model
           'required',
           'trim',
           [
-            'check_comm_key',
-            function ($value) use ($id) {
-              return $this->_check_comm_key($value, $id);
+            'check_connect',
+            function ($value) use ($id, $ip) {
+              return $this->_check_connect($value, $id, $ip);
             }
           ]
         ]
@@ -54,51 +45,44 @@ class MesinAbsenModel extends CI_Model
     );
   }
 
-  private function _check_connect($value, $id)
+  private function _check_connect($value, $id, $ip)
   {
-    $temp = $this->ping($value);
     if(empty($id)){
-      if ($temp) {
-        $this->status = "Connect";
-        $this->ipadress = $value;
-        return true;
-      } else {
-        $this->form_validation->set_message('check_connect', 'Mesin dengan IP "' . $value . '" tidak bisa terhubung atau sedang offline');
-        return false;
-      };
-    }else{
-      if ($temp) {
-        $this->status = "Connect";
-        $this->ipadress = $value;
-        return true;
-      } else {
-        $this->form_validation->set_message('check_connect', 'Mesin dengan IP "' . $value . '" tidak bisa terhubung atau sedang offline');
-        return false;
-      };
-    }
-  }
-
-  private function _check_comm_key($value, $id){
-    if(empty($id)){
-      $IP = $this->ipadress;
-      $Key = $value;
-      $result = $this->fetchDataFromMachine($IP, $Key);
-      if($result){
-        $this->status = "Connect";
-        return true;
+      $result_ip = $this->ping($ip);
+      if($result_ip===true){
+        $this->status_ip = "Connect";
+        $Key = $value;
+        $result = $this->fetch_data_from_machine($ip, $Key);
+        if($result){
+          $this->status_commkey = "Connect";
+          return true;
+        }else{
+          $this->form_validation->set_message('check_connect', 'Comm Key "'.$value.'" atau IP "' . $ip . '" salah');
+          $this->status_commkey = "Disconnect";
+          return false;
+        }
       }else{
-        $this->form_validation->set_message('check_comm_key', 'Comm Key "'.$value.'" yang digunakan untuk Mesin dengan IP "' . $IP . '" salah');
+        $this->form_validation->set_message('check_connect', 'IP "' . $ip . '" tidak terhubung atau sedang offline');
+        $this->status_ip = "Disconnect";
         return false;
       }
     }else{
-      $IP = $this->ipadress;
-      $Key = $value;
-      $result = $this->fetchDataFromMachine($IP, $Key);
-      if($result){
-        $this->status = "Connect";
-        return true;
+      $result_ip = $this->ping($ip);
+      if($result_ip===true){
+        $this->status_ip = "Connect";
+        $Key = $value;
+        $result = $this->fetch_data_from_machine($ip, $Key);
+        if($result){
+          $this->status_commkey = "Connect";
+          return true;
+        }else{
+          $this->form_validation->set_message('check_connect', 'Comm Key "'.$value.'" atau IP "' . $ip . '" salah');
+          $this->status_commkey = "Disconnect";
+          return false;
+        }
       }else{
-        $this->form_validation->set_message('check_comm_key', 'Comm Key "'.$value.'" yang digunakan untuk Mesin dengan IP "' . $IP . '" salah');
+        $this->form_validation->set_message('check_connect', 'IP "' . $ip . '" tidak terhubung atau sedang offline');
+        $this->status_ip = "Disconnect";
         return false;
       }
     }
@@ -137,12 +121,20 @@ class MesinAbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
+    if($this->status_ip === "Connect" && $this->status_commkey === "Connect"){
+      $status = "Connect";
+    }else{
+      $status = "Disconnect";
+    }
+
     try {
       $this->nama_mesin = $this->input->post('nama_mesin');
-      $this->ipadress = $this->input->post('ipadress');
-      $this->commkey = $this->input->post('commkey');
       $this->lokasi = $this->input->post('lokasi');
-      $this->status = $this->status;
+      $this->ipadress = $this->input->post('ipadress');
+      $this->status_ip = $this->status_ip;
+      $this->commkey = $this->input->post('commkey');
+      $this->status_commkey = $this->status_commkey;
+      $this->status = $status;
       $this->created_by = $this->session->userdata('user')['id'];
       $this->db->insert($this->_table, $this);
 
@@ -173,12 +165,20 @@ class MesinAbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
+    if($this->status_ip === "Connect" && $this->status_commkey === "Connect"){
+      $status = "Connect";
+    }else{
+      $status = "Disconnect";
+    }
+
     try {
       $this->nama_mesin = $this->input->post('nama_mesin');
-      $this->ipadress = $this->input->post('ipadress');
-      $this->commkey = $this->input->post('commkey');
       $this->lokasi = $this->input->post('lokasi');
-      $this->status = $this->status;
+      $this->ipadress = $this->input->post('ipadress');
+      $this->status_ip = $this->status_ip;
+      $this->commkey = $this->input->post('commkey');
+      $this->status_commkey = $this->status_commkey;
+      $this->status = $status;
       $this->updated_by = $this->session->userdata('user')['id'];
       $this->updated_date = date('Y-m-d H:i:s');
       $this->db->update($this->_table, $this, array('id' => $id));
@@ -235,29 +235,30 @@ class MesinAbsenModel extends CI_Model
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
-    $pingResult = $this->ping($ip);
-    
-    if ($pingResult) {
-      
-      $this->db->where('ipadress', $ip);
-      $query = $this->db->get('mesin_absen');
-      $mesin = $query->row();
-  
-      if ($mesin) {
-          $comm = $mesin->commkey;
-          $commResult = $this->fetchDataFromMachine($ip, $comm);
-          if ($commResult) {
-              $status = "Connect";
-          } else {
-              $status = "Disconnect";
-          }
-      }
-    } else {
-        $status = "Disconnect";
+    $this->db->where('ipadress', $ip);
+    $query = $this->db->get('mesin_absen');
+    $mesin = $query->row();
+
+    if ($mesin) {
+        $comm = $mesin->commkey;
+        $commResult = $this->fetch_data_from_machine($ip, $comm);
+        if ($commResult) {
+            $this->status_commkey = "Connect";
+        } else {
+            $this->status_commkey = "Disconnect";
+        }
+    }
+
+    if($this->status_ip === "Connect" && $this->status_commkey === "Connect"){
+      $status = "Connect";
+    }else{
+      $status = "Disconnect";
     }
 
     try {
         $this->ipadress = $ip;
+        $this->status_ip = $this->status_ip;
+        $this->status_commkey = $this->status_commkey;
         $this->status = $status; 
         $this->updated_by = $this->session->userdata('user')['id'];
         $this->updated_date = date('Y-m-d H:i:s');
@@ -280,15 +281,18 @@ class MesinAbsenModel extends CI_Model
       $ping = exec("ping -n $reply $ip", $output, $status);
       return $status === 0;
   }
+  
 
-  public function fetchDataFromMachine($IP, $Key) 
+  public function fetch_data_from_machine($IP, $Key) 
   {
       $timeout = 200;
-      $Connect = fsockopen($IP, "80", $errno, $errstr, $timeout);
+      $Connect = @fsockopen($IP, "80", $errno, $errstr, $timeout);
       $filteredData = [];
       $currentDate = date('Y-m-d');
-  
+      
       if ($Connect) {
+
+          $this->status_ip = "Connect";
           $formattedStartDate = date('Y-m-d\TH:i:s', strtotime($currentDate . ' 00:00:00'));
           $formattedEndDate = date('Y-m-d\TH:i:s', strtotime($currentDate . ' 23:59:59'));
   
@@ -320,6 +324,7 @@ XML;
           while (!feof($Connect)) {
             if (microtime(true) - $startTime > 3) {
               fclose($Connect);
+              $this->status_commkey = "Connect";
               return true;
             }else{
               $Response = fgets($Connect, 1024);
@@ -345,14 +350,23 @@ XML;
           }
   
           if (!empty($filteredData)) {
+
+              $this->status_commkey = "Connect";
               return true;
+
           } else {
+
+              $this->status_commkey = "Disconnect";
               return false;
+              
           }
+
       } else {
-          return ["error" => "Connection failed: $errstr ($errno)"];
+
+          $this->status_ip = "Disconnect";
+          return false;
+
       }
   }
   
-
 }

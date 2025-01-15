@@ -9,10 +9,14 @@
                     <button class="btn btn--raised btn-primary btn--icon-text jadwal-action-add" data-toggle="modal" data-target="#modal-form-jadwal">
                         <i class="zmdi zmdi-plus-circle"></i> Buat Baru
                     </button>
+                    <button title="Pengaturan range batas jadwal" class="btn btn--raised btn-secondary btn--icon-text jadwal-action-config" data-toggle="modal" data-target="#modal-form-jadwal-config">
+                        <i class="zmdi zmdi-settings"></i>
+                    </button>
                 </div>
             </div>
 
             <?php include_once('form.php') ?>
+            <?php include_once('form_config.php') ?>
 
             <div class="table-responsive">
                 <table id="table-jadwal" class="table table-bordered table-hover">

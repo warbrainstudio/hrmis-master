@@ -8,6 +8,10 @@
             <div class="mt-3">
                 <?php include_once(APPPATH . 'modules/_component/filter.report.grid.php') ?>
             </div>
+            <br>
+            <a href="<?php echo $url_detail ?>" class="btn btn-sm btn-success" title="Reset filter">
+                <i class="zmdi zmdi-refresh"></i>Refresh filter
+            </a>
             <div class="tab-pane active fade show" id="tab-absen_periode" role="tabpanel">
                 <div class="pt-4">
                     <?php require_once(APPPATH . 'modules/kalenderabsen/views/absen_periode.php') ?>

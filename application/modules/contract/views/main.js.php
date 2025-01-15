@@ -222,6 +222,21 @@
             };
         });
 
+        // Handle pegawai selected
+        $(document).on("select2:select", `#${_modal_form} .contract-pegawai_id`, function() {
+            var selected = $(`#${_modal_form} .contract-pegawai_id`).find(":selected").data();
+            if (typeof selected != "undefined") {
+                load_refSubUnit(selected.data.unit_id).then(function() {
+                    $(`#${_modal_form} .contract-kategori_pegawai_id`).val(selected.data.kategori_pegawai_id).trigger("change");
+                    $(`#${_modal_form} .contract-jenis_pegawai_id`).val(selected.data.jenis_pegawai_id).trigger("change");
+                    $(`#${_modal_form} .contract-status_kontrak_id`).val(selected.data.status_kontrak_id).trigger("change");
+                    $(`#${_modal_form} .contract-jabatan_id`).val(selected.data.jabatan_id).trigger("change");
+                    $(`#${_modal_form} .contract-unit_id`).val(selected.data.unit_id).trigger("change.select2");
+                    $(`#${_modal_form} .contract-sub_unit_id`).val(selected.data.sub_unit_id).trigger("change");
+                });
+            };
+        });
+
         // Handle unit change
         $(`#${_form} .contract-unit_id`).on("change", function() {
             load_refSubUnit($(this).val());

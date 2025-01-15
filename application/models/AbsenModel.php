@@ -84,6 +84,22 @@ class AbsenModel extends CI_Model
 
   public function getQuery($filter = null)
   {
+      $query_config = $this->db->get('jadwal_config');
+      $config = $query_config->result();
+
+      if(empty($config)){
+        $masuk_cepat = 0;
+        $masuk_terlambat = 0;
+        $pulang_cepat = 0;
+        $pulang_terlambat = 0;
+      }else{
+        $data_config = $config[0];
+        $masuk_cepat = $data_config->masuk_cepat;
+        $masuk_terlambat = $data_config->masuk_terlambat;
+        $pulang_cepat = $data_config->pulang_cepat;
+        $pulang_terlambat = $data_config->pulang_terlambat;
+      }
+
       $query = "
         SELECT t.* FROM (
           SELECT 
@@ -91,17 +107,19 @@ class AbsenModel extends CI_Model
             p.id as id_pegawai,
             p.nrp,
             (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(ab.absen_id AS VARCHAR) END) AS nama,
-            (CASE WHEN ab.masuk IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.masuk, 'HH24:MI:SS') ELSE TO_CHAR(ab.masuk, 'HH24:MI:SS DD-MM-YYYY') END) AS jam_masuk,
+            (CASE WHEN ab.masuk IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.masuk, 'HH24:MI:SS') ELSE TO_CHAR(ab.masuk, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_masuk,
+            TO_CHAR(ROUND(EXTRACT(EPOCH FROM (ab.masuk::time - j.jadwal_masuk::time)) / 60), '999') || ' menit' AS cek_waktu_masuk,
             (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '-' END) AS verifikasi_m, 
-            (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.pulang, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'HH24:MI:SS') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS DD-MM-YYYY') END) AS jam_pulang,
+            (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.pulang, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'HH24:MI:SS') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_pulang,
+            TO_CHAR(ROUND(EXTRACT(EPOCH FROM (ab.pulang::time - j.jadwal_pulang::time)) / 60), '999') || ' menit' AS cek_waktu_pulang,
             (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '-' END) AS verifikasi_p,
             EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
             (CASE WHEN TO_CHAR(ab.masuk, 'YYYY-mm-dd') != TO_CHAR(ab.pulang, 'YYYY-mm-dd') THEN 'Shift Malam' ELSE '-' END) AS jenis_shift,
             p.unit_id,
             p.sub_unit_id,
-            m_masuk.nama_mesin as nama_mesin_masuk,
-            m_masuk.lokasi as lokasi_masuk, 
-            m_pulang.nama_mesin as nama_mesin_pulang,
+            COALESCE(m_masuk.nama_mesin, ab.mesin_masuk) AS nama_mesin_masuk,
+            m_masuk.lokasi as lokasi_masuk,
+            COALESCE(m_pulang.nama_mesin, ab.mesin_pulang) AS nama_mesin_pulang,
             m_pulang.lokasi as lokasi_pulang,
             (CASE WHEN ab.masuk IS NULL THEN '-' WHEN ab.pulang IS NULL THEN '-' ELSE j.nama_jadwal END) AS jadwal_nama,
             j.id as id_jadwal,
@@ -120,11 +138,14 @@ class AbsenModel extends CI_Model
           LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
           LEFT JOIN jadwal j ON (
               ab.jadwal_id = j.id
-              OR ab.masuk::time >= (j.jadwal_masuk - interval '10 minute') 
-              AND ab.masuk::time <= (j.jadwal_masuk + interval '10 minute')
-              AND ab.pulang::time >= (j.jadwal_pulang - interval '10 minute')
-              AND ab.pulang::time <= (j.jadwal_pulang + interval '30 minute')
-              AND p.unit_id = j.unit_id
+              OR (
+                ab.jadwal_id IS NULL
+                AND ab.masuk::time >= (j.jadwal_masuk - interval '$masuk_cepat minute') 
+                AND ab.masuk::time <= (j.jadwal_masuk + interval '$masuk_terlambat minute')
+                AND ab.pulang::time >= (j.jadwal_pulang - interval '$pulang_cepat minute')
+                AND ab.pulang::time <= (j.jadwal_pulang + interval '$pulang_terlambat minute')
+                AND p.unit_id = j.unit_id
+              )
           )
           ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id, masuk, pulang ASC
         ) t
@@ -181,6 +202,17 @@ class AbsenModel extends CI_Model
       }
   }
 
+  public function getDetail_sub_unit($params = array())
+  {
+    $this->db->join('unit', 'unit.id = sub_unit.unit_id', 'left');
+    if (isset($params['id']) && $params['id'] !== 'null') {
+      $this->db->where('sub_unit.id', $params['id']);
+    } else {
+        $this->db->where('sub_unit.id IS NULL', null, false);
+    }
+    return $this->db->get('sub_unit')->row();
+  }
+
   public function getDetail($params = array())
   {
     return $this->db->where($params)->get($this->_table)->row();
@@ -228,6 +260,8 @@ class AbsenModel extends CI_Model
       $this->verifikasi_pulang = $verifikasi_pulang;
       $this->mesin_pulang = $mesin_pulang;
       $this->jadwal_id = $jadwal_id;
+      $this->updated_by = $this->session->userdata('user')['id'];
+      $this->updated_date = date('Y-m-d H:i:s');
       $this->db->update($this->_table, $this, array('id' => $id));
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
@@ -243,6 +277,8 @@ class AbsenModel extends CI_Model
 
     try {
       $this->jadwal_id = $this->input->post('jadwal_id');
+      $this->updated_by = $this->session->userdata('user')['id'];
+      $this->updated_date = date('Y-m-d H:i:s');
       $this->db->update($this->_table, $this, array('id' => $id));
 
       $response = array('status' => true, 'data' => 'Data has been saved.');
@@ -265,6 +301,62 @@ class AbsenModel extends CI_Model
       $response = array('status' => false, 'data' => 'Failed to delete your data.');
     };
 
+    return $response;
+  }
+
+  public function fetchData($start_date, $end_date){
+    $status = 'false';
+    $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
+    $task = '/fetchData?';
+    $table = 'absen_pegawai';
+
+    $apiUrl = base_url('api/'.$task . http_build_query([
+        'token' => $token,
+        'host' => 'localhost',
+        'port' => $this->db->port,
+        'username' => $this->db->username,
+        'password' => $this->db->password,
+        'database' => $this->db->database,
+        'table' => $table,
+        'alldata' => $status,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+    ]));
+
+    $ch = curl_init($apiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        $response = array(
+          'status' => false,
+          'error' => 'cURL error: ' . curl_error($ch),
+        );
+    }
+
+    curl_close($ch);
+    $data_api = json_decode($response, true);
+
+    if (is_array($data_api) && isset($data_api['status'])) {
+      if ($data_api['status'] == 'true') {
+          $response = array(
+              'status' => true,
+          );
+          $this->filter_data_absen($start_date, $end_date);
+      } else {
+          $response = array(
+              'status' => false,
+              'message' => $data_api['message'],
+          );
+      }
+    } else {
+        $response = array(
+          'status' => false,
+          'message' => 'Invalid response from API',
+        );
+    }
+    
     return $response;
   }
 

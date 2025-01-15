@@ -99,7 +99,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="me-3">
                         <div class="text-dark-75 small">Pegawai Akan Habis Kontrak</div>
-                        <div class="text-lg fw-bold" id="count-total_pegawai_habis_kontrak">-</div>
+                        <a href="<?php echo base_url("employeeexpired") ?>" style="color: white;"><div class="text-lg fw-bold" id="count-total_pegawai_habis_kontrak">-</div></a>
                     </div>
                     <i class="feather-xl text-dark-50 opacity-50" data-feather="archive"></i>
                 </div>

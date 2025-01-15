@@ -2,13 +2,13 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 require_once(APPPATH . 'controllers/AppBackend.php');
 
-class JadwalPegawai extends AppBackend
+class Jadwalpegawai extends AppBackend
 {
   function __construct()
   {
     parent::__construct();
     $this->load->model(array(
-      'AppModel',
+      'AppMixModel',
       'JadwalModel',
       'UnitModel'
     ));
@@ -17,12 +17,21 @@ class JadwalPegawai extends AppBackend
 
   public function index()
   {
+    $config = $this->JadwalModel->getConfig();
+    if(empty($config)){
+      $data_config = [];
+    }else{
+      $data_config = $config[0];
+    }
+
     $data = array(
       'app' => $this->app(),
       'main_js' => $this->load_main_js('jadwalpegawai'),
       'card_title' => $this->_pageTitle,
       'list_unit' => $this->init_list($this->UnitModel->getAll(), 'id', 'nama_unit'),
+      'data_config' => $data_config,
     );
+
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);
     $this->template->load_view('index', $data, TRUE);
     $this->template->render();
@@ -30,20 +39,9 @@ class JadwalPegawai extends AppBackend
 
   public function ajax_get_all()
   {
-    $this->handle_ajax_request();
-    $dtAjax_config = array(
-      'select_column' => 'jadwal.id, jadwal.nama_jadwal, jadwal.jadwal_masuk, jadwal.jadwal_pulang, unit.id AS unit_id, unit.nama_unit',
-      'table_name' => 'jadwal',
-      'table_join' => array(
-        array(
-          'table_name' => 'unit',
-          'expression' => 'unit.id = jadwal.unit_id',
-          'type' => 'left'
-        ),
-      ),
-      'order_column' => 1
-    );
-    $response = $this->AppModel->getData_dtAjax($dtAjax_config);
+    $filter = $this->input->get('filter');
+    $query = $this->JadwalModel->getQuery($filter);
+    $response = $this->AppMixModel->getdata_dtAjax($query);
     echo json_encode($response);
   }
 
@@ -63,6 +61,18 @@ class JadwalPegawai extends AppBackend
       echo json_encode(array('status' => false, 'data' => $errors));
     };
   }
+
+  public function ajax_save_config()
+  {
+    $this->handle_ajax_request();
+    $id = $this->input->post('id');
+    if(empty($id)){
+      echo json_encode($this->JadwalModel->insert_config());
+    }else{
+      echo json_encode($this->JadwalModel->update_config($id));
+    }
+  }
+
 
   public function ajax_delete($id)
   {

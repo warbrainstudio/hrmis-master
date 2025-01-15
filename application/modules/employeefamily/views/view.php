@@ -83,7 +83,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning btn--icon-text employeefamily-action-download">
-                    <i class="zmdi zmdi-download"></i> Cetak SK / Perijinan
+                    <i class="zmdi zmdi-download"></i> Cetak SK Pegawai
                 </button>
                 <button type="button" class="btn btn-light btn--icon-text employeefamily-action-cancel" data-dismiss="modal">
                     Tutup

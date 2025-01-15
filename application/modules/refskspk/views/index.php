@@ -19,7 +19,7 @@
                     <thead class="thead-default">
                         <tr>
                             <th width="100">No</th>
-                            <th>Nama SK / Perijinan</th>
+                            <th>Nama SK Pegawai</th>
                             <th width="170" class="text-center">#</th>
                         </tr>
                     </thead>

@@ -15,8 +15,8 @@
           <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>" />
 
           <div class="form-group">
-            <label required>Nama SK / Perijinan</label>
-            <input type="text" name="nama_sk_spk" class="form-control refskspk-nama_sk_spk" placeholder="Nama SK / Perijinan" required />
+            <label required>Nama SK Pegawai</label>
+            <input type="text" name="nama_sk_spk" class="form-control refskspk-nama_sk_spk" placeholder="Nama SK Pegawai" required />
           </div>
 
           <small class="form-text text-muted">

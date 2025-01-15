@@ -152,7 +152,7 @@ class Contract extends AppBackend
   public function ajax_generate()
   {
     $this->handle_ajax_request();
-    try {
+    // try {
       $ref = $this->input->get('ref');
       $type = $this->input->get('type');
       $outputFile = $this->input->get('output');
@@ -217,15 +217,15 @@ class Contract extends AppBackend
           if (file_exists($outputPath_docx)) {
             if ($outputFile == 'pdf') {
               // Convert to PDF
-              $convCmd = '"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // windows
-              // $convCmd = 'export HOME=/tmp && soffice --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // linux server
-              @exec($convCmd, $convOutput, $convReturn);
-              @unlink($outputPath_docx);
+              // $convCmd = '"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // windows
+              $convCmd = 'export HOME=/tmp && soffice --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // linux server
+              exec($convCmd, $convOutput, $convReturn);
+              // @unlink($outputPath_docx);
 
               if (file_exists($outputPath_pdf)) {
                 $output = array('status' => true, 'data' => 'Generate PDF berhasil.');
               } else {
-                $output = array('status' => false, 'data' => 'Generate PDF gagal.');
+                $output = array('status' => false, 'data' => 'Generate PDF gagal.', 'command' => $convCmd);
               };
             } else {
               $output = array('status' => true, 'data' => 'Generate DOCX berhasil.');
@@ -247,9 +247,9 @@ class Contract extends AppBackend
 
       echo json_encode($output);
       return $output;
-    } catch (Exception  $th) {
-      return array('status' => false, 'data' => 'Terjadi kesalahan ketika membuat file.');
-    };
+    // } catch (Exception  $th) {
+    //   return array('status' => false, 'data' => 'Terjadi kesalahan ketika membuat file.');
+    // };
   }
 
   public function ajax_get_all()

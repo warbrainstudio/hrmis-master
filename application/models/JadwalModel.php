@@ -12,9 +12,50 @@ class JadwalModel extends CI_Model
       [
         'field' => 'nama_jadwal',
         'label' => 'Nama Jadwal',
-        'rules' => 'required|trim|max_length[50]'
+        'rules' => 'required|trim'
+      ],
+      [
+        'field' => 'unit_id',
+        'label' => 'Unit ID',
+        'rules' => 'required|trim'
+      ],
+      [
+        'field' => 'jadwal_masuk',
+        'label' => 'Jadwal Masuk',
+        'rules' => 'required|trim'
+      ],
+      [
+        'field' => 'jadwal_pulang',
+        'label' => 'Jadwal Pulang',
+        'rules' => 'required|trim'
       ]
     );
+  }
+
+  public function getQuery($filter = null)
+  {
+    $query = "
+      SELECT t.* FROM (
+        SELECT 
+          j.*,
+          u.kode_unit,
+          u.nama_unit
+        FROM jadwal j
+        LEFT JOIN unit u ON u.id = j.unit_id
+        ORDER BY j.id ASC
+      ) t
+      WHERE 1=1
+    ";
+
+    if (!is_null($filter)) $query .= $filter;
+    return $query;
+  }
+
+  public function getConfig()
+  {
+    $query = $this->db->get('jadwal_config');
+    $config = $query->result();
+    return $config;
   }
 
   public function getAll($params = array(), $orderField = null, $orderBy = 'asc')
@@ -124,5 +165,46 @@ class JadwalModel extends CI_Model
   function clean_number($number)
   {
     return preg_replace('/[^0-9.]/', '', $number);
+  }
+
+  public function insert_config()
+  {
+    $response = array('status' => false, 'data' => 'No operation.');
+
+    try {
+      $this->masuk_cepat = $this->input->post('masuk_cepat') ? $this->input->post('masuk_cepat') : 0;
+      $this->masuk_terlambat = $this->input->post('masuk_terlambat') ? $this->input->post('masuk_terlambat') : 0;
+      $this->pulang_cepat = $this->input->post('pulang_cepat') ? $this->input->post('pulang_cepat') : 0;
+      $this->pulang_terlambat = $this->input->post('pulang_terlambat') ? $this->input->post('pulang_terlambat') : 0;
+      $this->created_by = $this->session->userdata('user')['id'];
+      $this->db->insert('jadwal_config', $this);
+
+      $response = array('status' => true, 'data' => 'Data has been saved.');
+    } catch (\Throwable $th) {
+      $response = array('status' => false, 'data' => 'Failed to save your data.');
+    };
+
+    return $response;
+  }
+
+  public function update_config($id)
+  {
+    $response = array('status' => false, 'data' => 'No operation.');
+
+    try {
+      $this->masuk_cepat = $this->input->post('masuk_cepat') ? $this->input->post('masuk_cepat') : 0;
+      $this->masuk_terlambat = $this->input->post('masuk_terlambat') ? $this->input->post('masuk_terlambat') : 0;
+      $this->pulang_cepat = $this->input->post('pulang_cepat') ? $this->input->post('pulang_cepat') : 0;
+      $this->pulang_terlambat = $this->input->post('pulang_terlambat') ? $this->input->post('pulang_terlambat') : 0;
+      $this->updated_by = $this->session->userdata('user')['id'];
+      $this->updated_date = date('Y-m-d H:i:s');
+      $this->db->update('jadwal_config', $this, array('id' => $id));
+      
+      $response = array('status' => true, 'data' => 'Data has been saved.');
+    } catch (\Throwable $th) {
+      $response = array('status' => false, 'data' => 'Failed to save your data.');
+    };
+
+    return $response;
   }
 }

@@ -170,8 +170,8 @@ class Diklat extends AppBackend
           if (file_exists($outputPath_docx)) {
             if ($outputFile == 'pdf') {
               // Convert to PDF
-              $convCmd = '"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // windows
-              // $convCmd = 'export HOME=/tmp && soffice --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // linux server
+              // $convCmd = '"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // windows
+              $convCmd = 'export HOME=/tmp && soffice --headless --convert-to pdf "' . $outputPath_docx . '" --outdir "' . $outputRealPath . '"'; // linux server
               @exec($convCmd, $convOutput, $convReturn);
               @unlink($outputPath_docx);
 

@@ -202,10 +202,9 @@ class KontrakPegawaiModel extends CI_Model
       $this->status_kontrak_id = $this->input->post('status_kontrak_id');
       $this->status_active = $this->input->post('status_active');
       $this->created_by = $this->session->userdata('user')['id'];
-      $this->db->insert($this->_table, $this);
 
-      // Update on employee
       if ($this->status_active == 1) {
+        // Update on employee
         $pegawaiPayload = array(
           'kategori_pegawai_id' => $this->kategori_pegawai_id,
           'jenis_pegawai_id' => $this->jenis_pegawai_id,
@@ -215,8 +214,13 @@ class KontrakPegawaiModel extends CI_Model
           'jabatan_id' => $this->jabatan_id
         );
         $this->PegawaiModel->updateStatusKepegawaian($pegawaiPayload, $this->pegawai_id);
+
+        // Non active existing contract
+        $this->db->update($this->_table, array('status_active' => 0), array('pegawai_id' => $this->pegawai_id));
       };
-      // END ## Update on employee
+
+      // Insert current contract
+      $this->db->insert($this->_table, $this);
 
       if ($this->db->trans_status() === false) {
         $this->db->trans_rollback();
@@ -268,10 +272,9 @@ class KontrakPegawaiModel extends CI_Model
       $this->status_active = $this->input->post('status_active');
       $this->updated_by = $this->session->userdata('user')['id'];
       $this->updated_date = date('Y-m-d H:i:s');
-      $this->db->update($this->_table, $this, array('id' => $id));
 
-      // Update on employee
       if ($this->status_active == 1) {
+        // Update on employee
         $pegawaiPayload = array(
           'kategori_pegawai_id' => $this->kategori_pegawai_id,
           'jenis_pegawai_id' => $this->jenis_pegawai_id,
@@ -281,8 +284,13 @@ class KontrakPegawaiModel extends CI_Model
           'jabatan_id' => $this->jabatan_id
         );
         $this->PegawaiModel->updateStatusKepegawaian($pegawaiPayload, $this->pegawai_id);
+
+        // Non active existing contract
+        $this->db->update($this->_table, array('status_active' => 0), array('pegawai_id' => $this->pegawai_id));
       };
-      // END ## Update on employee
+
+      // Update current contract
+      $this->db->update($this->_table, $this, array('id' => $id));
 
       if ($this->db->trans_status() === false) {
         $this->db->trans_rollback();

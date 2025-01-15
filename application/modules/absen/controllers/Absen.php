@@ -42,40 +42,37 @@ class Absen extends AppBackend
         }
     }
 
-    if(!is_null($month) && $month != 'all'){
-      $currentYear = date('Y');
-      $yearToUse = (!is_null($year) && $year !== 'all') ? $year : $currentYear;
-      $startDate = date('Y-m-d', strtotime("$yearToUse-$month-21 -1 month"));
-      $endDate = date('Y-m-d', strtotime("$yearToUse-$month-20"));
-      $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
-      $this->months = $month;
-      $this->years = $yearToUse;
-    }else{
-      $currentMonth = date('m');
-      $currentYear = date('Y');
-      $startDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-21 -1 month"));
-      $endDate = date('Y-m-d', strtotime("$currentYear-$currentMonth-20"));
-      $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
-      $this->months = $currentMonth;
-      $this->years = $currentYear;
-    }
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+    $yearToUse = (!is_null($year) && $year !== $currentYear) ? $year : $currentYear;
+    $monthToUse = (!is_null($month) && $month !== $currentMonth) ? $month : $currentMonth;
+    $startDate = date('Y-m-d', strtotime("$yearToUse-$monthToUse-21 -1 month"));
+    $endDate = date('Y-m-d', strtotime("$yearToUse-$monthToUse-20"));
+    $filter .= "AND tanggal_absen BETWEEN '$startDate' AND '$endDate'";
+    $this->months = $month;
+    $this->years = $yearToUse;
 
     return (object) array(
       'params' => ($isExport === true) ? array(
           'cxfilter_unit' => (!is_null($unit_id) && $unit_id != 'all') ? @$this->UnitModel->getDetail(['id' => $unit_id])->nama_unit : 'Semua',
-          'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->SubunitModel->getDetail(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
+          'cxfilter_sub_unit' => (!is_null($sub_unit_id) && $sub_unit_id != 'all') ? @$this->AbsenModel->getDetail_sub_unit(['id' => $sub_unit_id])->nama_sub_unit : 'Semua',
       ) : array(),
       'query_string' => $this->AbsenModel->getQuery($filter),
     );
+    
   }
 
   public function index()
   {
+    
+    $currentYear = date('Y');
+    $currentMonth = date('m');
+
     $cxfilter__list_static = '<option value="all">--Semua--</option>';
     $cxfilter__unit_store = $this->init_list($this->UnitModel->getAll([], 'nama_unit', 'asc'), 'id', 'nama_unit', 'all', $cxfilter__list_static);
     $cxfilter__sub_unit_store = $this->init_list($this->SubunitModel->getAll(['unit_id' => @$cxfilter__unit_store->id], 'nama_sub_unit', 'asc'), 'id', 'nama_sub_unit', 'all', $cxfilter__list_static);
-    $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', '<option value="all">--Bulan ini--</option>');
-    $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', '<option value="all">--Tahun ini--</option>');
+    $cxfilter__month = $this->init_list($this->AbsenModel->getMonth(), 'id', 'text', 'all', '<option value="'.$currentMonth.'">--Bulan ini--</option>');
+    $cxfilter__year = $this->init_list($this->AbsenModel->getYear(), 'id', 'text', 'all', '<option value="'.$currentYear.'">--Tahun ini--</option>');
 		
     $query = $this->db->get('jadwal');
     $jadwals = $query->result();
@@ -85,7 +82,7 @@ class Absen extends AppBackend
             $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
         }
     }
-
+    
     $agent = new Mobile_Detect;
     $data = array(
       'app' => $this->app(),

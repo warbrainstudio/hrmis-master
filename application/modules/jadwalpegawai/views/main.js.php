@@ -6,6 +6,8 @@
     var _table = "table-jadwal";
     var _modal = "modal-form-jadwal";
     var _form = "form-jadwal";
+    var _modal_config = "modal-form-jadwal-config";
+    var _form_config = "form-jadwal-config";
 
     // Initialize DataTables: Index
     if ($("#" + _table)[0]) {
@@ -124,6 +126,11 @@
       resetForm();
     });
 
+    $("#" + _section).on("click", "button." + _section + "-action-config", function(e) {
+      e.preventDefault();
+      $(`#${_form_config}`).trigger("reset");
+    });
+
     // Handle data edit
     $("#" + _table).on("click", "a.action-edit", function(e) {
       e.preventDefault();
@@ -151,6 +158,26 @@
             resetForm();
             $("#" + _modal).modal("hide");
             $("#" + _table).DataTable().ajax.reload(null, false);
+            notify(response.data, "success");
+          } else {
+            notify(response.data, "danger");
+          };
+        }
+      });
+    });
+
+    $("#" + _modal_config + " ." + _section + "-action-save-config").on("click", function(e) {
+      e.preventDefault();
+      $.ajax({
+        type: "post",
+        url: "<?php echo base_url('jadwalpegawai/ajax_save_config/') ?>",
+        data: $("#" + _form_config).serialize(),
+        success: function(response) {
+          var response = JSON.parse(response);
+          if (response.status === true) {
+            $(`#${_form_config}`).trigger("reset");
+            $("#" + _modal_config).modal("hide");
+            location.reload();
             notify(response.data, "success");
           } else {
             notify(response.data, "danger");

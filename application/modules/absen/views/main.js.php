@@ -68,6 +68,18 @@
                 if (!data) {
                   return "-";
                 } else {
+                  var jam = parseFloat(row.cek_waktu_masuk).toFixed(0);
+                  var status = "";
+                  if (!isNaN(jam)) {
+                    if(jam < 0){
+                      status = "cepat";
+                    }else{
+                      status = "Telat";
+                    }
+                    jam += " Menit";
+                  }else{
+                    jam = '-';
+                  }
                   let verifiedColor = 'success';
                   var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
                   var DateMasuk = moment(data).format('DD-MM-YYYY');
@@ -75,16 +87,16 @@
                   if(row.pulang){
                     if(DateMasuk!=DatePulang){
                       if(DateMasuk==tanggal){
-                        return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                        return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                       }else{
                         let verifiedColor = 'dark';
                         return `<span class="badge badge-${verifiedColor}" title="hari masuk berbeda. ${DateMasuk}">${moment(data).format('HH:mm:ss')}`;
                       }
                     }else{
-                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                      return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                     }
                   }else{
-                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                   }
                 }
               }
@@ -114,6 +126,18 @@
                 if (!data) {
                   return "-";
                 }  else {
+                  var jam = parseFloat(row.cek_waktu_pulang).toFixed(0);
+                  var status = "";
+                  if (!isNaN(jam)) {
+                    if(jam < 0){
+                      status = "Awal";
+                    }else{
+                      status = "Lebih";
+                    }
+                    jam += " Menit";
+                  }else{
+                    jam = '-';
+                  }
                   let verifiedColor = 'success';
                   var tanggal = moment(row.tanggal_absen).format('DD-MM-YYYY');
                   var DateMasuk = moment(row.masuk).format('DD-MM-YYYY');
@@ -121,16 +145,16 @@
                   if(row.pulang){
                     if(DateMasuk!=DatePulang){
                       if(DatePulang==tanggal){
-                        return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                        return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                       }else{
                         let verifiedColor = 'dark';
                         return `<span class="badge badge-${verifiedColor}" title="hari pulang berbeda. ${DatePulang}">${moment(data).format('HH:mm:ss')}`;
                       }
                     }else{
-                      return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                      return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                     }
                   }else{
-                    return `<span class="badge badge-${verifiedColor}">${moment(data).format('HH:mm:ss')}`;
+                    return `<span class="badge badge-${verifiedColor}" title="${status} ${jam}">${moment(data).format('HH:mm:ss')}`;
                   }
                 }
               }
@@ -162,7 +186,13 @@
                     var masuk = moment(row.jam_masuk, 'HH:mm:ss');
                     var compareTime = moment('19:00:00', 'HH:mm:ss');
                     if (masuk.isAfter(compareTime)) {
-                      return `<span class="badge badge-dark" title="absensi pulang bisa di cek di hari selanjutnya"><i class="zmdi zmdi-check-circle"></i> Shift Malam</span>`;
+                      var tanggal_masuk = moment(row.masuk).format('DD-MM-YYYY');
+                      var yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
+                      if (tanggal_masuk === yesterday) {
+                        return `<span class="badge badge-dark" title="data akan muncul setelah penarikan data"><i class="zmdi zmdi-check-circle"></i> Shift Malam</span>`;
+                      }else{
+                        return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
+                      }
                     }else{
                       return `<span class="badge badge-danger" title="Data tidak lengkap"><i class="zmdi zmdi-alert-circle"></i> Notice</span>`;
                     }
@@ -197,7 +227,7 @@
                           return `<a href="javascript:;" title="Sistem tidak bisa menentukan shift. Tentukan shift manual ?" class="btn btn-sm btn-warning btn-table-action action-edit-jadwal" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-help"></i></a>&nbsp;`;
                         }else{
                           row.jadwal_id = row.id_jadwal;
-                          return `<a title="dari ${jam_masuk} s/d ${jam_pulang}">${data}</a>`;
+                          return `<a title="${jam_masuk} s/d ${jam_pulang}">${data}</a>`;
                         }
                       }else{
                         return "-";
@@ -206,7 +236,7 @@
                     return "-";
                   }
                 }else{
-                  return `<a title="dari ${jam_masuk} s/d ${jam_pulang}">${row.nama_jadwal}</a>`;
+                  return `<a title="${jam_masuk} s/d ${jam_pulang}">${row.nama_jadwal}</a>`;
                 }
               }
             },
@@ -218,7 +248,13 @@
                 var masuk = moment(row.jam_masuk, 'HH:mm:ss');
                 var compareTime = moment('19:00:00', 'HH:mm:ss');
                 if (masuk.isAfter(compareTime) && row.pulang === null) {
-                  return `<div class="action" style="display: flex; flex-direction: row;">${del}</div>`;
+                  var tanggal_masuk = moment(row.masuk).format('DD-MM-YYYY');
+                  var yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
+                  if (tanggal_masuk === yesterday) {
+                    return `<div class="action" style="display: flex; flex-direction: row;">${del}</div>`;
+                  }else{
+                    return `<div class="action" style="display: flex; flex-direction: row;">${edit} ${del}</div>`;
+                  }
                 }else{
                   return `<div class="action" style="display: flex; flex-direction: row;">${edit} ${del}</div>`;
                 }
