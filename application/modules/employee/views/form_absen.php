@@ -97,7 +97,7 @@
           <i class="zmdi zmdi-save"></i> Simpan
         </button>
         <button type="button" class="btn btn-light btn--icon-text employee-action-cancel" data-dismiss="modal">
-          Batal
+          Selesai
         </button>
       </div>
     </div>

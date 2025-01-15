@@ -801,9 +801,7 @@
           success: function(response) {
             var response = JSON.parse(response);
             if (response.status === true) {
-              _id = "";
-              $(`#${_formAbsen}`).trigger("reset");
-              $("#"+_modalAbsen).modal("hide");
+              //$("#"+_modalAbsen).modal("hide");
               $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
               notify(response.data, "success");
             } else {
@@ -822,9 +820,7 @@
           success: function(response) {
             var response = JSON.parse(response);
             if (response.status === true) {
-              _id = "";
-              $(`#${_formAbsen}`).trigger("reset");
-              $("#"+_modalAbsen).modal("hide");
+              //$("#"+_modalAbsen).modal("hide");
               $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
               notify(response.data, "success");
             } else {
