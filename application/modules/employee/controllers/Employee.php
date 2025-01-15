@@ -30,6 +30,8 @@ class Employee extends AppBackend
       'PendidikanModel',
       'PegawaiKeluargaModel',
       'HubunganKeluargaModel',
+      'AbsenModel',
+      'MesinAbsenModel',
     ]);
     $this->load->library('form_validation');
   }
@@ -75,7 +77,7 @@ class Employee extends AppBackend
     $cxfilter__statuKerja_store = $this->init_list($this->JenisPegawaiModel->getAll([], 'nama_jenis_pegawai', 'asc'), 'id', 'nama_jenis_pegawai', 'all', $cxfilter__list_static);
     $cxfilter__statusKontrak_store = $this->init_list($this->StatusKontrakModel->getAll([], 'nama_status_kontrak', 'asc'), 'id', 'nama_status_kontrak', 'all', $cxfilter__list_static);
     $cxfilter__statusActive_store = $this->init_list([['id' => '1', 'nama' => 'Aktif'], ['id' => '0', 'nama' => 'Tidak Aktif']], 'id', 'nama', 'all', $cxfilter__list_static);
-
+    
     $agent = new Mobile_Detect;
     $data = array(
       'app' => $this->app(),
@@ -192,6 +194,15 @@ class Employee extends AppBackend
     $ref = (!is_null($ref) && is_numeric($ref)) ? $ref : null;
     $actionLabel = '<span class="badge badge-info">View</span> ';
 
+    $query = $this->db->get('jadwal');
+    $jadwals = $query->result();
+    $list_jadwal = '';
+    if (isset($jadwals) && is_array($jadwals)) {
+        foreach ($jadwals as $jadwal) {
+            $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
+        }
+    }
+
     $pegawai = $this->PegawaiModel->getDetail(['pegawai.id' => $ref]);
     $data = array(
       'app' => $this->app(),
@@ -205,6 +216,9 @@ class Employee extends AppBackend
       'controller' => $this,
       'is_mobile' => $agent->isMobile(),
       'pegawai' => $pegawai,
+      'list_verifikasi' => $this->init_list($this->AbsenModel->getVerifikasi(), 'id', 'text'),
+      'list_mesin' => $this->init_list($this->MesinAbsenModel->getAll(), 'ipadress', 'nama_mesin'),
+      'list_jadwal' => $list_jadwal,
     );
     $this->template->set_template('sb_admin_partial');
     $this->template->set('title', $data['card_title'] . ' | ' . $data['app']->app_name, TRUE);

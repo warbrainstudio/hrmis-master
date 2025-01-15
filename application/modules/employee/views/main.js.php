@@ -3,6 +3,7 @@
 <script type="text/javascript">
   var _action_route = "<?= isset($action_route) ? $action_route : '' ?>";
   var _key = "<?= $key ?>";
+  var _id = "";
   var _section = "employee";
   var _table_master = "table-employee";
   var _table_histori_absensi = "table-histori-absensi";
@@ -15,6 +16,8 @@
   var _form = "form-employee";
   var _modalImport = "modal-form-import";
   var _formImport = "form-import";
+  var _modalAbsen = "modal-form-absen_employee";
+  var _formAbsen = "form-absen_employee";
   var _p_search = "<?= (isset($_GET['q'])) ? $_GET['q'] : '' ?>";
   var _is_first_load = (_key != null && _key != "") ? true : false;
 
@@ -386,7 +389,7 @@
           processing: true,
           serverSide: true,
           ajax: {
-            url: "<?php echo base_url('kalenderabsen/ajax_get_all/') ?>",
+            url: "<?php echo base_url('absen/ajax_get_all/') ?>",
             type: "get",
               data: {
                 searchFilter: "<?= "AND absen_id='$absen_id'" ?>",
@@ -566,7 +569,9 @@
                   if(row.masuk){
                       if(masuk && pulang){
                         if(data===null){
-                          return `<a href="javascript:;" title="Sistem tidak bisa menentukan shift. Tentukan shift manual ?" class="btn btn-sm btn-warning btn-table-action action-edit-jadwal" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-help"></i></a>&nbsp;`;
+                          return `<a href="javascript:;" title="Sistem tidak bisa menentukan shift. Tentukan shift manual ?" 
+                          class="btn btn-sm btn-warning btn-table-action action-edit-jadwal" data-toggle="modal" 
+                          data-target="#${_modalAbsen}"><i class="zmdi zmdi-help"></i></a>&nbsp;`;
                         }else{
                           row.jadwal_id = row.id_jadwal;
                           return `<a title="${jam_masuk} s/d ${jam_pulang}">${data}</a>`;
@@ -586,7 +591,7 @@
               data: null,
               render: function(data, type, row, meta) {
                 var del = `<a href="javascript:;" class="btn btn-sm btn-danger btn-table-action action-delete"><i class="zmdi zmdi-delete"></i> Hapus</a>`;
-                var edit = `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#${_modal}"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;       
+                var edit = `<a href="javascript:;" class="btn btn-sm btn-light btn-table-action action-edit" data-toggle="modal" data-target="#${_modalAbsen}"><i class="zmdi zmdi-edit"></i> Ubah</a>&nbsp;`;      
                 var masuk = moment(row.jam_masuk, 'HH:mm:ss');
                 var compareTime = moment('19:00:00', 'HH:mm:ss');
                 if (masuk.isAfter(compareTime) && row.pulang === null) {
@@ -676,23 +681,20 @@
         });
       };
 
-      $("#" + table_histori_absensi).on("click", "a.action-edit-jadwal", function(e) {
+      $("#" + _table_histori_absensi).on("click", "a.action-edit-jadwal", function(e) {
         e.preventDefault();
-        resetForm();
 
-        var _section = "employee";
-
-        var temp = table_absen.row($(this).closest('tr')).data();
+        var temp = table_histori_absensi.row($(this).closest('tr')).data();
         var masuk = document.querySelector("."+_section+"-masuk");
         var verifikasi_masuk = document.querySelector("."+_section+"-row_verifikasi_masuk");
         var mesin_masuk = document.querySelector("."+_section+"-row_mesin_masuk");
         var pulang = document.querySelector("."+_section+"-pulang");
         var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
         var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
-        var change = document.querySelector("."+_section+"-action-change");
-        var save = document.querySelector("."+_section+"-action-save");
+        var change = document.querySelector("."+_section+"-action-change_absen");
+        var save = document.querySelector("."+_section+"-action-save_absen");
 
-        _key = temp.id;
+        _id = temp.id;
 
         save.style.display = "none";
         change.style.display  = "block";
@@ -702,7 +704,7 @@
         mesin_pulang.style.display  = "none";
 
         $.each(temp, function(key, item) {
-          $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-${key}`).val(item).trigger("input").trigger("change");
         });
 
         if(temp.masuk==null){
@@ -710,13 +712,13 @@
           let pulangDate = new Date(temp.pulang);
           pulangDate.setHours(pulangDate.getHours() + 7);
           let pulangFormatted = pulangDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
         }else{
           masuk.disabled = true;
           let masukDate = new Date(temp.masuk);
           masukDate.setHours(masukDate.getHours() + 7);
           let masukFormatted = masukDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
         }
 
         if(temp.pulang==null){
@@ -724,22 +726,19 @@
           let masukDate = new Date(temp.masuk);
           masukDate.setHours(masukDate.getHours() + 7);
           let masukFormatted = masukDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
         }else{
           pulang.disabled = true;
           let pulangDate = new Date(temp.pulang);
           pulangDate.setHours(pulangDate.getHours() + 7);
           let pulangFormatted = pulangDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
         }
 
       });
 
       $("#" + _table_histori_absensi).on("click", "a.action-edit", function(e) {
         e.preventDefault();
-        resetForm();
-
-        var _section = "employee";
 
         var temp = table_histori_absensi.row($(this).closest('tr')).data();
         var masuk = document.querySelector("."+_section+"-masuk");
@@ -748,10 +747,10 @@
         var pulang = document.querySelector("."+_section+"-pulang");
         var verifikasi_pulang = document.querySelector("."+_section+"-row_verifikasi_pulang");
         var mesin_pulang = document.querySelector("."+_section+"-row_mesin_pulang");
-        var change = document.querySelector("."+_section+"-action-change");
-        var save = document.querySelector("."+_section+"-action-save");
+        var change = document.querySelector("."+_section+"-action-change_absen");
+        var save = document.querySelector("."+_section+"-action-save_absen");
 
-        _key = temp.id;
+        _id = temp.id;
 
         masuk.disabled = false;
         pulang.disabled = false;
@@ -763,47 +762,48 @@
         mesin_pulang.style.display  = "block";
 
         $.each(temp, function(key, item) {
-          $(`#${_form} .${_section}-${key}`).val(item).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-${key}`).val(item).trigger("input").trigger("change");
         });
         
         if(temp.masuk==null){
           let pulangDate = new Date(temp.pulang);
           pulangDate.setHours(pulangDate.getHours() + 7);
           let pulangFormatted = pulangDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-masuk`).val(pulangFormatted).trigger("input").trigger("change");
         }else{
           let masukDate = new Date(temp.masuk);
           masukDate.setHours(masukDate.getHours() + 7);
           let masukFormatted = masukDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-masuk`).val(masukFormatted).trigger("input").trigger("change");
         }
 
         if(temp.pulang==null){
           let masukDate = new Date(temp.masuk);
           masukDate.setHours(masukDate.getHours() + 7);
           let masukFormatted = masukDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-pulang`).val(masukFormatted).trigger("input").trigger("change");
         }else{
           let pulangDate = new Date(temp.pulang);
           pulangDate.setHours(pulangDate.getHours() + 7);
           let pulangFormatted = pulangDate.toISOString().slice(0, 19);
-          $(`#${_form} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
+          $(`#${_formAbsen} .${_section}-pulang`).val(pulangFormatted).trigger("input").trigger("change");
         }
 
       });
 
 
-      $("#modal-form-absen .employee-action-save").on("click", function(e) {
+      $("#" + _modalAbsen + " ." + _section + "-action-save_absen").on("click", function(e) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "<?php echo base_url('absen/ajax_save/') ?>" + _key,
-          data: $("#" + _form).serialize(),
+          url: "<?php echo base_url('absen/ajax_save/') ?>" + _id,
+          data: $("#" + _formAbsen).serialize(),
           success: function(response) {
             var response = JSON.parse(response);
             if (response.status === true) {
-              resetForm();
-              $("#modal-form-absen").modal("hide");
+              _id = "";
+              $(`#${_formAbsen}`).trigger("reset");
+              $("#"+_modalAbsen).modal("hide");
               $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
               notify(response.data, "success");
             } else {
@@ -813,17 +813,18 @@
         });
       });
 
-      $("#modal-form-absen .employee-action-change").on("click", function(e) {
+      $("#" + _modalAbsen + " ." + _section + "-action-change_absen").on("click", function(e) {
         e.preventDefault();
         $.ajax({
           type: "post",
-          url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>" + _key,
-          data: $("#" + _form).serialize(),
+          url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>" + _id,
+          data: $("#" + _formAbsen).serialize(),
           success: function(response) {
             var response = JSON.parse(response);
             if (response.status === true) {
-              resetForm();
-              $("#modal-form-absen").modal("hide");
+              _id = "";
+              $(`#${_formAbsen}`).trigger("reset");
+              $("#"+_modalAbsen).modal("hide");
               $("#" + _table_histori_absensi).DataTable().ajax.reload(null, false);
               notify(response.data, "success");
             } else {
