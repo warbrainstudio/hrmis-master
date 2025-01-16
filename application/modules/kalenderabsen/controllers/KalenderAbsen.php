@@ -22,6 +22,7 @@ class Kalenderabsen extends AppBackend
       'MesinAbsenModel',
       'JadwalModel',
     ));
+    $this->load->library('form_validation');
 
     $this->prefs = array(
 			'start_day'    => 'senin',
@@ -146,12 +147,12 @@ class Kalenderabsen extends AppBackend
     $query = $this->db->get('jadwal');
     $jadwals = $query->result();
     $list_jadwal = '';
-    
     if (isset($jadwals) && is_array($jadwals)) {
-
-        foreach ($jadwals as $jadwal) {
-            $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
-        }
+      foreach ($jadwals as $jadwal) {
+        $query_unit = $this->db->select('nama_unit')->where('id', $jadwal->unit_id)->get('unit');
+        $unit = $query_unit->row();
+        $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ') - '.$unit->nama_unit.'</option>';
+      }
 
     }
 
@@ -250,26 +251,30 @@ class Kalenderabsen extends AppBackend
     }  
   }
 
-  public function ajax_save($id = null)
+  public function ajax_save($id)
   {
     $this->handle_ajax_request();
-    if (is_null($id)) {
+    $this->form_validation->set_rules($this->AbsenModel->rules());
+
+    if ($this->form_validation->run() === true) {
+      echo json_encode($this->AbsenModel->update($id));
+    }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
-    } else {
-      echo json_encode($this->AbsenModel->update($id));
     };
   }
 
-  public function ajax_change_jadwal($id = null)
+  public function ajax_change_jadwal($id)
   {
     $this->handle_ajax_request();
-    if (is_null($id)) {
+    $this->form_validation->set_rules($this->AbsenModel->rules());
+
+    if ($this->form_validation->run() === true) {
+      echo json_encode($this->AbsenModel->update_jadwal($id));
+    }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
-    } else {
-      echo json_encode($this->AbsenModel->update_jadwal($id));
-    };
+    }
   }
 
   public function ajax_delete($id)

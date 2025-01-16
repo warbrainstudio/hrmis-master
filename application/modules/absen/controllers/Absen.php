@@ -22,6 +22,7 @@ class Absen extends AppBackend
       'PegawaiModel',
       'MesinAbsenModel',
     ));
+    $this->load->library('form_validation');
   }
 
   private function _getQuery($isExport = false)
@@ -78,9 +79,11 @@ class Absen extends AppBackend
     $jadwals = $query->result();
     $list_jadwal = '';
     if (isset($jadwals) && is_array($jadwals)) {
-        foreach ($jadwals as $jadwal) {
-            $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ')</option>';
-        }
+      foreach ($jadwals as $jadwal) {
+        $query_unit = $this->db->select('nama_unit')->where('id', $jadwal->unit_id)->get('unit');
+        $unit = $query_unit->row();
+        $list_jadwal .= '<option value="' . htmlspecialchars($jadwal->id) . '">' . htmlspecialchars($jadwal->nama_jadwal) . ' (' . htmlspecialchars($jadwal->jadwal_masuk) .' - ' . htmlspecialchars($jadwal->jadwal_pulang) . ') - '.$unit->nama_unit.'</option>';
+      }
     }
     
     $agent = new Mobile_Detect;
@@ -153,26 +156,30 @@ class Absen extends AppBackend
     echo json_encode($response);
   }
 
-  public function ajax_save($id = null)
+  public function ajax_save($id)
   {
     $this->handle_ajax_request();
-    if (is_null($id)) {
+    $this->form_validation->set_rules($this->AbsenModel->rules());
+
+    if ($this->form_validation->run() === true) {
+      echo json_encode($this->AbsenModel->update($id));
+    }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
-    } else {
-      echo json_encode($this->AbsenModel->update($id));
     };
   }
 
-  public function ajax_change_jadwal($id = null)
+  public function ajax_change_jadwal($id)
   {
     $this->handle_ajax_request();
-    if (is_null($id)) {
+    $this->form_validation->set_rules($this->AbsenModel->rules());
+
+    if ($this->form_validation->run() === true) {
+      echo json_encode($this->AbsenModel->update_jadwal($id));
+    }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
-    } else {
-      echo json_encode($this->AbsenModel->update_jadwal($id));
-    };
+    }
   }
 
   public function ajax_delete($id)

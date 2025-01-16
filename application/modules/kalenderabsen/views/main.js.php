@@ -503,7 +503,7 @@
             $("#" + _table).DataTable().ajax.reload(null, false);
             notify(response.data, "success");
           } else {
-            notify(response.error, "danger");
+            notify(response.data, "danger");
           };
         }
       });

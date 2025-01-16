@@ -6,6 +6,52 @@ class AbsenModel extends CI_Model
   private $_table = 'absen_pegawai';
   private $_tableView = '';
 
+  public function rules()
+  {
+    return array(
+      [
+        'field' => 'jadwal_id',
+        'label' => 'Jadwal',
+        'rules' => 'required|trim',
+        'rules' => [
+          'trim',
+          [
+            'check_unit',
+            function () {
+              return $this->_check_unit();
+            }
+          ]
+        ]
+      ],
+    );
+  }
+
+  private function _check_unit()
+  {
+    $jadwal_id = $this->input->post('jadwal_id');
+    $unit_id = $this->input->post('unit_id');
+
+    if(!is_null($jadwal_id)){
+      $query = $this->db->select('unit_id')->where('id', $jadwal_id)->get('jadwal');
+      $jadwal = $query->row();
+      $jadwal_unit = $jadwal->unit_id;
+
+      $query_unit = $this->db->select('nama_unit')->where('id', $jadwal_unit)->get('unit');
+      $unit = $query_unit->row();
+
+      if ($jadwal && $jadwal_unit == $unit_id) {
+        return true;
+      }else{
+        $this->form_validation->set_message('check_unit', 'Jadwal ini untuk unit '.$unit->nama_unit);
+        return false;
+      }
+    }else{
+      $this->form_validation->set_message('check_unit', 'Jadwal tidak boleh kosong');
+      return false;
+    }
+
+  }
+
   public function getVerifikasi()
   {
     $data = array(
@@ -230,6 +276,7 @@ class AbsenModel extends CI_Model
       $this->updated_by = $this->session->userdata('user')['id'];
       $this->updated_date = date('Y-m-d H:i:s');
       $this->db->update($this->_table, $this, array('id' => $id));
+
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
       $response = array('status' => false, 'data' => 'Failed to save your data.', 'error' => $th);

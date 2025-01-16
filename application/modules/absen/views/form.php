@@ -86,6 +86,7 @@
           <div class="form-group">
             <label required>Jadwal</label>
             <div class="select">
+              <input type="hidden" name="unit_id" class="form-control absen-unit_id" maxlength="100" readonly />
               <select name="jadwal_id" class="form-control select2 absen-jadwal_id" data-placeholder="Pilih &#8595;" required>
                 <?= $list_jadwal ?>
               </select>
