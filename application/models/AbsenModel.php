@@ -93,6 +93,59 @@ class AbsenModel extends CI_Model
 
     return $years;
   }
+
+  /*public function getQueryRaw($filter = null)
+  {
+      $query = "
+          SELECT t.* FROM (
+              WITH attendance_data AS (
+                  SELECT
+                      p.id AS id_pegawai,
+                      p.nrp,
+                      p.nama_lengkap,
+                      p.unit_id,
+                      p.sub_unit_id,
+                      u.kode_unit,
+                      u.nama_unit,
+                      su.kode_sub_unit,
+                      su.nama_sub_unit,
+                      abr.absen_id,
+                      abr.status,
+                      abr.tanggal_absen,
+                      abr.ipmesin,
+                      abr.verified,
+                      abr.tanggal_absen::date AS tanggal
+                  FROM absen_pegawai_raw abr
+                  LEFT JOIN pegawai p ON abr.absen_id = p.absen_pegawai_id
+                  LEFT JOIN unit u ON u.id = p.unit_id
+                  LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
+              )
+              SELECT 
+                  ad.tanggal,
+                  MAX(CASE WHEN ad.status = 0 THEN ad.tanggal_absen ELSE NULL END) AS masuk,
+                  MAX(CASE WHEN ad.status = 0 THEN ad.verified ELSE NULL END) AS verifikasi_masuk,
+                  MAX(CASE WHEN ad.status = 0 THEN ad.ipmesin ELSE NULL END) AS nama_mesin_masuk,
+                  MAX(CASE WHEN ad.status = 1 THEN ad.tanggal_absen ELSE NULL END) AS pulang,
+                  MAX(CASE WHEN ad.status = 1 THEN ad.verified ELSE NULL END) AS verifikasi_pulang,
+                  MAX(CASE WHEN ad.status = 1 THEN ad.ipmesin ELSE NULL END) AS nama_mesin_pulang,
+                  ad.absen_id
+              FROM attendance_data ad
+              GROUP BY ad.tanggal, ad.absen_id
+              ORDER BY ad.tanggal ASC
+          ) t
+          WHERE 1=1
+      ";
+  
+      if (!is_null($filter) && $filter !== '') {
+        if (strpos($filter, 'AND') === false) {
+            $query .= " AND " . $filter;
+        } else {
+            $query .= " " . $filter;
+        }
+      }
+  
+      return $query;
+  }*/
   
   public function getQueryRaw($filter = null)
   {

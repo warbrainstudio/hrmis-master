@@ -928,6 +928,65 @@
                 return row.nama_mesin+" "+row.lokasi;
               }
             }
+            /*
+            {
+              data: "masuk",
+              render: function(data, type, row, meta) {
+                if (!data) {
+                  return "-";
+                } else {
+                  return data;
+                }
+              }
+            },
+            {
+              data: "verifikasi_masuk",
+              render: function(data, type, row, meta) {
+                let verifiedColor = 'secondary';
+                let verified = '';
+                if (data === '1') {
+                  verifiedColor = 'primary';
+                  verified = 'Finger';
+                } else if (data === '0') {
+                  verifiedColor = 'secondary';
+                  verified = 'Input';
+                } else {
+                  return "-";
+                }
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_masuk}">${verified}`;
+                var mesin = row.nama_mesin_masuk ? `${row.nama_mesin_masuk}</span>` : row.mesin_masuk;
+                return verifikasi+" / "+mesin;
+              }
+            },
+            {
+              data: "pulang",
+              render: function(data, type, row, meta) {
+                if (!data) {
+                  return "-";
+                }  else {
+                  return data;
+                }
+              }
+            },
+            {
+              data: "verifikasi_pulang",
+              render: function(data, type, row, meta) {
+                let verifiedColor = 'secondary';
+                let verified = '';
+                if (data === '1') {
+                  verifiedColor = 'primary';
+                  verified = 'Finger';
+                } else if (data === '0') {
+                  verifiedColor = 'secondary';
+                  verified = 'Input';
+                } else {
+                  return "-";
+                }
+                var verifikasi = `<span class="badge badge-${verifiedColor}" title="${row.lokasi_pulang}">${verified}`;
+                var mesin = row.nama_mesin_pulang ? `${row.nama_mesin_pulang}</span>` : row.mesin_pulang;
+                return verifikasi+" / "+mesin;
+              }
+            */
           ],
           autoWidth: !1,
           responsive: {
