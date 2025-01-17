@@ -23,7 +23,6 @@
             <div class="col-xs-12 col-sm-6">
               <div class="form-group">
                 <label required>Jam Masuk</label>
-                <input type="hidden" name="absensi_masuk" class="form-control absen-absensi_masuk" readonly />
                 <input type="datetime-local" name="masuk" class="form-control absen-masuk" maxlength="100" />
                 <i class="form-group__bar"></i>
               </div>
@@ -31,7 +30,6 @@
             <div class="col-xs-12 col-sm-6">
               <div class="form-group">
                 <label required>Jam Pulang</label>
-                <input type="hidden" name="absensi_pulang" class="form-control absen-absensi_pulang" readonly />
                 <input type="datetime-local" name="pulang" class="form-control absen-pulang" maxlength="100" />
                 <i class="form-group__bar"></i>
               </div>

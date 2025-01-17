@@ -156,40 +156,36 @@ class Absen extends AppBackend
     echo json_encode($response);
   }
 
-  public function ajax_save()
+  public function ajax_save($id)
   {
     $this->handle_ajax_request();
     $this->form_validation->set_rules($this->AbsenModel->rules());
-    $absensi_masuk = $this->input->post('absensi_masuk');
-    $absensi_pulang = $this->input->post('absensi_pulang');
+
     if ($this->form_validation->run() === true) {
-      echo json_encode($this->AbsenModel->update($absensi_masuk, $absensi_pulang));
+      echo json_encode($this->AbsenModel->update($id));
     }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
     };
   }
 
-  public function ajax_change_jadwal()
+  public function ajax_change_jadwal($id)
   {
     $this->handle_ajax_request();
     $this->form_validation->set_rules($this->AbsenModel->rules());
-    $absensi_masuk = $this->input->post('absensi_masuk');
-    $absensi_pulang = $this->input->post('absensi_pulang');
+
     if ($this->form_validation->run() === true) {
-      echo json_encode($this->AbsenModel->update_jadwal($absensi_masuk, $absensi_pulang));
+      echo json_encode($this->AbsenModel->update_jadwal($id));
     }else{
       $errors = validation_errors('<div>- ', '</div>');
       echo json_encode(array('status' => false, 'data' => $errors));
     }
   }
 
-  public function ajax_delete()
+  public function ajax_delete($id)
   {
     $this->handle_ajax_request();
-    $absensi_masuk = $this->input->post('absensi_masuk');
-    $absensi_pulang = $this->input->post('absensi_pulang');
-    echo json_encode($this->AbsenModel->delete($absensi_masuk, $absensi_pulang));
+    echo json_encode($this->AbsenModel->delete($id));
   }
 
   public function ajax_delete_pegawai($absen_id)
