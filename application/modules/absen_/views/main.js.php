@@ -26,7 +26,7 @@
               }
             },
             {
-              data: "tanggal_absen",
+              data: "tanggal",
               render: function(data, type, row, meta) {
                 return moment(data).format('DD-MM-YYYY');
               }
@@ -457,7 +457,7 @@
       e.preventDefault();
       $.ajax({
         type: "post",
-        url: "<?php echo base_url('absen/ajax_save/') ?>" + _key,
+        url: "<?php echo base_url('absen/ajax_save/') ?>",
         data: $("#" + _form).serialize(),
         success: function(response) {
           var response = JSON.parse(response);
@@ -477,7 +477,7 @@
       e.preventDefault();
       $.ajax({
         type: "post",
-        url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>" + _key,
+        url: "<?php echo base_url('absen/ajax_change_jadwal/') ?>",
         data: $("#" + _form).serialize(),
         success: function(response) {
           var response = JSON.parse(response);
@@ -510,7 +510,7 @@
         if (result.value) {
           $.ajax({
             type: "delete",
-            url: "<?php echo base_url('absen/ajax_delete/') ?>" + temp.id,
+            url: "<?php echo base_url('absen/ajax_delete?masuk=') ?>" + temp.absensi_masuk + "&pulang="+temp.absensi_pulang,
             dataType: "json",
             success: function(response) {
               if (response.status) {

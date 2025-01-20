@@ -3,7 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class AbsenModel extends CI_Model
 {
-  private $_table = 'absen_pegawai';
+  private $_table = 'absen_pegawai_raw';
   private $_tableView = '';
 
   public function rules()
@@ -148,52 +148,105 @@ class AbsenModel extends CI_Model
 
       $query = "
         SELECT t.* FROM (
-          SELECT 
-            ab.*, 
-            p.id as id_pegawai,
-            p.nrp,
-            (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(ab.absen_id AS VARCHAR) END) AS nama,
-            (CASE WHEN ab.masuk IS NULL THEN '-' WHEN TO_CHAR(ab.masuk, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.masuk, 'HH24:MI:SS') ELSE TO_CHAR(ab.masuk, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_masuk,
-            TO_CHAR(ROUND(EXTRACT(EPOCH FROM (ab.masuk::time - j.jadwal_masuk::time)) / 60), '999') || ' menit' AS cek_waktu_masuk,
-            (CASE WHEN ab.verifikasi_masuk = 1 THEN 'Finger' WHEN ab.verifikasi_masuk = 0 THEN 'Input' ELSE '-' END) AS verifikasi_m, 
-            (CASE WHEN ab.pulang IS NULL THEN '-' WHEN TO_CHAR(ab.pulang, 'YYYY-MM-DD') = TO_CHAR(ab.tanggal_absen, 'YYYY-MM-DD') THEN TO_CHAR(ab.pulang, 'HH24:MI:SS') ELSE TO_CHAR(ab.pulang, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_pulang,
-            TO_CHAR(ROUND(EXTRACT(EPOCH FROM (ab.pulang::time - j.jadwal_pulang::time)) / 60), '999') || ' menit' AS cek_waktu_pulang,
-            (CASE WHEN ab.verifikasi_pulang = 1 THEN 'Finger' WHEN ab.verifikasi_pulang = 0 THEN 'Input' ELSE '-' END) AS verifikasi_p,
-            EXTRACT(EPOCH FROM (ab.pulang - ab.masuk)) / 3600 AS jam_kerja,
-            (CASE WHEN TO_CHAR(ab.masuk, 'YYYY-mm-dd') != TO_CHAR(ab.pulang, 'YYYY-mm-dd') THEN 'Shift Malam' ELSE '-' END) AS jenis_shift,
-            p.unit_id,
-            p.sub_unit_id,
-            COALESCE(m_masuk.nama_mesin, ab.mesin_masuk) AS nama_mesin_masuk,
-            m_masuk.lokasi as lokasi_masuk,
-            COALESCE(m_pulang.nama_mesin, ab.mesin_pulang) AS nama_mesin_pulang,
-            m_pulang.lokasi as lokasi_pulang,
-            (CASE WHEN ab.masuk IS NULL THEN '-' WHEN ab.pulang IS NULL THEN '-' ELSE j.nama_jadwal END) AS jadwal_nama,
-            j.id as id_jadwal,
-            j.nama_jadwal,
-            j.jadwal_masuk,
-            j.jadwal_pulang,
-            u.kode_unit,
-            u.nama_unit,
-            su.kode_sub_unit,
-            su.nama_sub_unit
-          FROM absen_pegawai ab
-          LEFT JOIN pegawai p ON ab.absen_id = p.absen_pegawai_id
-          LEFT JOIN unit u ON u.id = p.unit_id
-          LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
-          LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = ab.mesin_masuk
-          LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = ab.mesin_pulang
-          LEFT JOIN jadwal j ON (
-              ab.jadwal_id = j.id
-              OR (
-                ab.jadwal_id IS NULL
-                AND ab.masuk::time >= (j.jadwal_masuk - interval '$masuk_cepat minute') 
-                AND ab.masuk::time <= (j.jadwal_masuk + interval '$masuk_terlambat minute')
-                AND ab.pulang::time >= (j.jadwal_pulang - interval '$pulang_cepat minute')
-                AND ab.pulang::time <= (j.jadwal_pulang + interval '$pulang_terlambat minute')
-                AND p.unit_id = j.unit_id
+          WITH attendance_data AS (
+                  SELECT
+                      p.id AS id_pegawai,
+                      p.nrp,
+                      (CASE WHEN p.absen_pegawai_id IS NOT NULL THEN p.nama_lengkap ELSE 'ID Absen : ' || CAST(abr.absen_id AS VARCHAR) END) AS nama, 
+                      p.unit_id,
+                      p.sub_unit_id,
+                      u.id as id_unit,
+                      u.kode_unit,
+                      u.nama_unit,
+                      su.id as id_sub_unit,
+                      su.kode_sub_unit,
+                      su.nama_sub_unit,
+                      abr.id as id_absensi,
+                      abr.absen_id,
+                      abr.status,
+                      abr.tanggal_absen,
+                      abr.ipmesin,
+                      abr.verified,
+                      abr.jadwal_id,
+                      abr.tanggal_absen::date AS tanggal
+                  FROM absen_pegawai_raw abr
+                  LEFT JOIN pegawai p ON abr.absen_id = p.absen_pegawai_id
+                  LEFT JOIN unit u ON u.id = p.unit_id
+                  LEFT JOIN sub_unit su ON su.id = p.sub_unit_id
+              ),
+              processed_attendance AS (
+                  SELECT 
+                      MAX(CASE WHEN ad.status = 0 THEN ad.id_absensi ELSE NULL END) AS absensi_masuk,
+                      MAX(CASE WHEN ad.status = 0 THEN ad.tanggal_absen ELSE NULL END) AS masuk,
+                      MAX(CASE WHEN ad.status = 0 THEN ad.verified ELSE NULL END) AS verifikasi_masuk,
+                      MAX(CASE WHEN ad.status = 0 THEN ad.ipmesin ELSE NULL END) AS mesin_masuk,
+                      MAX(CASE WHEN ad.status = 1 THEN ad.id_absensi ELSE NULL END) AS absensi_pulang,
+                      MAX(CASE WHEN ad.status = 1 THEN ad.tanggal_absen ELSE NULL END) AS pulang,
+                      MAX(CASE WHEN ad.status = 1 THEN ad.verified ELSE NULL END) AS verifikasi_pulang,
+                      MAX(CASE WHEN ad.status = 1 THEN ad.ipmesin ELSE NULL END) AS mesin_pulang,
+                      MAX(EXTRACT(EPOCH FROM (CASE WHEN ad.status = 1 THEN ad.tanggal_absen ELSE NULL END - CASE WHEN ad.status = 0 THEN ad.tanggal_absen ELSE NULL END)) / 3600) AS jam_kerja,
+                      ad.tanggal,
+                      ad.absen_id,
+                      ad.jadwal_id,
+                      ad.nama,
+                      ad.nrp,
+                      ad.id_pegawai,
+                      ad.id_unit,
+                      ad.id_sub_unit,
+                      ad.kode_unit,
+                      ad.nama_unit,
+                      ad.kode_sub_unit,
+                      ad.nama_sub_unit
+                  FROM attendance_data ad
+                  GROUP BY 
+                      ad.tanggal,
+                      ad.absen_id,
+                      ad.jadwal_id,
+                      ad.nama,
+                      ad.nrp,
+                      ad.id_pegawai,
+                      ad.id_unit,
+                      ad.id_sub_unit,
+                      ad.kode_unit,
+                      ad.nama_unit,
+                      ad.kode_sub_unit,
+                      ad.nama_sub_unit
               )
-          )
-          ORDER BY ab.tanggal_absen, p.nama_lengkap, ab.absen_id, masuk, pulang ASC
+              SELECT 
+                  pa.*,
+                  pa.nrp,
+                  pa.tanggal AS tanggal_absen,
+                  pa.id_unit as unit_id,
+                  pa.id_sub_unit as sub_unit_id,
+                  (CASE WHEN pa.verifikasi_masuk = 1 THEN 'Finger' WHEN pa.verifikasi_masuk = 0 THEN 'Input' ELSE '-' END) AS verifikasi_m, 
+                  (CASE WHEN pa.verifikasi_pulang = 1 THEN 'Finger' WHEN pa.verifikasi_pulang = 0 THEN 'Input' ELSE '-' END) AS verifikasi_p, 
+                  (CASE WHEN pa.masuk IS NULL THEN '-' WHEN TO_CHAR(pa.masuk, 'YYYY-MM-DD') = TO_CHAR(pa.tanggal, 'YYYY-MM-DD') THEN TO_CHAR(pa.masuk, 'HH24:MI:SS') ELSE TO_CHAR(pa.masuk, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_masuk,
+                  (CASE WHEN pa.pulang IS NULL THEN '-' WHEN TO_CHAR(pa.pulang, 'YYYY-MM-DD') = TO_CHAR(pa.tanggal, 'YYYY-MM-DD') THEN TO_CHAR(pa.pulang, 'HH24:MI:SS') ELSE TO_CHAR(pa.pulang, 'HH24:MI:SS (DD-MM-YYYY)') END) AS jam_pulang,
+                  EXTRACT(EPOCH FROM (pa.masuk::time - j.jadwal_masuk::time)) / 60 AS cek_waktu_masuk,
+                  EXTRACT(EPOCH FROM (pa.pulang::time - j.jadwal_pulang::time)) / 60 AS cek_waktu_pulang,
+                  EXTRACT(EPOCH FROM (pa.pulang - pa.masuk)) / 3600 AS jam_kerja,
+                  COALESCE(m_masuk.nama_mesin, pa.mesin_masuk) AS nama_mesin_masuk,
+                  m_masuk.lokasi as lokasi_masuk,
+                  COALESCE(m_pulang.nama_mesin, pa.mesin_pulang) AS nama_mesin_pulang,
+                  m_pulang.lokasi as lokasi_pulang,
+                  (CASE WHEN pa.masuk IS NULL THEN '-' WHEN pa.pulang IS NULL THEN '-' ELSE j.nama_jadwal END) AS jadwal_nama,
+                  j.id as id_jadwal,
+                  j.nama_jadwal,
+                  j.jadwal_masuk,
+                  j.jadwal_pulang
+              FROM processed_attendance pa
+              LEFT JOIN mesin_absen m_masuk ON m_masuk.ipadress = pa.mesin_masuk
+              LEFT JOIN mesin_absen m_pulang ON m_pulang.ipadress = pa.mesin_pulang
+              LEFT JOIN jadwal j ON 
+                pa.jadwal_id = j.id
+                OR (
+                  pa.jadwal_id IS NULL
+                  AND pa.masuk::time >= (j.jadwal_masuk - interval '$masuk_cepat minute') 
+                  AND pa.masuk::time <= (j.jadwal_masuk + interval '$masuk_terlambat minute')
+                  AND pa.pulang::time >= (j.jadwal_pulang - interval '$pulang_cepat minute')
+                  AND pa.pulang::time <= (j.jadwal_pulang + interval '$pulang_terlambat minute')
+                )
+              ORDER BY pa.tanggal, pa.nama ASC
         ) t
         WHERE 1=1
       ";
@@ -231,13 +284,11 @@ class AbsenModel extends CI_Model
     return $this->db->where($params)->get($this->_table)->row();
   }
 
-  public function update($id)
+  public function update($absensi_masuk, $absensi_pulang)
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
     try {
-      $absenId = $this->input->post('absen_id');
-      $date = $this->input->post('tanggal_absen');
       $masuk = $this->input->post('masuk');
       $verifikasi_masuk = $this->input->post('verifikasi_masuk');
       $mesin_masuk = $this->input->post('mesin_masuk');
@@ -266,16 +317,25 @@ class AbsenModel extends CI_Model
           $verifikasi_pulang = NULL;
       }
 
-      $this->masuk = $masuk;
-      $this->verifikasi_masuk = $verifikasi_masuk;
-      $this->mesin_masuk = $mesin_masuk;
-      $this->pulang = $pulang;
-      $this->verifikasi_pulang = $verifikasi_pulang;
-      $this->mesin_pulang = $mesin_pulang;
-      $this->jadwal_id = $jadwal_id;
-      $this->updated_by = $this->session->userdata('user')['id'];
-      $this->updated_date = date('Y-m-d H:i:s');
-      $this->db->update($this->_table, $this, array('id' => $id));
+      if(!empty($absensi_masuk)){
+        $this->tanggal_absen = $masuk;
+        $this->verified = $verifikasi_masuk;
+        $this->ipmesin = $mesin_masuk;
+        $this->jadwal_id = $jadwal_id;
+        $this->updated_by = $this->session->userdata('user')['id'];
+        $this->updated_date = date('Y-m-d H:i:s');
+        $this->db->update($this->_table, $this, array('id' => $absensi_masuk));
+      }
+
+      if(!empty($absensi_pulang)){
+        $this->tanggal_absen = $pulang;
+        $this->verified = $verifikasi_pulang;
+        $this->ipmesin = $mesin_pulang;
+        $this->jadwal_id = $jadwal_id;
+        $this->updated_by = $this->session->userdata('user')['id'];
+        $this->updated_date = date('Y-m-d H:i:s');
+        $this->db->update($this->_table, $this, array('id' => $absensi_pulang));
+      }
 
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
@@ -285,15 +345,24 @@ class AbsenModel extends CI_Model
     return $response;
   }
 
-  public function update_jadwal($id)
+  public function update_jadwal($absensi_masuk, $absensi_pulang)
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
     try {
-      $this->jadwal_id = $this->input->post('jadwal_id');
-      $this->updated_by = $this->session->userdata('user')['id'];
-      $this->updated_date = date('Y-m-d H:i:s');
-      $this->db->update($this->_table, $this, array('id' => $id));
+      if(!empty($absensi_masuk)){
+        $this->jadwal_id = $this->input->post('jadwal_id');
+        $this->updated_by = $this->session->userdata('user')['id'];
+        $this->updated_date = date('Y-m-d H:i:s');
+        $this->db->update($this->_table, $this, array('id' => $absensi_masuk));
+      }
+
+      if(!empty($absensi_pulang)){
+        $this->jadwal_id = $this->input->post('jadwal_id');
+        $this->updated_by = $this->session->userdata('user')['id'];
+        $this->updated_date = date('Y-m-d H:i:s');
+        $this->db->update($this->_table, $this, array('id' => $absensi_pulang));
+      }
 
       $response = array('status' => true, 'data' => 'Data has been saved.');
     } catch (\Throwable $th) {
@@ -303,12 +372,19 @@ class AbsenModel extends CI_Model
     return $response;
   }
 
-  public function delete($id)
+  public function delete($absensi_masuk, $absensi_pulang)
   {
     $response = array('status' => false, 'data' => 'No operation.');
 
     try {
-      $this->db->delete($this->_table, array('id' => $id));
+
+      if(!empty($absensi_masuk)){
+        $this->db->delete($this->_table, array('id' => $absensi_masuk));
+      }
+
+      if(!empty($absensi_pulang)){
+        $this->db->delete($this->_table, array('id' => $absensi_pulang));
+      }
 
       $response = array('status' => true, 'data' => 'Data has been deleted.');
     } catch (\Throwable $th) {
