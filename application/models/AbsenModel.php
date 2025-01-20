@@ -319,20 +319,16 @@ class AbsenModel extends CI_Model
   }
 
   public function fetchData($start_date, $end_date){
-    $status = 'false';
     $token = 'XVd17lwEgOHcvKgjJWGWbuufQdte7WhiPLerllmSWcvr8jKLz6vqqkQkl4DIQzvbOUAtsxvl1TDviMlS3bQEewLszTxxGeAuv8XS';
     $task = '/fetchData?';
-    $table = 'absen_pegawai';
 
     $apiUrl = base_url('api/'.$task . http_build_query([
         'token' => $token,
-        'host' => 'localhost',
+        'host' => $this->db->hostname,
         'port' => $this->db->port,
         'username' => $this->db->username,
         'password' => $this->db->password,
         'database' => $this->db->database,
-        'table' => $table,
-        'alldata' => $status,
         'start_date' => $start_date,
         'end_date' => $end_date,
     ]));
@@ -357,7 +353,6 @@ class AbsenModel extends CI_Model
           $response = array(
               'status' => true,
           );
-          $this->filter_data_absen($start_date, $end_date);
       } else {
           $response = array(
               'status' => false,

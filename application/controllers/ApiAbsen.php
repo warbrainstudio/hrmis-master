@@ -88,45 +88,69 @@ class ApiAbsen extends CI_Controller {
     public function fetch_data_cron()
     {
         $yesterday = date('Y-m-d', strtotime('-1 day'));
-        $query = $this->db->get('mesin_absen');
-        $mesins = $query->result();
-        foreach ($mesins as $mesin) {
-            $IP = $mesin->ipadress;
-            $key = $mesin->commkey;
+        $countData = $this->db->from('absen_pegawai_raw')
+                            ->where("tanggal_absen::DATE BETWEEN '$yesterday' AND '$yesterday'", NULL, FALSE)
+                            ->count_all_results();
 
-            if($this->checkIPMachine($IP)){
-                $data = $this->fetchDataFromMachine($IP, $key, $yesterday, $yesterday);
-
-                if (!is_array($data)) {
-                    $data = [];
-                }
-                $filldata = $data;
-                if(empty($filldata)){
-                    $response = array(
-                        'status' => false,
-                        'message' => "Data kosong atau salah"
-                    );
-                    $this->output
-                        ->set_content_type('application/json')
-                        ->set_output(json_encode($response));
-                }else{
-                    $dataCount['dataCount'] = count($filldata);
-                    $arrayDB = array(
-                        'table' => 'absen_pegawai_raw',
-                        'start_date' => $yesterday,
-                        'end_date' => $yesterday,
-                    );
-                    $this->import_Data($filldata, $arrayDB);
-                }
-            }else{
+        if($countData > 0){
+            $response = array(
+                'status' => false,
+                'message' => "Data absen sudah ada. Tarik data tanggal ".$yesterday." dibatalkan"
+            );
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($response));
+        }else{
+            $query = $this->db->get('mesin_absen');
+            $mesins = $query->result();
+            if (empty($mesins)) {
                 $response = array(
                     'status' => false,
-                    'message' => "Gagal gunakan API. Cek IP Address atau Mesin Finger"
+                    'message' => "Data absen sudah ada. Tarik data tanggal ".$yesterday." dibatalkan"
                 );
                 $this->output
                     ->set_content_type('application/json')
                     ->set_output(json_encode($response));
-            }  
+            } else {
+                foreach ($mesins as $mesin) {
+                    $IP = $mesin->ipadress;
+                    $key = $mesin->commkey;
+
+                    if($this->checkIPMachine($IP)){
+                        $data = $this->fetchDataFromMachine($IP, $key, $yesterday, $yesterday);
+
+                        if (!is_array($data)) {
+                            $data = [];
+                        }
+                        $filldata = $data;
+                        if(empty($filldata)){
+                            $response = array(
+                                'status' => false,
+                                'message' => "Data kosong atau salah"
+                            );
+                            $this->output
+                                ->set_content_type('application/json')
+                                ->set_output(json_encode($response));
+                        }else{
+                            $dataCount['dataCount'] = count($filldata);
+                            $arrayDB = array(
+                                'table' => 'absen_pegawai_raw',
+                                'start_date' => $yesterday,
+                                'end_date' => $yesterday,
+                            );
+                            $this->import_Data($filldata, $arrayDB);
+                        }
+                    }else{
+                        $response = array(
+                            'status' => false,
+                            'message' => "Gagal gunakan API. Cek IP Address atau Mesin Finger"
+                        );
+                        $this->output
+                            ->set_content_type('application/json')
+                            ->set_output(json_encode($response));
+                    }  
+                }
+            }
         }
     }
     
@@ -141,10 +165,8 @@ class ApiAbsen extends CI_Controller {
         $user = $this->input->get('username');
         $pwd = $this->input->get('password');
         $dbs = $this->input->get('database');
-        $table = $this->input->get('table');
         $IP = $this->input->get('ip');
         $Key = $this->input->get('key');
-        $isAll = $this->input->get('alldata') === 'true';
         $startDate = $this->input->get('start_date');
         $endDate = $this->input->get('end_date');
 
@@ -166,28 +188,50 @@ class ApiAbsen extends CI_Controller {
                 'user' => $user,
                 'password' => $pwd,
                 'database' => $dbs,
-                'table' => $table,
                 'ip' => $IP,
                 'key' => $Key,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
             );
 
+            $countData = $this->db->from('absen_pegawai_raw')
+                      ->where("tanggal_absen::DATE BETWEEN '$startDate' AND '$endDate'", NULL, FALSE)
+                      ->count_all_results();
+
             if(!empty($IP)){
 
-                $this->fetchingData($arrayInput);
+                if($countData > 0){
+                    $response = array(
+                        'status' => false,
+                        'message' => "Data absen sudah ada. Tarik data tanggal ".$startDate." s/d ".$endDate." dibatalkan"
+                    );
+                }else{
+                    $this->fetchingData($arrayInput);
+                }
 
             }else{
 
-                $query = $this->db->get('mesin_absen');
-                $mesins = $query->result();
-
-                foreach ($mesins as $mesin) {
-                    $arrayInput['ip'] = $mesin->ipadress;
-                    $arrayInput['key'] = $mesin->commkey;
-                    $this->fetchingData($arrayInput);  
+                if($countData > 0){
+                    $response = array(
+                        'status' => false,
+                        'message' => "Data absen sudah ada. Tarik data tanggal ".$startDate." s/d ".$endDate." dibatalkan"
+                    );
+                }else{
+                    $query = $this->db->get('mesin_absen');
+                    $mesins = $query->result();
+                    if (empty($mesins)) {
+                        $response = array(
+                            'status' => false,
+                            'message' => "Data mesin tidak ada. Tarik data dibatalkan"
+                        );
+                    } else {
+                        foreach ($mesins as $mesin) {
+                            $arrayInput['ip'] = $mesin->ipadress;
+                            $arrayInput['key'] = $mesin->commkey;
+                            $this->fetchingData($arrayInput);  
+                        }
+                    }
                 }
-
             }
 
         }
@@ -200,24 +244,12 @@ class ApiAbsen extends CI_Controller {
         $IP = $arrayInput['ip'];
         $firstDate = date('2023-07-03');
         $currentDate = date('Y-m-d');
-        $yesterday = date('Y-m-d', strtotime('-1 day'));
         $startDate = $arrayInput['start_date'];
         $endDate = $arrayInput['end_date'];
 
         if($this->checkIPMachine($IP)){
-            if (empty($startDate) || empty($endDate)) {
-                if($isAll){
-                    $startDate = $firstDate;
-                    $endDate = $currentDate;
-                    $data = $this->fetchDataFromMachine($IP, $arrayInput['Key'], $startDate, $endDate);
-                }else{
-                    $startDate = $yesterday;
-                    $endDate = $yesterday;
-                    $data = $this->fetchDataFromMachine($IP, $arrayInput['key'], $startDate, $endDate);
-                }
-            }else{
-                $data = $this->fetchDataFromMachine($IP, $arrayInput['key'], $startDate, $endDate);
-            }
+            
+            $data = $this->fetchDataFromMachine($IP, $arrayInput['key'], $startDate, $endDate);
 
             if (!is_array($data)) {
                 $data = [];
@@ -239,7 +271,6 @@ class ApiAbsen extends CI_Controller {
                     'user' => $arrayInput['user'],
                     'password' => $arrayInput['password'],
                     'database' => $arrayInput['database'],
-                    'table' => $arrayInput['table'],
                     'ip' => $IP,
                     'start_date' => $startDate,
                     'end_date' => $endDate,
@@ -403,9 +434,6 @@ XML;
     
             $response = [
                 'status' => true,
-                'data' => [
-                    'arrayDB' => $arrayDB
-                ]
             ];
 
         } else {
@@ -415,8 +443,11 @@ XML;
             ];
         }
 
+        $startDate = $arrayDB['start_date'];
+        $endDate = $arrayDB['end_date'];
+
         if($response['status'] === true){
-            $this->filter_data_absen($arrayDB['start_date'], $arrayDB['end_date']);
+            $this->filter_data_absen($startDate, $endDate);
         }
     
         $this->output
@@ -430,11 +461,10 @@ XML;
     $endDate = date('Y-m-d H:i:s', strtotime($end_date . ' 23:59:59'));
     $data = $this->db->select('*')
                             ->from('absen_pegawai_raw')
-                            ->where("tanggal_absen BETWEEN '$startDate' AND '$endDate'")
+                            ->where("DATE(tanggal_absen) BETWEEN '$startDate' AND '$endDate'")
                             ->get()
                             ->result_array();
     $filldata = $data;
-    $dataCount['dataCount'] = count($data);
 
     $dataCount = count($filldata);
 
